@@ -1,3 +1,4 @@
+
 name: Crear APK NutriFamilia
 
 on:
@@ -5,6 +6,7 @@ on:
   push:
     branches:
       - principal
+      - main
 
 jobs:
   build:
@@ -17,35 +19,24 @@ jobs:
       - name: Preparar proyecto Android
         run: |
           mkdir -p android_project
-          ZIP_FILE=$(find . -maxdepth 1 -type f -iname "*.zip" | head -n 1)
-
+          ZIP_FILE=$(find . -maxdepth 1 -type f -iname "*.zip" | head -1)
           if [ -z "$ZIP_FILE" ]; then
-            echo "ERROR: No se encontró el ZIP del proyecto Android."
+            echo "ERROR: No se encontro el archivo ZIP."
             exit 1
           fi
-
-          echo "Usando: $ZIP_FILE"
           unzip -q "$ZIP_FILE" -d android_project
-
-          GRADLEW=$(find android_project -type f -name "gradlew" | head -n 1)
-
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: No se encontró gradlew dentro del proyecto."
-            echo "Contenido del ZIP:"
-            find android_project -maxdepth 3 -type f | head -100
+          BUILD_FILE=$(find android_project -type f -name "build.gradle*" | head -1)
+          if [ -z "$BUILD_FILE" ]; then
+            echo "ERROR: No se encontro build.gradle."
             exit 1
           fi
-
-          PROJECT_DIR=$(dirname "$GRADLEW")
+          PROJECT_DIR=$(dirname "$BUILD_FILE")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-      - name: Dar permisos a Gradle
-        run: chmod +x "$PROJECT_DIR/gradlew"
 
       - name: Configurar Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Configurar Gradle
@@ -54,22 +45,13 @@ jobs:
       - name: Compilar APK
         run: |
           cd "$PROJECT_DIR"
-          ./gradlew assembleDebug --stacktrace
-
-      - name: Localizar APK
-        run: |
-          APK=$(find "$PROJECT_DIR" -type f -name "*.apk" | head -n 1)
-
-          if [ -z "$APK" ]; then
-            echo "ERROR: No se generó ningún APK."
-            exit 1
-          fi
-
-          echo "APK encontrado: $APK"
-          cp "$APK" "$GITHUB_WORKSPACE/NutriFamilia-V2.2-debug.apk"
+          gradle wrapper
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: NutriFamilia-V2.2-APK
-          path: NutriFamilia-V2.2-debug.apk
+          name: NutriFamilia-APK
+          path: |
+            ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
