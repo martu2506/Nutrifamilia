@@ -1,4 +1,5 @@
 
+            
 name: Crear APK NutriFamilia
 
 on:
@@ -45,6 +46,20 @@ jobs:
       - name: Configurar Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Corregir duplicados de Kotlin
+        run: |
+          mkdir -p ~/.gradle
+          cat << 'EOF' > ~/.gradle/init.gradle
+          allprojects {
+              configurations.all {
+                  resolutionStrategy.dependencySubstitution {
+                      substitute module("org.jetbrains.kotlin:kotlin-stdlib-jdk7") using module("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
+                      substitute module("org.jetbrains.kotlin:kotlin-stdlib-jdk8") using module("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
+                  }
+              }
+          }
+          EOF
+
       - name: Compilar APK
         run: |
           cd "$PROJECT_DIR"
@@ -57,4 +72,3 @@ jobs:
           path: |
             ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
             ${{ env.PROJECT_DIR }}/*/build/outputs/apk/debug/*.apk
-            
