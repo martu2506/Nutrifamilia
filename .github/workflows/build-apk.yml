@@ -25,12 +25,15 @@ jobs:
             exit 1
           fi
           unzip -q "$ZIP_FILE" -d android_project
-          BUILD_FILE=$(find android_project -type f -name "build.gradle*" | head -1)
-          if [ -z "$BUILD_FILE" ]; then
-            echo "ERROR: No se encontro build.gradle."
-            exit 1
+          
+          SETTINGS_FILE=$(find android_project -type f -name "settings.gradle*" | head -1)
+          if [ -n "$SETTINGS_FILE" ]; then
+            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          else
+            BUILD_FILE=$(find android_project -type f -name "build.gradle*" | head -1)
+            PROJECT_DIR=$(dirname "$BUILD_FILE")
           fi
-          PROJECT_DIR=$(dirname "$BUILD_FILE")
+          
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Configurar Java
@@ -45,9 +48,7 @@ jobs:
       - name: Compilar APK
         run: |
           cd "$PROJECT_DIR"
-          gradle wrapper
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Guardar APK
         uses: actions/upload-artifact@v4
@@ -55,3 +56,5 @@ jobs:
           name: NutriFamilia-APK
           path: |
             ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
+            ${{ env.PROJECT_DIR }}/*/build/outputs/apk/debug/*.apk
+            
