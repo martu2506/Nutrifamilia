@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176b5b"><meta name="description" content="Control familiar sencillo de peso y nutrición">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon.svg">
+<title>NutriFamilia</title>
+<style>
+:root{--bg:#f4f7f5;--card:#fff;--ink:#18312b;--muted:#6b7c76;--accent:#176b5b;--accent2:#e3f1ed;--danger:#b33a3a;--line:#dce6e2}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{border:0;border-radius:14px;padding:12px 14px;background:var(--accent);color:#fff;font-weight:700}button.secondary{background:var(--accent2);color:var(--accent)}button.danger{background:#fdeaea;color:var(--danger)}header{position:sticky;top:0;background:rgba(244,247,245,.96);backdrop-filter:blur(10px);z-index:5;padding:16px 16px 10px;border-bottom:1px solid var(--line)}header h1{margin:0;font-size:23px}header p{margin:3px 0 0;color:var(--muted);font-size:13px}.wrap{max-width:760px;margin:auto;padding:14px 14px 90px}.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;z-index:10}.tabs button{border-radius:0;background:#fff;color:var(--muted);flex:1;max-width:190px;padding:12px 5px;font-size:12px}.tabs button.active{color:var(--accent);font-weight:800}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.03)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f7faf9;border-radius:14px;padding:12px}.stat b{display:block;font-size:20px}.stat span{color:var(--muted);font-size:12px}.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.row>*{min-width:0}.pill{display:inline-block;background:var(--accent2);color:var(--accent);padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.bar{height:9px;background:#e8efec;border-radius:99px;overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;width:0}.meal{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.meal:last-child{border-bottom:0}.meal small{color:var(--muted)}.fab{position:fixed;right:18px;bottom:74px;border-radius:50%;width:56px;height:56px;font-size:28px;padding:0;box-shadow:0 8px 24px rgba(23,107,91,.25)}label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}h2{font-size:18px;margin:4px 0 12px}.muted{color:var(--muted)}.empty{text-align:center;padding:25px;color:var(--muted)}.hidden{display:none!important}.foodgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.food{padding:12px;background:#f7faf9;border-radius:13px;cursor:pointer}.food b{display:block}.small{font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.notice{background:#fff7df;border:1px solid #f0dfaa;padding:11px;border-radius:12px;font-size:12px;color:#735c17}.good{background:#eaf7f0;border-color:#c9ead7;color:#236644}.warn{background:#fff7df}.chart{display:flex;align-items:flex-end;gap:6px;height:150px;padding:10px 0}.barcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}.barcol i{display:block;width:100%;max-width:28px;border-radius:8px 8px 3px 3px;background:var(--accent);min-height:4px}.barcol small{font-size:10px;color:var(--muted);margin-top:5px}.big{font-size:28px;font-weight:800}.suggest{background:#f7faf9;border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0}.score{font-size:34px;font-weight:900}.score small{font-size:12px;font-weight:600;color:var(--muted)}.tag{display:inline-block;background:#eef5f2;border:1px solid var(--line);border-radius:999px;padding:4px 8px;margin:2px;font-size:11px}.calendarbar{display:flex;gap:8px;align-items:center;justify-content:space-between}.mini{font-size:11px;color:var(--muted)}
+</style></head>
+<body><div id="selftest-output"></div>
+<header><h1>🥗 NutriFamilia</h1><p>Control sencillo de peso, comidas y hábitos</p></header>
+<main class="wrap">
+<section id="home"></section><section id="journal" class="hidden"></section><section id="progress" class="hidden"></section><section id="weight" class="hidden"></section><section id="profile" class="hidden"></section>
+</main>
+<nav class="tabs"><button data-tab="home">🏠<br>Inicio</button><button data-tab="journal">🍽️<br>Comidas</button><button data-tab="progress">📊<br>Progreso</button><button data-tab="weight">⚖️<br>Peso</button><button data-tab="profile">👤<br>Perfil</button></nav>
+<button class="fab" id="addBtn">+</button>
+<div id="modal" class="hidden"></div>
+
+
+<script>
+const KEY='nutrifamilia_v5_5', VERSION='5.5.0';
+const NUTRITION_ENGINE={primary:'SARA 2 — Argentina (Ministerio de Salud, ENNyS 2, 2022)',secondary:'ArgenFoods / LATINFOODS / otras fuentes reconocidas cuando SARA 2 no cubra un dato',status:'Los valores heredados de esta versión son provisionales hasta validarlos alimento por alimento contra la fuente argentina. No se atribuyen falsamente a SARA 2.'};
+const NUTRIENT_FIELDS=['kcal','p','c','f','fib','sugar','sat','sodium','calcium','iron','magnesium','potassium','vitC','vitD','vitE','b12','folate','omega3','omega6','zinc','phosphorus','iodine','cholesterol'];
+const foods={
+// Valores aproximados por 100 g, salvo que el nombre indique una unidad/porción.
+'Huevo hervido':{kcal:78,p:6.3,c:.6,f:5.3,fib:0,sugar:0,sat:1.6,sodium:62,veg:0,fruit:0},
+'Huevo revuelto':{kcal:150,p:10,c:1.5,f:11,fib:0,sugar:.5,sat:3.3,sodium:140,veg:0,fruit:0},
+'Omelette de 2 huevos':{kcal:156,p:12.6,c:1.2,f:10.6,fib:0,sugar:0,sat:3.2,sodium:124,veg:0,fruit:0},
+'Claras de huevo (100 g)':{kcal:52,p:10.9,c:.7,f:.2,fib:0,sugar:.7,sat:0,sodium:166,veg:0,fruit:0},
+'Pechuga de pollo':{kcal:165,p:31,c:0,f:3.6,fib:0,sugar:0,sat:1,sodium:74,veg:0,fruit:0},
+'Pechuga de pollo a la plancha':{kcal:165,p:31,c:0,f:3.6,fib:0,sugar:0,sat:1,sodium:74,veg:0,fruit:0},
+'Pollo muslo sin piel':{kcal:179,p:25,c:0,f:8.2,fib:0,sugar:0,sat:2.3,sodium:82,veg:0,fruit:0},
+'Patamuslo sin piel':{kcal:185,p:24,c:0,f:9.5,fib:0,sugar:0,sat:2.7,sodium:85,veg:0,fruit:0},
+'Milanesa de pollo':{kcal:240,p:20,c:14,f:11,fib:.8,sugar:.5,sat:2.5,sodium:350,veg:0,fruit:0},
+'Milanesa de carne':{kcal:270,p:22,c:15,f:14,fib:.8,sugar:.5,sat:3.5,sodium:360,veg:0,fruit:0},
+'Carne vacuna magra':{kcal:220,p:27,c:0,f:12,fib:0,sugar:0,sat:4.5,sodium:55,veg:0,fruit:0},
+'Bife de carne magra':{kcal:220,p:27,c:0,f:12,fib:0,sugar:0,sat:4.5,sodium:55,veg:0,fruit:0},
+'Vacío magro':{kcal:250,p:27,c:0,f:15,fib:0,sugar:0,sat:5.5,sodium:55,veg:0,fruit:0},
+'Bondiola de cerdo':{kcal:280,p:27,c:0,f:18,fib:0,sugar:0,sat:6,sodium:60,veg:0,fruit:0},
+'Cerdo magro':{kcal:210,p:27,c:0,f:10,fib:0,sugar:0,sat:3.5,sodium:55,veg:0,fruit:0},
+'Hamburguesa casera de carne':{kcal:250,p:25,c:2,f:16,fib:.2,sugar:.3,sat:6,sodium:70,veg:0,fruit:0},
+'Carne picada magra':{kcal:215,p:26,c:0,f:12,fib:0,sugar:0,sat:4.5,sodium:60,veg:0,fruit:0},
+'Atún al natural':{kcal:116,p:26,c:0,f:1,fib:0,sugar:0,sat:.2,sodium:300,veg:0,fruit:0},
+'Atún en aceite escurrido':{kcal:190,p:27,c:0,f:9,fib:0,sugar:0,sat:2,sodium:300,veg:0,fruit:0},
+'Sardinas en aceite':{kcal:230,p:25,c:0,f:14,fib:0,sugar:0,sat:3.5,sodium:400,veg:0,fruit:0},
+'Merluza':{kcal:90,p:18,c:0,f:1.5,fib:0,sugar:0,sat:.3,sodium:70,veg:0,fruit:0},
+'Salmón':{kcal:208,p:20,c:0,f:13,fib:0,sugar:0,sat:3,sodium:59,veg:0,fruit:0},
+'Queso fresco':{kcal:250,p:18,c:3,f:18,fib:0,sugar:2,sat:11,sodium:400,veg:0,fruit:0},
+'Mozzarella':{kcal:280,p:28,c:3,f:17,fib:0,sugar:1,sat:11,sodium:500,veg:0,fruit:0},
+'Ricota':{kcal:174,p:11,c:3,f:13,fib:0,sugar:3,sat:8,sodium:84,veg:0,fruit:0},
+'Yogur natural':{kcal:61,p:3.5,c:4.7,f:3.3,fib:0,sugar:4.7,sat:2.1,sodium:46,veg:0,fruit:0},
+'Leche descremada':{kcal:35,p:3.4,c:5,f:.2,fib:0,sugar:5,sat:.1,sodium:44,veg:0,fruit:0},
+'Arroz cocido':{kcal:130,p:2.7,c:28,f:.3,fib:.4,sugar:0,sat:.1,sodium:1,veg:0,fruit:0},
+'Arroz integral cocido':{kcal:123,p:2.7,c:25.6,f:1,fib:1.6,sugar:.2,sat:.2,sodium:1,veg:0,fruit:0},
+'Pasta cocida':{kcal:158,p:5.8,c:31,f:.9,fib:1.8,sugar:1.1,sat:.2,sodium:1,veg:0,fruit:0},
+'Avena cocida':{kcal:71,p:2.5,c:12,f:1.5,fib:1.7,sugar:.3,sat:.3,sodium:49,veg:0,fruit:0},
+'Avena en hojuelas':{kcal:389,p:16.9,c:66.3,f:6.9,fib:10.6,sugar:.9,sat:1.2,sodium:2,veg:0,fruit:0},
+'Pan integral':{kcal:247,p:13,c:41,f:4.2,fib:7,sugar:5,sat:.8,sodium:400,veg:0,fruit:0},
+'Pan blanco':{kcal:266,p:9,c:49,f:3.2,fib:2.7,sugar:5,sat:.7,sodium:490,veg:0,fruit:0},
+'Pan de harina de almendras':{kcal:90,p:4,c:3,f:7,fib:1.5,sugar:.5,sat:.6,sodium:100,veg:0,fruit:0},
+'Tortilla de maíz':{kcal:218,p:5.7,c:45.9,f:2.9,fib:6.3,sugar:.6,sat:.5,sodium:45,veg:0,fruit:0},
+'Papa hervida':{kcal:87,p:1.9,c:20.1,f:.1,fib:1.8,sugar:.9,sat:0,sodium:4,veg:100,fruit:0},
+'Batata hervida':{kcal:76,p:1.4,c:17.7,f:.1,fib:2.5,sugar:5.4,sat:0,sodium:27,veg:100,fruit:0},
+'Lentejas cocidas':{kcal:116,p:9,c:20.1,f:.4,fib:7.9,sugar:1.8,sat:.1,sodium:2,veg:100,fruit:0},
+'Garbanzos cocidos':{kcal:164,p:8.9,c:27.4,f:2.6,fib:7.6,sugar:4.8,sat:.3,sodium:7,veg:100,fruit:0},
+'Zapallito':{kcal:17,p:1.2,c:3.1,f:.3,fib:1.1,sugar:2.5,sat:.05,sodium:2,veg:100,fruit:0},
+'Calabaza':{kcal:26,p:1,c:6.5,f:.1,fib:.5,sugar:2.8,sat:0,sodium:1,veg:100,fruit:0},
+'Brócoli':{kcal:34,p:2.8,c:6.6,f:.4,fib:2.6,sugar:1.7,sat:.1,sodium:33,veg:100,fruit:0},
+'Coliflor':{kcal:25,p:1.9,c:5,f:.3,fib:2,sugar:1.9,sat:.1,sodium:30,veg:100,fruit:0},
+'Lechuga':{kcal:15,p:1.4,c:2.9,f:.2,fib:1.3,sugar:.8,sat:0,sodium:28,veg:100,fruit:0},
+'Tomate':{kcal:18,p:.9,c:3.9,f:.2,fib:1.2,sugar:2.6,sat:.03,sodium:5,veg:100,fruit:0},
+'Rúcula':{kcal:25,p:2.6,c:3.7,f:.7,fib:1.6,sugar:2,sat:.1,sodium:27,veg:100,fruit:0},
+'Cebolla':{kcal:40,p:1.1,c:9.3,f:.1,fib:1.7,sugar:4.2,sat:.04,sodium:4,veg:100,fruit:0},
+'Morrón':{kcal:31,p:1,c:6,f:.3,fib:2.1,sugar:4.2,sat:.05,sodium:4,veg:100,fruit:0},
+'Zanahoria':{kcal:41,p:.9,c:9.6,f:.2,fib:2.8,sugar:4.7,sat:0,sodium:69,veg:100,fruit:0},
+'Pepino':{kcal:15,p:.7,c:3.6,f:.1,fib:.5,sugar:1.7,sat:0,sodium:2,veg:100,fruit:0},
+'Verdeo':{kcal:32,p:1.8,c:7.3,f:.2,fib:2.6,sugar:2.3,sat:0,sodium:16,veg:100,fruit:0},
+'Champiñones':{kcal:22,p:3.1,c:3.3,f:.3,fib:1,sugar:2,sat:.05,sodium:5,veg:100,fruit:0},
+'Palta':{kcal:160,p:2,c:8.5,f:14.7,fib:6.7,sugar:.7,sat:2.1,sodium:7,veg:0,fruit:100},
+'Banana':{kcal:89,p:1.1,c:23,f:.3,fib:2.6,sugar:12.2,sat:.1,sodium:1,veg:0,fruit:100},
+'Manzana':{kcal:52,p:.3,c:14,f:.2,fib:2.4,sugar:10.4,sat:0,sodium:1,veg:0,fruit:100},
+'Pera':{kcal:57,p:.4,c:15.2,f:.1,fib:3.1,sugar:9.8,sat:0,sodium:1,veg:0,fruit:100},
+'Naranja':{kcal:47,p:.9,c:11.8,f:.1,fib:2.4,sugar:9.4,sat:0,sodium:0,veg:0,fruit:100},
+'Kiwi':{kcal:61,p:1.1,c:14.7,f:.5,fib:3,sugar:9,sat:.03,sodium:3,veg:0,fruit:100},
+'Frutilla':{kcal:32,p:.7,c:7.7,f:.3,fib:2,sugar:4.9,sat:0,sodium:1,veg:0,fruit:100},
+'Arándanos':{kcal:57,p:.7,c:14.5,f:.3,fib:2.4,sugar:10,sat:0,sodium:1,veg:0,fruit:100},
+'Limón':{kcal:29,p:1.1,c:9.3,f:.3,fib:2.8,sugar:2.5,sat:0,sodium:2,veg:0,fruit:100},
+'Maní':{kcal:567,p:25.8,c:16.1,f:49.2,fib:8.5,sugar:4,sat:6.8,sodium:18,veg:0,fruit:0},
+'Almendras':{kcal:579,p:21.2,c:21.6,f:49.9,fib:12.5,sugar:4.4,sat:3.8,sodium:1,veg:0,fruit:0},
+'Nueces':{kcal:654,p:15.2,c:13.7,f:65.2,fib:6.7,sugar:2.6,sat:6.1,sodium:2,veg:0,fruit:0},
+'Aceite de oliva':{kcal:884,p:0,c:0,f:100,fib:0,sugar:0,sat:14,sodium:0,veg:0,fruit:0},
+'Aceite (1 cucharadita)':{kcal:45,p:0,c:0,f:5,fib:0,sugar:0,sat:.5,sodium:0,veg:0,fruit:0},
+'Manteca':{kcal:717,p:.9,c:.1,f:81.1,fib:0,sugar:0,sat:51.4,sodium:11,veg:0,fruit:0},
+'Mayonesa':{kcal:680,p:1,c:0.6,f:75,fib:0,sugar:.6,sat:11,sodium:635,veg:0,fruit:0},
+'Empanada de carne al horno':{kcal:260,p:11,c:27,f:12,fib:1.5,sugar:2,sat:4,sodium:450,veg:0,fruit:0},
+'Empanada de pollo al horno':{kcal:240,p:12,c:25,f:10,fib:1.2,sugar:2,sat:3,sodium:430,veg:0,fruit:0},
+'Pizza muzzarella':{kcal:260,p:11,c:29,f:11,fib:1.5,sugar:3,sat:5,sodium:600,veg:0,fruit:0},
+'Fainá':{kcal:190,p:6,c:22,f:9,fib:3,sugar:1,sat:1.5,sodium:250,veg:0,fruit:0},
+'Alfajor':{kcal:450,p:6,c:55,f:23,fib:2,sugar:35,sat:10,sodium:180,veg:0,fruit:0},
+'Factura':{kcal:300,p:5,c:42,f:13,fib:1,sugar:16,sat:5,sodium:250,veg:0,fruit:0},
+'Chocolate negro 70%':{kcal:598,p:7.8,c:45.9,f:42.6,fib:10.9,sugar:24,sat:24,sodium:20,veg:0,fruit:0},
+
+// Comidas preparadas: valores aproximados por 1 porción.
+'Ensalada de pollo, rúcula, tomate y huevo (1 porción)':{kcal:390,p:43,c:9,f:20,fib:3,sugar:4,sat:5,sodium:260,veg:100,fruit:0},
+'Pollo a la plancha con ensalada (1 porción)':{kcal:360,p:48,c:10,f:14,fib:3,sugar:5,sat:3,sodium:180,veg:100,fruit:0},
+'Pollo con zapallito, cebolla y morrón (1 porción)':{kcal:410,p:48,c:18,f:16,fib:5,sugar:8,sat:3,sodium:190,veg:100,fruit:0},
+'Pollo con verduras y arroz (1 porción)':{kcal:560,p:48,c:48,f:20,fib:5,sugar:6,sat:4,sodium:220,veg:100,fruit:0},
+'Pasta con pollo y verduras (1 porción)':{kcal:600,p:45,c:68,f:16,fib:6,sugar:7,sat:3,sodium:260,veg:100,fruit:0},
+'Carne vacuna con ensalada (1 porción)':{kcal:500,p:50,c:12,f:28,fib:4,sugar:6,sat:8,sodium:170,veg:100,fruit:0},
+'Bife con verduras salteadas (1 porción)':{kcal:520,p:48,c:18,f:29,fib:5,sugar:8,sat:8,sodium:220,veg:100,fruit:0},
+'Vacío con ensalada (1 porción)':{kcal:590,p:50,c:12,f:38,fib:4,sugar:6,sat:11,sodium:190,veg:100,fruit:0},
+'Bondiola con ensalada (1 porción)':{kcal:610,p:48,c:12,f:41,fib:4,sugar:6,sat:14,sodium:230,veg:100,fruit:0},
+'Milanesa de pollo con ensalada (1 porción)':{kcal:430,p:34,c:22,f:23,fib:4,sugar:5,sat:5,sodium:430,veg:100,fruit:0},
+'Milanesa de carne con ensalada (1 porción)':{kcal:470,p:34,c:23,f:28,fib:4,sugar:5,sat:7,sodium:450,veg:100,fruit:0},
+'Arroz con carne, huevo y ensalada (1 porción)':{kcal:650,p:46,c:58,f:27,fib:5,sugar:5,sat:7,sodium:250,veg:100,fruit:0},
+'Ensalada de atún, huevo y palta (1 porción)':{kcal:420,p:37,c:12,f:26,fib:6,sugar:3,sat:5,sodium:430,veg:100,fruit:0},
+'Ensalada de sardinas y verduras (1 porción)':{kcal:390,p:31,c:12,f:25,fib:5,sugar:5,sat:6,sodium:500,veg:100,fruit:0},
+'Omelette de 2 huevos con queso y tomate (1 porción)':{kcal:300,p:21,c:7,f:21,fib:1,sugar:3,sat:9,sodium:400,veg:100,fruit:0},
+'Huevos revueltos con palta y tomate (1 porción)':{kcal:350,p:15,c:12,f:28,fib:6,sugar:4,sat:6,sodium:180,veg:100,fruit:0},
+'Hamburguesa casera con ensalada (1 porción)':{kcal:450,p:32,c:15,f:29,fib:4,sugar:5,sat:9,sodium:240,veg:100,fruit:0},
+'2 empanadas de carne al horno':{kcal:520,p:22,c:54,f:24,fib:3,sugar:4,sat:8,sodium:900,veg:0,fruit:0},
+'2 empanadas de pollo al horno':{kcal:480,p:24,c:50,f:20,fib:2.5,sugar:4,sat:6,sodium:860,veg:0,fruit:0},
+'Yogur con frutillas y almendras (1 porción)':{kcal:240,p:10,c:18,f:15,fib:4,sugar:12,sat:4,sodium:70,veg:0,fruit:100},
+'Pan de almendras con jamón y huevo (1 porción)':{kcal:330,p:25,c:7,f:23,fib:2,sugar:1,sat:6,sodium:650,veg:0,fruit:0},
+'Ensalada completa de pollo y palta (1 porción)':{kcal:470,p:45,c:14,f:28,fib:8,sugar:5,sat:6,sodium:250,veg:100,fruit:100}
+};
+
+
+// Micronutrientes de referencia aproximados. Se usan para seguimiento cotidiano; no sustituyen una base clínica ni análisis de laboratorio.
+const microDB={
+'Huevo hervido':{calcium:50,iron:1.2,magnesium:10,potassium:126,vitC:0,vitD:2,vitE:1,b12:1.1,folate:44,omega3:0.1,zinc:1.0,phosphorus:172,iodine:24,cholesterol:372},
+'Pechuga de pollo':{calcium:15,iron:1,magnesium:29,potassium:256,vitC:0,vitD:0.1,vitE:0.3,b12:0.3,folate:4,omega3:0.08,zinc:1.0,phosphorus:220,iodine:7,cholesterol:85},
+'Carne vacuna magra':{calcium:12,iron:2.4,magnesium:20,potassium:320,vitC:0,vitD:0.1,vitE:0.2,b12:2.5,folate:8,omega3:0.1,zinc:5.5,phosphorus:190,iodine:6,cholesterol:75},
+'Atún al natural':{calcium:10,iron:1.3,magnesium:30,potassium:237,vitC:0,vitD:2.2,vitE:0.7,b12:10.9,folate:2,omega3:0.17,zinc:.7,phosphorus:200,iodine:30,cholesterol:47},
+'Sardinas en aceite':{calcium:380,iron:2.9,magnesium:39,potassium:397,vitC:0,vitD:4.8,vitE:2.3,b12:8.9,folate:7,omega3:1.5,zinc:1.3,phosphorus:490,iodine:25,cholesterol:142},
+'Salmón':{calcium:12,iron:.4,magnesium:29,potassium:363,vitC:0,vitD:11,vitE:3.5,b12:3.2,folate:25,omega3:2.3,zinc:.6,phosphorus:252,iodine:25,cholesterol:55},
+'Merluza':{calcium:10,iron:.4,magnesium:23,potassium:340,vitC:0,vitD:1.5,vitE:.4,b12:1.8,folate:12,omega3:.2,zinc:.5,phosphorus:190,iodine:50,cholesterol:60},
+'Yogur natural':{calcium:121,iron:.05,magnesium:12,potassium:155,vitC:.5,vitD:.1,vitE:.05,b12:.5,folate:7,omega3:.05,zinc:.6,phosphorus:95,iodine:35,cholesterol:13},
+'Leche descremada':{calcium:125,iron:0,magnesium:11,potassium:150,vitC:0,vitD:1,vitE:0,b12:.45,folate:5,omega3:.02,zinc:.4,phosphorus:95,iodine:40,cholesterol:2},
+'Brócoli':{calcium:47,iron:.7,magnesium:21,potassium:316,vitC:89,vitD:0,vitE:.8,b12:0,folate:63,omega3:.1,zinc:.4,phosphorus:66,iodine:15,cholesterol:0},
+'Coliflor':{calcium:22,iron:.4,magnesium:15,potassium:299,vitC:48,vitD:0,vitE:.1,b12:0,folate:57,omega3:.02,zinc:.3,phosphorus:44,iodine:15,cholesterol:0},
+'Tomate':{calcium:10,iron:.3,magnesium:11,potassium:237,vitC:14,vitD:0,vitE:.5,b12:0,folate:15,omega3:.01,zinc:.2,phosphorus:24,iodine:2,cholesterol:0},
+'Rúcula':{calcium:160,iron:1.5,magnesium:47,potassium:369,vitC:15,vitD:0,vitE:.4,b12:0,folate:97,omega3:.17,zinc:.5,phosphorus:52,iodine:15,cholesterol:0},
+'Lechuga':{calcium:36,iron:.9,magnesium:13,potassium:194,vitC:9,vitD:0,vitE:.2,b12:0,folate:38,omega3:.06,zinc:.2,phosphorus:29,iodine:5,cholesterol:0},
+'Cebolla':{calcium:23,iron:.2,magnesium:10,potassium:146,vitC:7.4,vitD:0,vitE:.02,b12:0,folate:19,omega3:.01,zinc:.2,phosphorus:29,iodine:2,cholesterol:0},
+'Morrón':{calcium:7,iron:.4,magnesium:12,potassium:211,vitC:128,vitD:0,vitE:1.6,b12:0,folate:46,omega3:.03,zinc:.3,phosphorus:26,iodine:2,cholesterol:0},
+'Zanahoria':{calcium:33,iron:.3,magnesium:12,potassium:320,vitC:5.9,vitD:0,vitE:.7,b12:0,folate:19,omega3:.02,zinc:.2,phosphorus:35,iodine:0,cholesterol:0},
+'Palta':{calcium:12,iron:.6,magnesium:29,potassium:485,vitC:10,vitD:0,vitE:2.1,b12:0,folate:81,omega3:.11,zinc:.6,phosphorus:52,iodine:0,cholesterol:0},
+'Banana':{calcium:5,iron:.3,magnesium:27,potassium:358,vitC:8.7,vitD:0,vitE:.1,b12:0,folate:20,omega3:.03,zinc:.15,phosphorus:22,iodine:0,cholesterol:0},
+'Manzana':{calcium:6,iron:.1,magnesium:5,potassium:107,vitC:4.6,vitD:0,vitE:.18,b12:0,folate:3,omega3:.01,zinc:.04,phosphorus:11,iodine:0,cholesterol:0},
+'Frutilla':{calcium:16,iron:.4,magnesium:13,potassium:153,vitC:58.8,vitD:0,vitE:.3,b12:0,folate:24,omega3:.02,zinc:.14,phosphorus:24,iodine:0,cholesterol:0},
+'Arándanos':{calcium:6,iron:.3,magnesium:6,potassium:77,vitC:9.7,vitD:0,vitE:.57,b12:0,folate:6,omega3:.06,zinc:.16,phosphorus:12,iodine:0,cholesterol:0},
+'Lentejas cocidas':{calcium:19,iron:3.3,magnesium:36,potassium:369,vitC:1.5,vitD:0,vitE:.1,b12:0,folate:181,omega3:.04,zinc:1.3,phosphorus:180,iodine:3,cholesterol:0},
+'Garbanzos cocidos':{calcium:49,iron:2.9,magnesium:48,potassium:291,vitC:1.3,vitD:0,vitE:.35,b12:0,folate:172,omega3:.05,zinc:1.5,phosphorus:168,iodine:3,cholesterol:0},
+'Avena en hojuelas':{calcium:54,iron:4.7,magnesium:177,potassium:429,vitC:0,vitD:0,vitE:.42,b12:0,folate:56,omega3:.11,zinc:3.97,phosphorus:523,iodine:0,cholesterol:0},
+'Arroz integral cocido':{calcium:10,iron:.4,magnesium:44,potassium:86,vitC:0,vitD:0,vitE:.2,b12:0,folate:9,omega3:.02,zinc:1.1,phosphorus:83,iodine:0,cholesterol:0},
+'Papa hervida':{calcium:5,iron:.3,magnesium:22,potassium:379,vitC:13,vitD:0,vitE:.1,b12:0,folate:10,omega3:.01,zinc:.3,phosphorus:44,iodine:0,cholesterol:0},
+'Batata hervida':{calcium:27,iron:.7,magnesium:18,potassium:230,vitC:12.8,vitD:0,vitE:.7,b12:0,folate:6,omega3:.01,zinc:.3,phosphorus:32,iodine:0,cholesterol:0},
+'Maní':{calcium:92,iron:4.6,magnesium:168,potassium:705,vitC:0,vitD:0,vitE:8.3,b12:0,folate:240,omega3:0,omega6:15.6,zinc:3.3,phosphorus:376,iodine:0,cholesterol:0},
+'Almendras':{calcium:269,iron:3.7,magnesium:270,potassium:733,vitC:0,vitD:0,vitE:25.6,b12:0,folate:44,omega3:.003,omega6:12.1,zinc:3.1,phosphorus:481,iodine:0,cholesterol:0},
+'Nueces':{calcium:98,iron:2.9,magnesium:158,potassium:441,vitC:1.3,vitD:0,vitE:.7,b12:0,folate:98,omega3:9.1,omega6:38.1,zinc:3.1,phosphorus:346,iodine:0,cholesterol:0},
+'Aceite de oliva':{calcium:1,iron:.56,magnesium:0,potassium:1,vitC:0,vitD:0,vitE:14.4,b12:0,folate:0,omega3:.76,omega6:9.8,zinc:0,phosphorus:0,iodine:0,cholesterol:0},
+'Chocolate negro 70%':{calcium:73,iron:11.9,magnesium:228,potassium:715,vitC:0,vitD:0,vitE:0.6,b12:0,folate:25,omega3:.03,omega6:1.1,zinc:3.3,phosphorus:308,iodine:0,cholesterol:0}
+};
+
+const EVIDENCE={version:'5.5',primary:[{name:'SARA 2',country:'Argentina',year:2022,url:'https://bancos.salud.gob.ar/sites/default/files/2022-09/tabla-composicion-quimica-alimentos-argentina_ennys2.pdf'},{name:'ArgenFoods',country:'Argentina',year:'actualización publicada 2024',url:'https://www.argenfood.unlu.edu.ar/'}],guidelines:[{name:'GAPA',country:'Argentina',url:'https://www.argentina.gob.ar/salud/alimentacion-saludable/grafico'},{name:'OMS dieta saludable',year:2026,url:'https://www.who.int/es/news-room/fact-sheets/detail/healthy-diet'}]};
+const NUTRIENT_RULES={fiber_g_day:{value:25,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},fruit_veg_g_day:{value:400,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},sodium_mg_day:{value:2000,unit:'mg',scope:'adult general limit',source:'OMS 2026'},free_sugars_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},sat_fat_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},trans_fat_pct_kcal:{value:1,unit:'%',scope:'general upper limit',source:'OMS 2026'}};
+
+const OBJECTIVES={
+ lose_fat:{label:'⚖️ Perder grasa/peso',kind:'body',priority:'energy_deficit'},
+ gain_muscle:{label:'💪 Ganar masa muscular',kind:'body',priority:'resistance_training'},
+ recomp:{label:'🔄 Recomposición corporal',kind:'combined',priority:'protein+training'},
+ maintain:{label:'🧘 Mantener peso',kind:'body',priority:'energy_balance'},
+ glycemic:{label:'🩸 Priorizar control glucémico',kind:'metabolic',priority:'carb_quality'},
+ cardiovascular:{label:'❤️ Priorizar salud cardiovascular',kind:'health',priority:'fat_quality+sodium'},
+ food_quality:{label:'🥗 Mejorar calidad de alimentación',kind:'diet',priority:'diet_quality'},
+ longevity:{label:'🧬 Patrón saludable a largo plazo',kind:'diet',priority:'diet_quality+activity'}
+};
+const OBJECTIVE_COMPAT={
+ lose_fat:new Set(['gain_muscle','recomp','glycemic','cardiovascular','food_quality','longevity']),
+ gain_muscle:new Set(['lose_fat','recomp','maintain','food_quality','longevity']),
+ recomp:new Set(['glycemic','cardiovascular','food_quality','longevity']),
+ maintain:new Set(['gain_muscle','food_quality','longevity']),
+ glycemic:new Set(['lose_fat','recomp','cardiovascular','food_quality','longevity']),
+ cardiovascular:new Set(['lose_fat','recomp','glycemic','food_quality','longevity']),
+ food_quality:new Set(['lose_fat','gain_muscle','recomp','maintain','glycemic','cardiovascular','longevity']),
+ longevity:new Set(['lose_fat','gain_muscle','recomp','maintain','glycemic','cardiovascular','food_quality'])
+};
+function objectiveLabel(id){return OBJECTIVES[id]?.label||id}
+function getObjectives(p){let ids=Array.isArray(p.objectives)&&p.objectives.length?p.objectives:[p.goalType==='Bajar peso'?'lose_fat':'food_quality'];return ids.filter(id=>OBJECTIVES[id])}
+function compatibleObjectives(ids){const out=[];for(const a of ids){for(const b of ids){if(a===b)continue;if(!OBJECTIVE_COMPAT[a]?.has(b))out.push([a,b]);}}return out.filter((x,i)=>out.findIndex(y=>y[0]===x[1]&&y[1]===x[0])<i)}
+function objectiveProfile(p){const ids=getObjectives(p),conflicts=compatibleObjectives(ids);const has=id=>ids.includes(id);let mode='general';if(has('recomp')||(has('lose_fat')&&has('gain_muscle')))mode='recomp';else if(has('gain_muscle'))mode='muscle';else if(has('lose_fat'))mode='fat_loss';else if(has('maintain'))mode='maintenance';return {ids,conflicts,mode,labels:ids.map(objectiveLabel)}}
+function objectiveSummary(p){const op=objectiveProfile(p);if(op.conflicts.length)return 'Hay objetivos que compiten entre sí; revisá prioridades.';if(op.mode==='recomp')return 'Modo recomposición: perder grasa mientras se preserva/puede ganar masa muscular, con fuerza y proteína adecuadas.';if(op.mode==='muscle')return 'Modo masa muscular: prioriza entrenamiento de fuerza, proteína suficiente y energía adecuada.';if(op.mode==='fat_loss')return 'Modo pérdida de grasa: prioriza déficit moderado, proteína suficiente, fibra y adherencia.';if(op.mode==='maintenance')return 'Modo mantenimiento: prioriza estabilidad de peso, calidad dietaria y actividad.';return 'Modo salud y calidad: prioriza patrón alimentario, fibra, vegetales y moderación de sodio, azúcares y grasas saturadas.'}
+
+const foodMeta={
+ 'Pechuga de pollo':'whole','Pollo muslo sin piel':'whole','Patamuslo sin piel':'whole','Carne vacuna magra':'whole','Bife de carne magra':'whole','Vacío magro':'whole','Bondiola de cerdo':'whole','Cerdo magro':'whole','Atún al natural':'whole','Sardinas en aceite':'whole','Merluza':'whole','Salmón':'whole','Huevo hervido':'whole','Huevo revuelto':'whole','Brócoli':'plant','Coliflor':'plant','Lechuga':'plant','Tomate':'plant','Rúcula':'plant','Cebolla':'plant','Morrón':'plant','Zanahoria':'plant','Pepino':'plant','Verdeo':'plant','Champiñones':'plant','Palta':'plant','Banana':'plant','Manzana':'plant','Pera':'plant','Naranja':'plant','Kiwi':'plant','Frutilla':'plant','Arándanos':'plant','Limón':'plant','Lentejas cocidas':'plant','Garbanzos cocidos':'plant','Avena en hojuelas':'plant','Pan blanco':'ultra','Factura':'ultra','Alfajor':'ultra','Pizza muzzarella':'ultra','Mayonesa':'ultra','Milanesa de pollo':'processed','Milanesa de carne':'processed'
+};
+function foodWithMeta(name,f){let x={...f};let m=foodMeta[name];if(m==='plant'){x.plant=true;x.plantKey=name.toLowerCase()}if(m==='ultra'){x.processing='ultra'}else if(m==='processed'){x.processing='processed'}else if(m==='whole'||m==='plant'){x.processing='whole'}x.source=x.source||'Base local provisoria';x.sourceStatus=x.sourceStatus||'pendiente de validación SARA 2';x.basis=x.basis||'por 100 g de porción comestible';x.evidence=x.evidence||{source:x.source,status:x.sourceStatus};return x}
+
+let db=loadDB();
+
+function localDate(d=new Date()){let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function loadDB(){
+ let cur=JSON.parse(localStorage.getItem(KEY)||'null');
+ if(cur) return normalize(cur);
+ let old=null;for(const k of ['nutrifamilia_v5_2','nutrifamilia_v5','nutrifamilia_v4','nutrifamilia_v3','nutrifamilia_v2_1','nutrifamilia_v2','nutrifamilia_v1']){old=JSON.parse(localStorage.getItem(k)||'null');if(old)break}
+ if(old){let x=normalize(old);x.version=VERSION;saveMigrationSnapshot(old);return x}
+ return normalize({version:VERSION,profiles:[],active:null,entries:[],weights:[],waterByDate:{},stepsByDate:{},recipes:[],customFoods:[]});
+}
+
+function ensureFamilyModel(x){
+  x.familyVersion=2;
+  x.familyName=x.familyName||'Mi familia';
+  x.profiles=Array.isArray(x.profiles)?x.profiles:[];
+  x.profiles.forEach((p,i)=>{
+    p.id=String(p.id||('person_'+Date.now()+'_'+i));
+    p.name=String(p.name||`Persona ${i+1}`);
+    p.role=p.role||'familiar';
+    p.permissions=p.permissions||{canEdit:true,canDelete:true};
+    p.objectives=getObjectives(p);
+  });
+  if(!x.active&&x.profiles[0])x.active=x.profiles[0].id;
+  return x;
+}
+function familyMembers(){return Array.isArray(db.profiles)?db.profiles:[]}
+function switchPerson(id){
+  if(familyMembers().some(p=>p.id===id)){db.active=id;save();render()}
+}
+function addFamilyMember(){newProfile()}
+
+function saveMigrationSnapshot(old){try{localStorage.setItem(KEY+'_migration_'+Date.now(),JSON.stringify(old))}catch(_){}}
+function normalize(x){
+ x=ensureFamilyModel(x);
+ x.profiles=x.profiles||[];x.entries=x.entries||[];x.weights=x.weights||[];x.customFoods=x.customFoods||[];x.recipes=x.recipes||[];x.photoLogs=x.photoLogs||[];x.glucoseLogs=x.glucoseLogs||[];x.healthLogs=x.healthLogs||[];
+ x.waterByDate=x.waterByDate||{};x.stepsByDate=x.stepsByDate||{};x.sleepByDate=x.sleepByDate||{};x.ai=x.ai||{enabled:false,model:'gpt-5.6-luna',apiKey:'',endpoint:'https://api.openai.com/v1/responses'};x.glucoseLogs=x.glucoseLogs||[];x.healthLogs=x.healthLogs||[];
+ if(x.water && !Object.keys(x.waterByDate).length){const pid=x.active||x.profiles?.[0]?.id;if(pid)x.waterByDate[`${pid}|${localDate()}`]=x.water;}
+ if(x.steps && !Object.keys(x.stepsByDate).length){const pid=x.active||x.profiles?.[0]?.id;if(pid)x.stepsByDate[`${pid}|${localDate()}`]=x.steps;}
+ x.profiles.forEach(p=>{p.objectives=getObjectives(p);p.goalType=p.goalType||objectiveLabel(p.objectives[0]);p.pattern=p.pattern||'balanced';p.cal=Number(p.cal)||1900;p.pr=Number(p.pr)||120;p.water=Number(p.water)||2000;p.steps=Number(p.steps)||8000;p.goal=Number(p.goal)||null;p.allergies=Array.isArray(p.allergies)?p.allergies:[];p.dislikes=Array.isArray(p.dislikes)?p.dislikes:[];});
+ return x;
+}
+function save(){db.version=VERSION;localStorage.setItem(KEY,JSON.stringify(db))}
+function profile(){return db.profiles.find(x=>x.id===db.active)||db.profiles[0]}
+function esc(s){return String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+function allFoods(){
+ let raw={...foods,...Object.fromEntries(db.customFoods.map(x=>[x.name,x]))};
+ return Object.fromEntries(Object.entries(raw).map(([k,v])=>[k,foodWithMeta(k,{processing:'whole',plant:false,group:'general',...(microDB[k]||{}),...v})]));
+}
+function patternLabel(p){return {
+ balanced:'⚖️ Equilibrada',lowcarb:'🥦 Baja en hidratos',verylowcarb:'🥑 Muy baja en hidratos',
+ mediterranean:'🫒 Mediterránea',medlowcarb:'🫒🥦 Mediterránea baja en hidratos',dash:'🫐 DASH',
+ highprotein:'💪 Alta en proteína',vegetarian:'🌱 Vegetariana',vegan:'🌱 Vegana',
+ longevity:'🧬 Longevidad',calorie:'🔥 Déficit calórico'
+}[p.pattern||'balanced']||'⚖️ Equilibrada'}
+function targets(p){
+ const mode=objectiveProfile(p).mode;let base={cal:p.cal||1900,fiber:p.fiber||25,sugar:p.sugar||50,sodium:p.sodium||2000,sat:p.sat||Math.round((p.cal||1900)*.10/9),veg:p.veg||400,water:p.water||2000,steps:p.steps||8000,plants:p.plants||20};
+ if(p.pattern==='lowcarb')base.carbs=p.carbs??100;else if(p.pattern==='verylowcarb')base.carbs=p.carbs??50;else if(p.pattern==='medlowcarb')base.carbs=p.carbs??100;else base.carbs=p.carbs??Math.round((p.cal||1900)*.45/4);
+ if(mode==='recomp'||mode==='muscle')base.proteinMode='higher';return base;
+}
+function entriesFor(date=localDate(),pid=profile()?.id){return db.entries.filter(x=>x.date===date&&x.pid===pid)}
+function totals(date=localDate(),pid=profile()?.id){
+ return entriesFor(date,pid).reduce((t,x)=>{
+  for(let k of ['kcal','p','c','f','fib','sugar','sat','sodium','veg','fruit','plantCount','wholeFoodCount','ultraCount','calcium','iron','magnesium','potassium','vitC','vitD','vitE','b12','folate','omega3','omega6','zinc','phosphorus','iodine','cholesterol'])
+    t[k]=(t[k]||0)+(x[k]||0);
+  return t;
+ },{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,veg:0,fruit:0,plantCount:0,wholeFoodCount:0,ultraCount:0,calcium:0,iron:0,magnesium:0,potassium:0,vitC:0,vitD:0,vitE:0,b12:0,folate:0,omega3:0,omega6:0,zinc:0,phosphorus:0,iodine:0,cholesterol:0})
+}
+function weights(pid){return db.weights.filter(x=>x.pid===pid).sort((a,b)=>a.date.localeCompare(b.date))}
+function lastWeight(pid){let a=weights(pid);return a.length?a[a.length-1].kg:null}
+function firstWeight(pid){let a=weights(pid);return a.length?a[0].kg:null}
+function days(n=7){let a=[];for(let i=n-1;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);a.push(localDate(d))}return a}
+
+function calcEntryFromFood(foodName,grams,base={}){const f=allFoods()[foodName];if(!f)return null;const g=Math.max(0,Number(grams)||0),fac=g/100;const out={...base,food:foodName,grams:g,qty:g,kcal:(f.kcal||0)*fac,p:(f.p||0)*fac,c:(f.c||0)*fac,f:(f.f||0)*fac,fib:(f.fib||0)*fac,sugar:(f.sugar||0)*fac,sat:(f.sat||0)*fac,sodium:(f.sodium||0)*fac,veg:(f.veg||0)*fac,fruit:(f.fruit||0)*fac,source:f.source||'Base local provisoria',sourceStatus:f.sourceStatus||'pendiente de validación SARA 2',estimate:!!base.estimate};NUTRIENT_FIELDS.slice(8).forEach(k=>out[k]=(f[k]||0)*fac);if(f.plant){out.plantCount=1;out.plantKey=f.plantKey||foodName.toLowerCase()}return out}
+function addMeal(){let names=Object.keys(allFoods()).sort((a,b)=>a.localeCompare(b));modal({title:'🍽️ Agregar comida',body:`<label>Alimento</label><select id="food">${names.map(n=>`<option>${esc(n)}</option>`).join('')}</select><label>Cantidad (gramos)</label><input id="qty" type="number" min="1" value="100" step="1"><label>Momento</label><select id="type">${['Desayuno','Almuerzo','Merienda','Cena','Snack'].map(n=>`<option>${n}</option>`).join('')}</select><button onclick="saveMeal()">Guardar</button>`})}
+function saveMeal(){const grams=Number(document.getElementById('qty').value),name=document.getElementById('food').value;if(!grams||grams<=0)return alert('Ingresá una cantidad válida.');const e=calcEntryFromFood(name,grams,{pid:profile().id,date:window.journalDate||localDate(),type:document.getElementById('type').value});if(!e)return alert('Alimento no encontrado.');db.entries.push(e);save();closeModal();render()}
+function dayQuality(p,date=localDate()){
+ const t=totals(date,p.id),tg=targets(p);
+ let score=50;
+ if(t.kcal>0){if(t.kcal<=tg.cal*1.05)score+=8;if(t.kcal<tg.cal*.75)score-=8}
+ if(t.p>= (p.pr||120)*.8)score+=10;
+ if(t.fib>=tg.fiber)score+=8;
+ if(t.sodium<=tg.sodium)score+=4;
+ if(t.sat<=tg.sat)score+=4;
+ if(t.carbs<=tg.carbs)score+=6;
+ if(t.plantCount>=3)score+=6;
+ if((db.stepsByDate[`${p.id}|${date}`]||0)>=tg.steps*.75)score+=4;
+ if((db.waterByDate[`${p.id}|${date}`]||0)>=tg.water*.75)score+=4;
+ if(p.pattern==='mediterranean'||p.pattern==='medlowcarb'||p.pattern==='longevity'){if(t.f>=1)score+=3}
+ if(t.ultraCount>0)score-=Math.min(10,t.ultraCount*2);
+ return Math.max(0,Math.min(100,Math.round(score)));
+}
+function patternCompatible(name,p){
+ const f=allFoods()[name]; if(!f)return true;
+ if(p.pattern==='vegetarian' && /carne|pollo|cerdo|atún|sardina|merluza|salmón|hamburguesa/i.test(name)) return false;
+ if(p.pattern==='vegan' && /carne|pollo|cerdo|atún|sardina|merluza|salmón|huevo|queso|yogur|leche|ricota|muzzarella|manteca/i.test(name)) return false;
+ if((p.pattern==='lowcarb'||p.pattern==='verylowcarb'||p.pattern==='medlowcarb') && f.c>25) return false;
+ if(p.allergies && p.allergies.some(a=>a && name.toLowerCase().includes(a.toLowerCase()))) return false;
+ if(p.dislikes && p.dislikes.some(a=>a && name.toLowerCase().includes(a.toLowerCase()))) return false;
+ return true;
+}
+function plantDiversity(pid){
+ let set=new Set();
+ db.entries.filter(x=>x.pid===pid&&days(7).includes(x.date)).forEach(x=>{if(x.plantKey)set.add(x.plantKey);});
+ return set.size;
+}
+function nutritionScore(p,date=localDate()){const t=totals(date,p.id),tg=targets(p);const fit=(v,t)=>t?Math.max(0,1-Math.abs(v-t)/t):0;const under=(v,t)=>t?Math.min(1,v/t):0;const limit=(v,t)=>t?Math.max(0,1-Math.max(0,v-t)/t):1;const components={calorias:fit(t.kcal,tg.cal),proteina:under(t.p,p.pr||120),fibra:under(t.fib,tg.fiber),verduras:under(t.veg,tg.veg),sodio:limit(t.sodium,tg.sodium),saturadas:limit(t.sat,tg.sat)};const score=Math.round(100*(.20*components.calorias+.20*components.proteina+.20*components.fibra+.15*components.verduras+.15*components.sodio+.10*components.saturadas));return {score:Math.max(0,Math.min(100,score)),components}}
+function smartScoreLabel(s){return s>=80?'Excelente':s>=65?'Bien encaminado':s>=50?'A mejorar':'Necesita atención'}
+
+
+function healthConnectAvailable(){return !!window.NutriNative&&window.NutriNative.healthConnectAvailable()}
+function connectHealth(){if(!healthConnectAvailable()){alert('Health Connect no está disponible o todavía no fue inicializado en este teléfono.');return}window.NutriNative.requestHealthConnect()}
+function syncHealth(){if(!healthConnectAvailable()){alert('Health Connect no está disponible.');return}window.NutriNative.syncHealthConnect()}
+window.onHealthData=function(d){if(d.error){alert(d.error);return}let p=profile();if(d.steps!=null)db.stepsByDate[`${p.id}|${localDate()}`]=Number(d.steps)||0;if(d.weight>0){let ws=weights(p.id);let today=ws.find(x=>x.date===localDate());if(!today)db.weights.push({pid:p.id,date:localDate(),kg:d.weight,source:'Health Connect'})}if(d.sleepHours>0){db.sleepByDate[`${p.id}|${localDate()}`]=d.sleepHours}db.healthSync=db.healthSync||{};db.healthSync[p.id]={date:localDate(),activeCalories:d.activeCalories||0,heartRateAvg:d.heartRateAvg||0};save();render();alert('Health Connect sincronizado.');}
+function aiSettings(){return db.ai||{enabled:false,model:'gpt-5.6-luna',apiKey:'',endpoint:'https://api.openai.com/v1/responses'} }
+function aiConfigured(){let a=aiSettings();return !!(a.enabled&&a.apiKey&&a.endpoint)}
+function openAISettings(){let a=aiSettings();modal({title:'🤖 NutriIA',body:`<p class="muted small">Para usar IA real necesitás una clave de API. La clave queda guardada solo en este teléfono. Para una app familiar distribuida públicamente conviene usar un servidor intermedio y no incrustar claves en el APK.</p><label>Activar IA</label><select id="aien"><option value="false" ${!a.enabled?'selected':''}>No</option><option value="true" ${a.enabled?'selected':''}>Sí</option></select><label>Modelo</label><input id="aimodel" value="${esc(a.model||'gpt-5.6-luna')}"><label>Endpoint</label><input id="aiendpoint" value="${esc(a.endpoint||'https://api.openai.com/v1/responses')}"><label>Clave API</label><input id="aikey" type="password" value="${esc(a.apiKey||'')}" placeholder="sk-..."><div class="actions"><button onclick="saveAISettings()">Guardar</button><button class="secondary" onclick="askAI('Analizá mi día actual y decime las 3 mejoras más importantes, usando solo mis datos registrados.')">Probar IA</button></div>`})}
+function saveAISettings(){db.ai={enabled:document.getElementById('aien').value==='true',model:document.getElementById('aimodel').value.trim()||'gpt-5.6-luna',endpoint:document.getElementById('aiendpoint').value.trim()||'https://api.openai.com/v1/responses',apiKey:document.getElementById('aikey').value.trim()};save();closeModal();render();}
+function aiContext(){let p=profile(),t=totals(),st=weekStats(),tg=targets(p);return {perfil:{nombre:p.name,edad:p.age,sexo:p.sex,altura_cm:p.height,peso_kg:lastWeight(p.id),objetivo_kg:p.goal,objetivo_principal:p.goalType,patron:p.pattern,calorias_objetivo:p.cal,proteina_objetivo:p.pr,hidratos_objetivo:tg.carbs,fibra_objetivo:tg.fiber},hoy:{totales:t,agua_ml:db.waterByDate[`${p.id}|${localDate()}`]||0,pasos:db.stepsByDate[`${p.id}|${localDate()}`]||0,sueño_horas:db.sleepByDate[`${p.id}|${localDate()}`]||null},semana:{promedio_kcal:st.avgKcal,promedio_proteina:st.avgProtein,promedio_hidratos:st.avgCarbs,promedio_pasos:st.avgSteps,promedio_agua:st.avgWater,calidad:st.avgQuality},glucosa:(db.glucoseLogs||[]).filter(x=>x.pid===p.id).slice(-10),comidas:entriesFor(localDate(),p.id)}}
+async function callAI(input, imageData=null){let a=aiSettings();if(!aiConfigured())throw new Error('Configurá NutriIA en Perfil → NutriIA.');let content=[{type:'input_text',text:input}];if(imageData)content.push({type:'input_image',image_url:imageData});let body={model:a.model||'gpt-5.6-luna',input:[{role:'user',content}],max_output_tokens:1800};let r=await fetch(a.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+a.apiKey},body:JSON.stringify(body)});if(!r.ok)throw new Error('La IA respondió con error HTTP '+r.status);let j=await r.json();return j.output_text||j.output?.flatMap(x=>x.content||[]).map(x=>x.text||'').filter(Boolean).join('\n')||JSON.stringify(j)}
+async function askAI(question){try{closeModal();modal({title:'🤖 NutriIA pensando…',body:'<div class="empty">Analizando tus datos…</div>'});let ctx=JSON.stringify(aiContext());let txt=await callAI(`Sos NutriIA, un asistente nutricional educativo. Analizá SOLO los datos proporcionados y respetá los objetivos seleccionados. No diagnostiques ni prescribas. No diagnostiques ni prescribas. Si falta un dato, decilo. Respondé en español claro, breve y accionable. Perfil y datos: ${ctx}\n\nPregunta: ${question}`);modal({title:'🤖 NutriIA',body:`<div class="notice">${esc(txt).replace(/\n/g,'<br>')}</div><button onclick="closeModal()">Cerrar</button>`})}catch(e){modal({title:'🤖 NutriIA',body:`<div class="notice">${esc(e.message)}</div><button onclick="closeModal()">Cerrar</button>`})}}
+function addTextMeal(){modal({title:'✍️ Escribí lo que comiste',body:`<p class="muted small">Ejemplo: “2 huevos, 200 g de pollo a la plancha, ensalada de tomate y rúcula y 1 cucharadita de aceite”.</p><textarea id="mealtext" rows="5" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px" placeholder="¿Qué comiste? Cantidades si las sabés."></textarea><div class="actions"><button onclick="analyzeTextMeal()">🤖 Analizar y registrar</button></div>`})}
+async function analyzeTextMeal(){let text=document.getElementById('mealtext').value.trim();if(!text)return;let prompt=`Convertí esta descripción de comida en JSON válido y nada más: {"items":[{"name":"nombre simple del alimento","grams":100,"unit":"g","confidence":0.8}],"meal_type":"Almuerzo","notes":""}. No inventes ingredientes que no estén mencionados; si la cantidad no está clara, estimala y marca confidence baja. Descripción: ${text}`;try{closeModal();modal({title:'🤖 Analizando comida…',body:'<div class="empty">Identificando alimentos y cantidades…</div>'});let raw=await callAI(prompt);let clean=raw.replace(/```json|```/g,'').trim();let json=JSON.parse(clean);if(!json.items||!Array.isArray(json.items))throw new Error('La IA no devolvió una lista válida de alimentos.');json.items=json.items.map(x=>({...x,confidence:Math.min(1,Math.max(0,Number(x.confidence)||0.5))}));showAIResult(json,text)}catch(e){modal({title:'No pude analizar',body:`<div class="notice">${esc(e.message)}<br>Probá indicar cantidades o registrar manualmente.</div><button onclick="closeModal()">Cerrar</button>`})}}
+function resolveFood(name){let fs=allFoods(),keys=Object.keys(fs),n=(name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();const aliases={'palta':'Palta','aguacate':'Palta','huevo duro':'Huevo hervido','huevo cocido':'Huevo hervido','pollo grillado':'Pollo a la plancha','pollo a la parrilla':'Pollo a la plancha','bife':'Bife de vaca','carne vacuna':'Bife de vaca','fideos':'Pasta cocida','tallarines':'Pasta cocida','zapallito':'Zapallito verde','zucchini':'Zapallito verde','morron':'Pimiento rojo'};if(aliases[n]&&fs[aliases[n]])return aliases[n];let best=keys.find(k=>k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')===n);if(best)return best;let toks=n.split(/\s+/).filter(x=>x.length>2);return keys.find(k=>{let kk=k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return kk.includes(n)||n.includes(kk)||toks.every(t=>kk.includes(t))})||null}
+function showAIResult(data,original){let items=(data.items||[]).map(x=>{let food=resolveFood(x.name);return {...x,food,grams:Number(x.grams)||100}});let known=items.filter(x=>x.food);let sums={kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,calcium:0,iron:0,magnesium:0,potassium:0,vitC:0,vitD:0,vitE:0,b12:0,folate:0,omega3:0,zinc:0,phosphorus:0,iodine:0,cholesterol:0};known.forEach(x=>{let f=allFoods()[x.food],fac=x.grams/100;Object.keys(sums).forEach(k=>sums[k]+=(f[k]||0)*fac)});let cards=items.map((x,i)=>`<div class="meal"><span><b>${esc(x.name)}</b><br><small>${x.grams} g ${x.food?'· '+esc(x.food):'· sin coincidencia en la base'}</small></span><b>${x.confidence?Math.round(x.confidence*100)+'%':''}</b></div>`).join('');let unknown=items.filter(x=>!x.food).length;modal({title:'🔎 Revisá antes de guardar',body:`<p class="muted small">${esc(original)}</p>${cards}<div class="card"><b>Estimación calculada con la base local</b><p>${Math.round(sums.kcal)} kcal · P ${Math.round(sums.p)} g · C ${Math.round(sums.c)} g · G ${Math.round(sums.f)} g · Fibra ${Math.round(sums.fib)} g</p><small class="muted">Micros: Ca ${Math.round(sums.calcium)} mg · Fe ${Math.round(sums.iron)} mg · Mg ${Math.round(sums.magnesium)} mg · K ${Math.round(sums.potassium)} mg · C ${Math.round(sums.vitC)} mg · D ${Math.round(sums.vitD)} µg · B12 ${Math.round(sums.b12*10)/10} µg · omega-3 ${Math.round(sums.omega3*10)/10} g</small></div>${unknown?`<div class="notice">${unknown} alimento(s) no coincidieron con la base. Agregalos manualmente para mejorar la precisión.</div>`:''}<div class="actions"><button onclick='saveAIItems(${JSON.stringify(items).replace(/</g,'\\u003c')},${JSON.stringify(data.meal_type||'Almuerzo')})'>Guardar</button><button class="secondary" onclick="closeModal()">Cancelar</button></div>`})}
+function saveAIItems(items,type){let saved=0;items.filter(x=>x.food).forEach(x=>{const qty=Number(x.grams)||100;const entry=calcEntryFromFood(x.food,qty,{pid:profile().id,date:localDate(),type,estimate:true,confidence:Number(x.confidence)||0.5,aiName:x.name,aiGrams:Number(x.grams)||100,source:'NutriIA + base local'});if(entry){db.entries.push(entry);saved++}});if(!saved)return alert('No pude guardar alimentos reconocidos.');save();closeModal();render();}
+function addAIMeal(){modal({title:'🤖 Registrar comida con IA',body:`<div class="actions"><button onclick="addTextMeal();">✍️ Escribir lo que comí</button><label class="secondary" style="display:block;padding:12px 14px;border-radius:14px;font-weight:700;cursor:pointer">📷 Sacar/elegir foto<input type="file" accept="image/*" capture="environment" onchange="analyzePhoto(this.files[0])" style="display:none"></label></div><p class="muted small">La IA estima; antes de guardar te mostramos lo que detectó y calculamos los nutrientes con la base local.</p>`})}
+
+
+function modal(data){const m=document.getElementById('modal');m.classList.remove('hidden');m.innerHTML=`<div style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;padding:18px;display:flex;align-items:flex-end"><div class="card" style="width:100%;max-width:720px;margin:auto;max-height:90vh;overflow:auto"><div class="row"><h2 style="margin:0">${data.title}</h2><button class="secondary" onclick="closeModal()">✕</button></div>${data.body}</div></div>`}
+function closeModal(){document.getElementById('modal').classList.add('hidden');document.getElementById('modal').innerHTML=''}
+function switchProfile(){if(db.profiles.length<2)return newProfile();const opts=db.profiles.map((x,i)=>`${i+1}. ${x.name}`).join('\n');const n=Number(prompt('Elegí perfil:\n'+opts));if(Number.isInteger(n)&&db.profiles[n-1]){db.active=db.profiles[n-1].id;save();render()}}
+function newProfile(){modal({title:'👤 Nuevo familiar',body:`<label>Nombre</label><input id="newname" placeholder="Ej. Martín"><label>Edad</label><input id="newage" type="number"><label>Sexo</label><select id="newsex"><option value="">No especificado</option><option value="M">Masculino</option><option value="F">Femenino</option></select><label>Altura (cm)</label><input id="newheight" type="number"><label>Peso inicial (kg)</label><input id="newstart" type="number" step=".1"><label>Peso objetivo (kg)</label><input id="newgoal" type="number" step=".1"><label>Calorías objetivo</label><input id="newcal" type="number" value="1900"><label>Proteína objetivo (g)</label><input id="newpr" type="number" value="120"><label>Patrón alimentario</label><select id="newpattern"><option value="balanced">Equilibrada</option><option value="lowcarb">Baja en hidratos</option><option value="medlowcarb">Mediterránea baja en hidratos</option><option value="mediterranean">Mediterránea</option><option value="dash">DASH</option><option value="longevity">Alimentación saludable a largo plazo</option></select><label>Objetivos combinables</label>${Object.entries(OBJECTIVES).map(([id,o])=>`<label style="display:block;margin:7px 0"><input type="checkbox" class="objcheck" value="${id}"> ${o.label}</label>`).join('')}<div class="actions"><button onclick="createProfile()">Crear perfil</button></div>`})}
+function createProfile(){const name=document.getElementById('newname').value.trim();if(!name)return alert('Poné un nombre');const id=Date.now().toString();let objectives=[...document.querySelectorAll('.objcheck:checked')].map(x=>x.value);if(!objectives.length)objectives=['food_quality'];const p={id,name,role:'familiar',permissions:{canEdit:true,canDelete:true},age:Number(document.getElementById('newage').value)||null,sex:document.getElementById('newsex').value,height:Number(document.getElementById('newheight').value)||null,goal:Number(document.getElementById('newgoal').value)||null,cal:Number(document.getElementById('newcal').value)||1900,pr:Number(document.getElementById('newpr').value)||120,pattern:document.getElementById('newpattern').value,objectives,goalType:objectiveLabel(objectives[0]),water:2000,steps:8000,plants:20,allergies:[],dislikes:[]};db.profiles.push(p);db.active=id;const start=Number(document.getElementById('newstart').value);if(start>0)db.weights.push({pid:id,date:localDate(),kg:start,source:'manual'});save();closeModal();render()}
+
+function familySelector(){
+ const m=familyMembers();
+ return `<div class="card"><h2>👨‍👩‍👧‍👦 Integrantes</h2>
+ <p class="muted small">Podés agregar todas las personas que necesites. Cada integrante tiene sus propios datos, comidas, peso, actividad, preferencias y objetivos.</p>
+ ${m.map(p=>`<div class="meal"><span><b>${esc(p.name)}</b><br><small>${esc(p.role||'familiar')} · ${getObjectives(p).map(objectiveLabel).join(' + ')}</small></span><button class="secondary" onclick="switchPerson('${String(p.id).replace(/'/g,"&#39;")}')">${p.id===db.active?'Activo':'Usar'}</button></div>`).join('')}
+ <button class="secondary" onclick="addFamilyMember()">+ Agregar otra persona</button></div>`;
+}
+
+function profilePage(){const p=profile(),op=objectiveProfile(p),tg=targets(p),conf=op.conflicts.length?`<div class="notice">⚠️ Hay objetivos que compiten: ${op.conflicts.map(x=>objectiveLabel(x[0])+' + '+objectiveLabel(x[1])).join(' · ')}</div>`:'<div class="notice">🟢 Objetivos seleccionados compatibles.</div>';document.getElementById('profile').innerHTML=`<div class="card"><h2>👤 Perfil y objetivos</h2><label>Nombre</label><input id="pn" value="${esc(p.name)}"><label>Edad</label><input id="pa" type="number" value="${p.age||''}"><label>Sexo</label><select id="ps"><option value="">No especificado</option><option value="M" ${p.sex==='M'?'selected':''}>Masculino</option><option value="F" ${p.sex==='F'?'selected':''}>Femenino</option></select><label>Altura (cm)</label><input id="ph" type="number" value="${p.height||''}"><label>Peso objetivo (kg)</label><input id="pg" type="number" step=".1" value="${p.goal||''}"><label>Objetivos combinables</label><div id="editObjectives">${Object.entries(OBJECTIVES).map(([id,o])=>`<label style="display:block;margin:7px 0"><input type="checkbox" class="objedit" value="${id}" ${op.ids.includes(id)?'checked':''}> ${o.label}</label>`).join('')}</div>${conf}<label>Patrón alimentario</label><select id="ppattern"><option value="balanced">Equilibrada</option><option value="lowcarb">Baja en hidratos</option><option value="verylowcarb">Muy baja en hidratos</option><option value="mediterranean">Mediterránea</option><option value="medlowcarb">Mediterránea baja en hidratos</option><option value="dash">DASH</option><option value="highprotein">Alta en proteína</option><option value="vegetarian">Vegetariana</option><option value="vegan">Vegana</option><option value="longevity">Alimentación saludable a largo plazo</option><option value="calorie">Déficit calórico</option></select><label>Calorías objetivo</label><input id="pc" type="number" value="${p.cal||1900}"><label>Proteína objetivo (g)</label><input id="pp" type="number" value="${p.pr||120}"><label>Hidratos objetivo (g)</label><input id="pcc" type="number" value="${tg.carbs}"><label>Fibra objetivo (g)</label><input id="pfib" type="number" value="${tg.fiber}"><label>Agua objetivo (ml)</label><input id="pwater" type="number" value="${tg.water}"><label>Pasos objetivo</label><input id="psteps" type="number" value="${tg.steps}"><label>Alergias/alimentos a evitar</label><input id="pallergies" value="${esc((p.allergies||[]).join(', '))}"><label>Alimentos que no te gustan</label><input id="pdislikes" value="${esc((p.dislikes||[]).join(', '))}"><div class="actions"><button onclick="saveProfile()">Guardar cambios</button><button class="danger" onclick="deleteProfile()">Eliminar perfil</button></div></div><div class="card"><h2>🎯 Modo activo</h2><p><b>${esc(objectiveSummary(p))}</b></p><p class="muted small">Todo es editable y los objetivos compatibles pueden combinarse.</p></div><div class="card"><h2>👨‍👩‍👧‍👦 Familia</h2>${db.profiles.map(x=>`<div class="meal"><span>${esc(x.name)}<br><small>${patternLabel(x)} · ${getObjectives(x).map(objectiveLabel).join(' + ')}</small></span><button class="secondary" onclick="db.active='${x.id}';save();render()">Usar</button></div>`).join('')}<button class="secondary" onclick="newProfile()">+ Agregar familiar</button></div><div class="card"><h2>🤖 NutriIA</h2><button class="secondary" onclick="openAISettings()">Configurar IA</button></div><div class="card"><h2>💾 Copia y restauración</h2><div class="actions"><button class="secondary" onclick="exportData()">Exportar</button><label class="secondary" style="display:inline-block;padding:12px 14px;border-radius:14px;font-weight:700;cursor:pointer">Importar<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div><div class="card"><h2>🧪 Diagnóstico</h2><button class="secondary" onclick="runSelfTest()">Ejecutar autoprueba</button><div id="selftest-output" style="margin-top:10px"></div></div>`;document.getElementById('ppattern').value=p.pattern||'balanced'}
+function saveProfile(){const p=profile();p.name=document.getElementById('pn').value.trim()||p.name;p.age=Number(document.getElementById('pa').value)||null;p.sex=document.getElementById('ps').value;p.height=Number(document.getElementById('ph').value)||null;p.goal=Number(document.getElementById('pg').value)||null;p.objectives=[...document.querySelectorAll('.objedit:checked')].map(x=>x.value);if(!p.objectives.length)p.objectives=['food_quality'];p.goalType=objectiveLabel(p.objectives[0]);p.pattern=document.getElementById('ppattern').value;p.cal=Number(document.getElementById('pc').value)||1900;p.pr=Number(document.getElementById('pp').value)||120;p.carbs=Number(document.getElementById('pcc').value)||targets(p).carbs;p.fiber=Number(document.getElementById('pfib').value)||25;p.water=Number(document.getElementById('pwater').value)||2000;p.steps=Number(document.getElementById('psteps').value)||8000;p.allergies=document.getElementById('pallergies').value.split(',').map(x=>x.trim()).filter(Boolean);p.dislikes=document.getElementById('pdislikes').value.split(',').map(x=>x.trim()).filter(Boolean);save();render();alert('Guardado')}
+function deleteProfile(){if(!confirm('¿Eliminar este perfil y sus registros?'))return;const id=profile().id;db.profiles=db.profiles.filter(x=>x.id!==id);for(const k of ['entries','weights','glucoseLogs','healthLogs'])if(Array.isArray(db[k]))db[k]=db[k].filter(x=>x.pid!==id);for(const map of ['waterByDate','stepsByDate','sleepByDate'])Object.keys(db[map]||{}).filter(k=>k.startsWith(id+'|')).forEach(k=>delete db[map][k]);db.active=db.profiles[0]?.id||null;save();render()}
+function deleteEntry(i){const p=profile(),date=window.journalDate||localDate(),arr=entriesFor(date,p.id),old=arr[i],idx=db.entries.indexOf(old);if(idx<0)return;if(!confirm('¿Eliminar esta comida?'))return;db.entries.splice(idx,1);save();render()}
+function weight(){const el=document.getElementById('weight'),p=profile(),arr=weights(p.id).slice(-15).reverse();el.innerHTML=`<div class="card"><div class="row"><h2>⚖️ Evolución</h2><button onclick="addWeight()">+ Peso</button></div>${arr.length?arr.map((x,i)=>`<div class="meal"><span>${x.date}${x.source?' · '+esc(x.source):''}</span><span><b>${x.kg} kg</b><br><button class="secondary small" onclick="editWeight('${x.date}')">Editar</button> <button class="danger small" onclick="deleteWeight('${x.date}')">Eliminar</button></span></div>`).join(''):'<div class="empty">Registrá tu primer peso.</div>'}</div><div class="card"><h2>Actividad</h2><label>Pasos de hoy</label><input type="number" value="${db.stepsByDate[`${p.id}|${localDate()}`]||0}" onchange="db.stepsByDate['${p.id}|${localDate()}']=Number(this.value)||0;save();render()"><div class="actions"><button class="secondary" onclick="db.stepsByDate['${p.id}|${localDate()}']=(db.stepsByDate['${p.id}|${localDate()}']||0)+1000;save();render()">+1.000 pasos</button></div></div>`}
+function addWeight(){modal({title:'⚖️ Registrar peso',body:`<label>Peso (kg)</label><input id="wkg" type="number" step=".1"><button onclick="saveWeight()">Guardar</button>`})}
+function saveWeight(){const kg=Number(document.getElementById('wkg').value);if(!(kg>0))return alert('Ingresá un peso válido.');db.weights.push({pid:profile().id,date:localDate(),kg,source:'manual'});save();closeModal();render()}
+function editWeight(date){const w=db.weights.find(x=>x.pid===profile().id&&x.date===date);if(!w)return;modal({title:'Editar peso',body:`<label>Peso (kg)</label><input id="ewkg" type="number" step=".1" value="${w.kg}"><button onclick="saveEditWeight('${date}')">Guardar</button>`})}
+function saveEditWeight(date){const kg=Number(document.getElementById('ewkg').value);if(!(kg>0))return;const w=db.weights.find(x=>x.pid===profile().id&&x.date===date);if(w)w.kg=kg;save();closeModal();render()}
+function deleteWeight(date){if(!confirm('¿Eliminar este registro de peso?'))return;db.weights=db.weights.filter(x=>!(x.pid===profile().id&&x.date===date));save();render()}
+function analyzePhoto(file){if(!file)return;if(!aiConfigured())return alert('Configurá NutriIA antes de analizar fotos.');const reader=new FileReader();reader.onload=async()=>{try{modal({title:'📷 Analizando foto…',body:'<div class="empty">Identificando alimentos y cantidades aproximadas…</div>'});const prompt='Analizá esta foto de comida. Devolvé SOLO JSON válido: {"items":[{"name":"nombre simple del alimento","grams":100,"unit":"g","confidence":0.8}],"meal_type":"Almuerzo","notes":""}. No inventes ingredientes ocultos. Si una cantidad no puede estimarse razonablemente, usá un rango central aproximado y confidence baja.';const raw=await callAI(prompt,reader.result);const json=JSON.parse(raw.replace(/```json|```/g,'').trim());if(!Array.isArray(json.items))throw new Error('La IA no devolvió alimentos válidos.');json.items=json.items.map(x=>({...x,confidence:Math.min(1,Math.max(0,Number(x.confidence)||0.4))}));showAIResult(json,'Foto de comida')}catch(e){modal({title:'📷 No pude analizar',body:`<div class="notice">${esc(e.message)}</div><button onclick="closeModal()">Cerrar</button>`})}};reader.readAsDataURL(file)}
+
+
+function mealSuggestions(p){const t=totals(),cal=p.cal||1900,pr=p.pr||120,rc=Math.max(0,cal-t.kcal),rp=Math.max(0,pr-t.p),tg=targets(p),a=[];const add=(food,title,desc,k,prot)=>{if(patternCompatible(food,p))a.push([title,desc,k,prot])};if(rc>250||rp>20)add('Pechuga de pollo','🍗 Pollo + ensalada','Pechuga de pollo con verduras',330,38);if(rc>200||rp>15)add('Huevo hervido','🥚 Huevos + verduras','Huevos con tomate y palta',316,15);if(rc>150||rp>20)add('Atún al natural','🐟 Atún + verduras','Atún con rúcula, tomate y aceite',260,28);if(rc>120)add('Yogur natural','🥛 Yogur + fruta','Yogur natural con frutillas',140,8);if(p.pattern==='lowcarb'||p.pattern==='medlowcarb'||p.pattern==='verylowcarb')return a.slice(0,3);return a.slice(0,3)}
+function journal(){let el=document.getElementById('journal'),p=profile(),date=window.journalDate||localDate(),arr=entriesFor(date,p.id),t=totals(date,p.id),score=nutritionScore(p,date);el.innerHTML=`<div class="card"><div class="calendarbar"><button class="secondary" onclick="changeJournalDate(-1)">‹</button><div><b>🍽️ ${date}</b><br><span class="mini">${patternLabel(p)}</span></div><button class="secondary" onclick="changeJournalDate(1)">›</button></div><div class="grid3" style="margin-top:10px"><div class="stat"><b>${Math.round(t.kcal)}</b><span>kcal</span></div><div class="stat"><b>${Math.round(t.p)}g</b><span>proteína</span></div><div class="stat"><b>${Math.round(t.c)}g</b><span>hidratos</span></div></div><div class="card" style="margin-top:10px"><div class="row"><span>🧭 Calidad nutricional</span><b class="score">${score.score}<small>/100</small></b></div><small class="muted">Indicador orientativo, transparente y no diagnóstico.</small></div><div class="actions"><button onclick="addAIMeal()">🤖 Registrar con IA</button><button class="secondary" onclick="addMeal()">+ Manual</button><button class="secondary" onclick="copyYesterday()">↪ Copiar ayer</button></div>${arr.length?arr.map((x,i)=>`<div class="meal"><div><b>${esc(x.food)}</b><br><small>${Math.round(x.grams||x.qty||0)} g · ${x.type}${x.estimate?' · estimación IA':''}</small></div><div><b>${Math.round(x.kcal)} kcal</b><br><small>P ${Math.round(x.p)} · C ${Math.round(x.c)} · G ${Math.round(x.f)} · Fib ${Math.round(x.fib||0)}g</small><br><button class="secondary small" onclick="editEntry(${i})">Editar</button> <button class="danger small" onclick="deleteEntry(${i})">Eliminar</button></div></div>`).join(''):'<div class="empty">No hay comidas registradas para esta fecha.</div>'}</div><div class="card"><h2>🌱 Variedad vegetal</h2><p class="muted">La diversidad vegetal semanal es un indicador de variedad, no una obligación médica.</p><p><b>${plantDiversity(p.id)}</b> alimentos vegetales distintos en 7 días.</p></div>`}
+function changeJournalDate(delta){let d=new Date((window.journalDate||localDate())+'T12:00:00');d.setDate(d.getDate()+delta);window.journalDate=localDate(d);render()}
+function progressPage(){let el=document.getElementById('progress'),p=profile(),st=weekStats(p.id),tg=targets(p),ws=weights(p.id),last=lastWeight(p.id),start=firstWeight(p.id),goal=p.goal,ad=smartAdvice(p,st),sugs=mealSuggestions(p),goalObj=objectiveProfile(p),score=Math.round(st.avgQuality);let trend='Sin suficientes pesajes';if(ws.length>=2){let a=ws.slice(-Math.min(4,ws.length)),delta=a[a.length-1].kg-a[0].kg;trend=delta<-.2?`Tendencia descendente: ${Math.abs(delta).toFixed(1)} kg en el período`:delta>.2?`Tendencia ascendente: ${delta.toFixed(1)} kg en el período`:'Tendencia estable en el período'}let goalPct=(start&&goal&&last&&start!==goal)?Math.max(0,Math.min(100,((start-last)/(start-goal))*100)):0;el.innerHTML=`<div class="card"><div class="row"><div><h2>📊 Progreso V5.5</h2><span class="pill">Últimos 7 días</span></div><span class="tag">${goalObj.mode==='recomp'?'🔄 Recomposición':patternLabel(p)}</span></div><div class="grid3"><div class="stat"><b>${Math.round(st.avgKcal)}</b><span>kcal/día</span></div><div class="stat"><b>${Math.round(st.avgProtein)} g</b><span>proteína/día</span></div><div class="stat"><b>${Math.round(st.avgSteps)}</b><span>pasos/día</span></div></div></div><div class="card"><h2>🧠 Análisis</h2>${ad.map(x=>`<div class="notice">• ${esc(x)}</div>`).join('')}</div><div class="card"><h2>⚖️ Tendencia de peso</h2><div class="big">${last?last+' kg':'—'}</div><p class="muted">${trend}</p>${goal?`<div class="bar"><i style="width:${goalPct}%"></i></div><small>Avance estimado hacia ${goal} kg: ${Math.round(goalPct)}%</small>`:''}</div><div class="card"><h2>🍽️ Sugerencias</h2>${sugs.length?sugs.map(x=>`<div class="suggest"><b>${esc(x[0])}</b><br><small>${esc(x[1])} · ~${x[2]} kcal · ~${x[3]} g proteína</small></div>`).join(''):'<div class="empty">No hay sugerencias suficientes con los datos actuales.</div>'}</div><div class="card"><h2>🧬 Micronutrientes de hoy</h2><div class="grid3"><div class="stat"><b>${Math.round(totals(localDate(),p.id).calcium||0)} mg</b><span>calcio</span></div><div class="stat"><b>${Math.round(totals(localDate(),p.id).magnesium||0)} mg</b><span>magnesio</span></div><div class="stat"><b>${Math.round((totals(localDate(),p.id).omega3||0)*1000)} mg</b><span>omega-3</span></div></div><div class="grid3"><div class="stat"><b>${Math.round(totals(localDate(),p.id).iron||0)} mg</b><span>hierro</span></div><div class="stat"><b>${Math.round(totals(localDate(),p.id).potassium||0)} mg</b><span>potasio</span></div><div class="stat"><b>${Math.round(totals(localDate(),p.id).vitC||0)} mg</b><span>vitamina C</span></div></div></div><div class="card"><h2>🇦🇷 Calidad de datos</h2><p class="muted small">Fuente primaria objetivo: SARA 2. Los alimentos sin validación individual se muestran como provisionales.</p></div>`}
+function render(){if(!profile())return setup();home();journal();progressPage();weight();profilePage()}
+
+function runSelfTest(){const R=[],ok=(n,c,d)=>R.push({n,pass:!!c,d});try{ok('Estructura',Array.isArray(db.profiles)&&Array.isArray(db.entries)&&Array.isArray(db.weights)&&Array.isArray(db.recipes),'colecciones');ok('Versión',db.version===VERSION,'versión actual');ok('Funciones críticas',typeof modal==='function'&&typeof closeModal==='function'&&typeof profilePage==='function'&&typeof newProfile==='function'&&typeof weight==='function','UI');const e=calcEntryFromFood(Object.keys(allFoods())[0],100,{pid:'TEST',date:'2099-01-01',type:'Test'});ok('Motor nutricional',!!e&&Number.isFinite(e.kcal)&&Number.isFinite(e.p),'cálculo por 100 g');ok('Recomposición',objectiveProfile({objectives:['lose_fat','gain_muscle']}).mode==='recomp','objetivos compatibles');ok('Compatibilidad',compatibleObjectives(['lose_fat','gain_muscle']).length===0,'sin conflicto');ok('Targets',Number.isFinite(targets({cal:1900,pattern:'lowcarb',objectives:['glycemic']}).carbs),'objetivo hidratos');ok('Fecha',/^\d{4}-\d{2}-\d{2}$/.test(localDate()),'fecha local');const backup=JSON.parse(JSON.stringify({profiles:db.profiles,entries:db.entries,weights:db.weights}));ok('Backup JSON',Array.isArray(backup.profiles)&&Array.isArray(backup.entries),'serializable');const pass=R.filter(x=>x.pass).length,fail=R.length-pass;document.getElementById('selftest-output').innerHTML=`<div class="card"><h3>🧪 Autoprueba V5.5</h3><p><b>${pass}/${R.length}</b> correctas · ${fail} fallos</p>${R.map(x=>`<div class="meal"><span>${x.pass?'🟢':'🔴'} <b>${esc(x.n)}</b><br><small>${esc(x.d)}</small></span><b>${x.pass?'OK':'FALLO'}</b></div>`).join('')}<p class="small muted">La autoprueba cubre lógica local. La prueba de Android, IA real y Health Connect requiere ejecución.</p></div>`}catch(e){document.getElementById('selftest-output').innerHTML=`<div class="card"><h3>🔴 Autoprueba</h3><p>${esc(e.message||e)}</p></div>`}}
+
+
+function setup(){document.querySelector('#home').innerHTML=`<div class="card"><h2>🥗 NutriFamilia V5.5</h2><p class="muted">Seguimiento familiar de peso, alimentación y hábitos. Los datos quedan en este teléfono.</p><button onclick="newProfile()">+ Crear perfil</button></div>`;['journal','progress','weight','profile'].forEach(x=>document.getElementById(x).innerHTML='');document.getElementById('addBtn').classList.add('hidden')}
+function pct(v,t){return Math.min(100,Math.max(0,(v/t)*100))}
+function meter(label,v,t,unit='',reverse=false){let good=reverse?v<=t:v>=t;return `<div style="margin:9px 0"><div class="row"><span>${label}</span><b>${Math.round(v*10)/10} / ${t} ${unit}</b></div><div class="bar"><i style="width:${pct(v,t)}%"></i></div></div>`}
+function home(){
+ let p=profile(),t=totals(),cal=p.cal||1900,pr=p.pr||120,w=lastWeight(p.id),start=firstWeight(p.id),tg=targets(p);
+ let diff=w&&start?(w-start).toFixed(1):'—', goal=w&&p.goal?(w-p.goal).toFixed(1):'—';
+ let score=dayQuality(p), plants=plantDiversity(p.id), carbTarget=tg.carbs, net=Math.max(0,t.c-t.fib);
+ document.getElementById('home').innerHTML=`<div class="card"><div class="row"><div><span class="pill">${esc(p.name)}</span><h2 style="margin-top:8px">${patternLabel(p)}</h2><small class="muted">${esc(p.goalType||'Objetivo personalizado')}</small></div><button class="secondary" onclick="switchProfile()">Cambiar</button></div>
+ <div class="grid3"><div class="stat"><b>${Math.round(t.kcal)}</b><span>kcal</span></div><div class="stat"><b>${Math.round(t.p)} g</b><span>proteína</span></div><div class="stat"><b>${Math.round(t.c)} g</b><span>hidratos</span></div></div>
+ ${meter('🔥 Calorías',t.kcal,cal,'kcal',true)}${meter('🥩 Proteína',t.p,pr,'g')}${meter('🌾 Hidratos',t.c,carbTarget,'g',true)}${meter('🌿 Fibra',t.fib,tg.fiber,'g')}
+ <div class="row"><span>Carbohidratos netos*</span><b>${Math.round(net)} g</b></div><div class="mini">*referencia aproximada: carbohidratos totales − fibra.</div></div>
+ <div class="grid"><div class="card"><b>🧠 Calidad del día</b><div class="score">${score}<small>/100</small></div><small class="muted">${smartScoreLabel(score)}</small></div>
+ <div class="card"><b>🌱 Variedad vegetal</b><div class="score">${plants}</div><small class="muted">alimentos vegetales distintos en 7 días</small></div></div>
+ <div class="grid"><div class="card"><b>⚖️ Peso</b><div style="font-size:25px;margin-top:5px">${w||'—'} kg</div><small class="muted">Objetivo: ${p.goal||'—'} kg</small><br><small>Desde inicio: ${diff} kg · Faltan: ${goal} kg</small></div>
+ <div class="card"><b>💧 Agua</b><div style="font-size:25px;margin-top:5px">${db.waterByDate[`${p.id}|${localDate()}`]||0} ml</div><button class="secondary" onclick="addWater()">+250 ml</button></div></div>
+ <div class="card"><h2>🩸 Salud metabólica</h2><div class="actions"><button class="secondary" onclick="addGlucose()">Registrar glucosa</button><button class="secondary" onclick="addHealthLog()">Otros datos</button></div>${latestGlucoseHtml(p.id)}</div><div class="card"><h2>📱 Salud del teléfono</h2><p class="muted small">Podés importar desde Health Connect pasos, peso, sueño, calorías activas y frecuencia cardíaca cuando estén disponibles y autorizados.</p><div class="actions"><button class="secondary" onclick="connectHealth()">Conectar</button><button class="secondary" onclick="syncHealth()">Sincronizar</button></div></div><div class="card"><h2>🤖 NutriIA</h2><p class="muted small">Puede analizar tus comidas, resumir el día y ayudarte a decidir qué comer, usando tu perfil y registros.</p><div class="actions"><button onclick="askAI('¿Cómo estuvo mi alimentación hoy y qué 3 cosas priorizarías?')">Analizar mi día</button><button class="secondary" onclick="openAISettings()">Configurar IA</button></div></div>
+ <div class="card"><h2>📊 Calidad nutricional</h2>${meter('🥬 Frutas + verduras',t.veg,tg.veg,'g')}${meter('🧂 Sodio',t.sodium,tg.sodium,'mg',true)}${meter('🧈 Grasas saturadas',t.sat,tg.sat,'g',true)}${meter('🍬 Azúcares totales',t.sugar,tg.sugar,'g',true)}</div>
+ <div class="card"><h2>🕒 Hábitos</h2><div class="grid3"><div class="stat"><b>${db.stepsByDate[`${p.id}|${localDate()}`]||0}</b><span>pasos</span></div><div class="stat"><b>${db.sleepByDate?.[`${p.id}|${localDate()}`]||'—'}</b><span>horas sueño</span></div><div class="stat"><b>${t.plantCount||0}</b><span>plantas hoy</span></div></div><div class="actions"><button class="secondary" onclick="addSleep()">Registrar sueño</button></div></div>
+ <div class="card"><div class="notice">NutriFamilia usa el patrón ${patternLabel(p)} como guía de seguimiento. No es una prescripción médica.</div></div>`;
+}
+
+function latestGlucoseHtml(pid){
+ let a=(db.glucoseLogs||[]).filter(x=>x.pid===pid).sort((x,y)=>x.date.localeCompare(y.date));
+ if(!a.length)return '<div class="empty">Todavía no hay registros de glucosa.</div>';
+ let x=a[a.length-1];return `<p><b>${x.value} mg/dL</b> · ${esc(x.context)} · ${x.date}</p><small class="muted">La app muestra datos registrados, no diagnostica.</small>`;
+}
+function addGlucose(){modal({title:'🩸 Registrar glucosa',body:`<label>Glucosa (mg/dL)</label><input id="gvalue" type="number" step="1"><label>Momento</label><select id="gcontext"><option>Ayunas</option><option>Antes de comer</option><option>1–2 h después</option><option>Al acostarme</option><option>Otro</option></select><button onclick="saveGlucose()">Guardar</button>`})}
+function saveGlucose(){let v=+document.getElementById('gvalue').value;if(!v)return;db.glucoseLogs.push({pid:profile().id,date:localDate(),value:v,context:document.getElementById('gcontext').value});save();closeModal();render()}
+function addSleep(){modal({title:'😴 Registrar sueño',body:`<label>Horas dormidas</label><input id="sleepv" type="number" step=".1" min="0" max="24"><button onclick="saveSleep()">Guardar</button>`})}
+function saveSleep(){let v=+document.getElementById('sleepv').value;if(!v)return;db.sleepByDate=db.sleepByDate||{};db.sleepByDate[`${profile().id}|${localDate()}`]=v;save();closeModal();render()}
+function addHealthLog(){modal({title:'🩺 Otros datos',body:`<label>Presión sistólica (opcional)</label><input id="hsys" type="number"><label>Presión diastólica (opcional)</label><input id="hdia" type="number"><label>Cintura (cm, opcional)</label><input id="hwaist" type="number" step=".1"><button onclick="saveHealthLog()">Guardar</button>`})}
+function saveHealthLog(){db.healthLogs=db.healthLogs||[];db.healthLogs.push({pid:profile().id,date:localDate(),sys:+document.getElementById('hsys').value||null,dia:+document.getElementById('hdia').value||null,waist:+document.getElementById('hwaist').value||null});save();closeModal();render()}
+
+function weekStats(pid=profile()?.id){let ds=days(7);let kcal=0,protein=0,carbs=0,steps=0,water=0,daysWithFood=0,quality=0;ds.forEach(d=>{let t=totals(d,pid),pp=db.profiles.find(x=>x.id===pid)||profile();kcal+=t.kcal;protein+=t.p;carbs+=t.c;steps+=db.stepsByDate[`${pid}|${d}`]||0;water+=db.waterByDate[`${pid}|${d}`]||0;quality+=dayQuality(pp,d);if(t.kcal>0)daysWithFood++});return {ds,kcal,protein,carbs,steps,water,daysWithFood,quality,avgKcal:kcal/7,avgProtein:protein/7,avgCarbs:carbs/7,avgSteps:steps/7,avgWater:water/7,avgQuality:quality/7}}
+function evidencePanel(){return `<div class="card"><h2>🔬 Base científica</h2><p class="muted small">Los valores nutricionales deben conservar su fuente y estado de validación. La app no convierte estimaciones de IA en datos exactos.</p><div class="tag">SARA 2 🇦🇷</div><div class="tag">ArgenFoods 🇦🇷</div><div class="tag">GAPA 🇦🇷</div><div class="tag">OMS</div><p class="small"><b>Referencias generales:</b> ≥25 g fibra/día y ≥400 g frutas+verduras/día para mayores de 10 años; sodio &lt;2 g/día; azúcares libres &lt;10% de energía; grasas saturadas &lt;10%; grasas trans &lt;1%. Son referencias poblacionales, no objetivos médicos individuales.</p></div>`}
+function smartAdvice(p,st){const tg=targets(p),op=objectiveProfile(p),out=[];if(op.conflicts.length)out.push('Hay objetivos que compiten entre sí; elegí una prioridad principal o usá un objetivo combinado.');if(st.daysWithFood===0){out.push('Empezá registrando las comidas: la aplicación necesita datos reales para analizar tendencias.');return out}if(op.mode==='fat_loss'||op.mode==='recomp'){if(st.avgKcal>tg.cal*1.08)out.push('El promedio energético está por encima del objetivo; revisá porciones y extras calóricos.');else if(st.avgKcal<tg.cal*.75)out.push('El promedio energético está bastante bajo; evitá déficits extremos.');else out.push('El promedio energético está razonablemente alineado con el objetivo.')}if(op.mode==='muscle'||op.mode==='recomp'){if(st.avgProtein<(p.pr||120)*.85)out.push('La proteína promedio está por debajo del objetivo; distribuí fuentes proteicas en las comidas.');else out.push('La proteína promedio está bien encaminada para el objetivo.')}if(op.ids.includes('glycemic')){if(st.avgCarbs>tg.carbs*1.1)out.push('El promedio de hidratos supera el objetivo configurado; priorizá fibra y fuentes menos refinadas.');else out.push('El promedio de hidratos está dentro del rango configurado.')}if(op.ids.includes('cardiovascular'))out.push('Revisá especialmente sodio, grasas saturadas y calidad de grasas.');if(op.ids.includes('food_quality')||op.ids.includes('longevity'))out.push('Priorizá variedad vegetal, legumbres, frutos secos, pescado y alimentos mínimamente procesados.');if(st.avgSteps<tg.steps*.75)out.push('La actividad está por debajo del objetivo; aumentala gradualmente si es apropiado.');return out}
+
+function editEntry(i){let p=profile(),date=window.journalDate||localDate(),arr=entriesFor(date,p.id),x=arr[i];if(!x)return;let names=Object.keys(allFoods()).sort((a,b)=>a.localeCompare(b));modal({title:'Editar comida',body:`<label>Comida</label><select id="efood">${names.map(n=>`<option ${n===x.food?'selected':''}>${esc(n)}</option>`).join('')}</select><label>Cantidad</label><input id="eqty" type="number" value="${x.grams||x.qty||100}" step="1"><label>Momento</label><select id="etype">${['Desayuno','Almuerzo','Merienda','Cena','Snack'].map(n=>`<option ${n===x.type?'selected':''}>${n}</option>`).join('')}</select><button onclick="saveEditEntry(${i})">Guardar cambios</button>`})}
+function saveEditEntry(i){const p=profile(),date=window.journalDate||localDate(),arr=entriesFor(date,p.id),old=arr[i],idx=db.entries.indexOf(old);if(idx<0)return;const name=document.getElementById('efood').value,qty=Number(document.getElementById('eqty').value)||100;const entry=calcEntryFromFood(name,qty,{pid:p.id,date,type:document.getElementById('etype').value,id:db.entries[idx].id});if(!entry)return alert('No pude recalcular ese alimento.');db.entries[idx]=entry;save();closeModal();render()}
+function addWater(){let p=profile(),d=localDate();db.waterByDate[`${p.id}|${d}`]=(db.waterByDate[`${p.id}|${d}`]||0)+250; save();render()}
+function copyYesterday(){let y=new Date();y.setDate(y.getDate()-1);let arr=entriesFor(localDate(y));if(!arr.length)return alert('No hay comidas registradas ayer.');arr.forEach(x=>db.entries.push({...x,date:localDate()}));save();render()}
+function newRecipe(){modal({title:'Nueva receta',body:`<label>Nombre</label><input id="rname" placeholder="Ej. Pollo con zapallitos"><label>Porciones que rinde</label><input id="rport" type="number" value="4" step="1"><p class="muted small">Para esta primera versión, agregá ingredientes desde el selector.</p><div id="rrows"></div><button class="secondary" onclick="addRecipeRow()">+ Ingrediente</button><button onclick="saveRecipe()">Guardar receta</button>`});addRecipeRow()}
+function addRecipeRow(){let box=document.getElementById('rrows'),names=Object.keys(allFoods());let row=document.createElement('div');row.className='card';row.innerHTML=`<select class="ri">${names.map(x=>`<option>${esc(x)}</option>`).join('')}</select><label>Cantidad (gramos)</label><input class="rq" type="number" value="100" min="1" step="1">`;box.appendChild(row)}
+function saveRecipe(){let name=document.getElementById('rname').value.trim(),port=+document.getElementById('rport').value||1;if(!name)return;let rows=[...document.querySelectorAll('#rrows .card')],ing=rows.map(r=>({food:r.querySelector('.ri').value,q:+r.querySelector('.rq').value||1}));let keys=['kcal','p','c','f','fib','sugar','sat','sodium','veg','fruit','plantCount','wholeFoodCount','ultraCount','calcium','iron','magnesium','potassium','vitC','vitD','vitE','b12','folate','omega3','omega6','zinc','phosphorus','iodine','cholesterol'];let sum=Object.fromEntries(keys.map(k=>[k,0]));ing.forEach(i=>{let f=allFoods()[i.food];if(!f)return;keys.forEach(k=>sum[k]+=(f[k]||0)*(i.q/100));if(f.plant)sum.plantCount+=1;});db.recipes.push({id:Date.now().toString(),name,portions:port,ingredients:ing,...sum});save();closeModal();render()}
+function useRecipe(id){let r=db.recipes.find(x=>x.id===id);if(!r)return;modal({title:`Usar: ${esc(r.name)}`,body:`<p class="muted">La receta tiene ${r.portions} porciones.</p><label>Porciones consumidas</label><input id="rqty" type="number" value="1" step=".25"><label>Momento</label><select id="rtype"><option>Almuerzo</option><option>Cena</option><option>Desayuno</option><option>Merienda</option><option>Snack</option></select><button onclick="saveRecipeMeal('${r.id}')">Registrar</button>`})}
+function saveRecipeMeal(id){let r=db.recipes.find(x=>x.id===id),q=+document.getElementById('rqty').value||1,fac=q/r.portions;if(!r)return;let keys=['kcal','p','c','f','fib','sugar','sat','sodium','veg','fruit','plantCount','wholeFoodCount','ultraCount','calcium','iron','magnesium','potassium','vitC','vitD','vitE','b12','folate','omega3','omega6','zinc','phosphorus','iodine','cholesterol'];let entry={pid:profile().id,date:localDate(),food:r.name,qty:q,type:document.getElementById('rtype').value};keys.forEach(k=>entry[k]=(r[k]||0)*fac);db.entries.push(entry);save();closeModal();render()}
+function exportData(){let backup={appVersion:VERSION,exportedAt:new Date().toISOString(),nutritionEngine:NUTRITION_ENGINE,data:db};let b=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`NutriFamilia_backup_${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function importData(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let raw=JSON.parse(r.result),x=raw.data||raw;if(!x.profiles||!Array.isArray(x.entries))throw Error();if(!confirm('Esto reemplazará los datos actuales. ¿Continuar?'))return;db=normalize(x);save();render();alert('Copia restaurada correctamente.')}catch(_){alert('La copia no es válida.')}};r.readAsText(file)}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['home','journal','progress','weight','profile'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!==b.dataset.tab));document.getElementById('addBtn').classList.toggle('hidden',b.dataset.tab!=='journal')});
+document.querySelector('[data-tab=home]').classList.add('active');document.getElementById('addBtn').onclick=addMeal;if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});render();
+</script>
+</body></html>
