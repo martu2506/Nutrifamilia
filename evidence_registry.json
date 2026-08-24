@@ -1,0 +1,50 @@
+{
+  "version": "5.4",
+  "principles": [
+    "adequacy",
+    "balance",
+    "moderation",
+    "diversity",
+    "food safety"
+  ],
+  "primary_food_composition": [
+    {
+      "name": "SARA 2",
+      "country": "Argentina",
+      "year": 2022,
+      "role": "primary"
+    },
+    {
+      "name": "ArgenFoods",
+      "country": "Argentina",
+      "role": "secondary"
+    }
+  ],
+  "guidelines": [
+    {
+      "name": "GAPA",
+      "country": "Argentina",
+      "role": "national dietary guidance"
+    },
+    {
+      "name": "WHO Healthy Diet",
+      "year": 2026,
+      "role": "population-level reference"
+    }
+  ],
+  "benchmarks": {
+    "fiber_g_day": 25,
+    "fruit_veg_g_day": 400,
+    "sodium_mg_day": 2000,
+    "free_sugars_max_pct_energy": 10,
+    "sat_fat_max_pct_energy": 10,
+    "trans_fat_max_pct_energy": 1
+  },
+  "policy": [
+    "No diagnostic claims",
+    "No exact nutrient claims from photos",
+    "Unknown foods require confirmation",
+    "Every nutrient value carries source/status when available",
+    "Clinical targets must be individually configurable and are not inferred from population benchmarks"
+  ]
+}
