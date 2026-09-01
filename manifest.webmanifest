@@ -1,7 +1,7 @@
 {
   "name":"NutriFamilia",
   "short_name":"NutriFamilia",
-  "description":"Seguimiento familiar de alimentación, peso y hábitos — V6.6.4",
+  "description":"Seguimiento familiar de alimentación, peso y hábitos — V6.6.6",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
