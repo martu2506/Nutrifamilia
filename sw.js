@@ -1,4 +1,4 @@
-const CACHE='nutrifamilia-v6.6.6';
+const CACHE='nutrifamilia-v6.7.0';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE&&k.startsWith('nutrifamilia-')).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
