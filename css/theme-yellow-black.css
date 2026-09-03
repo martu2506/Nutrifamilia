@@ -1,2 +1,77 @@
-/* NutriFamilia V7.1.2 — placeholder module stylesheet.
-   Shared styles live in base.css; this file exists so the declared asset path resolves. */
+/* NutriFamilia V7.1.2 — tema amarillo + negro, alto contraste y formularios claros. */
+:root{
+  --nf-yellow:#FFD83D;
+  --nf-yellow-soft:#FFF3A6;
+  --nf-yellow-strong:#F4C400;
+  --nf-black:#111111;
+  --nf-white:#FFFFFF;
+  --nf-border:#D8C75C;
+  --nf-focus:#0B57D0;
+  --nf-muted:#4A4A4A;
+  --nf-danger:#B42318;
+  --nf-shadow:0 5px 18px rgba(17,17,17,.10);
+}
+html,body{background:var(--nf-yellow)!important;color:var(--nf-black)!important}
+body{min-height:100vh}
+header{background:var(--nf-black)!important;color:var(--nf-yellow)!important;border-bottom:4px solid var(--nf-yellow-strong)}
+header h1{margin:.15rem 0 .35rem}
+header p{margin:.2rem 0;line-height:1.45;color:#fff}
+.wrap{padding-top:1.2rem}
+.card,.meal,.modal{background:var(--nf-white)!important;color:var(--nf-black)!important;border-color:var(--nf-border)!important;box-shadow:var(--nf-shadow)!important}
+.modal{padding:1.35rem!important}
+.modal label,.card label,.meal label{display:block;font-weight:800;margin:1rem 0 .4rem!important;color:var(--nf-black)}
+.modal label:first-child,.card label:first-child{margin-top:.25rem!important}
+.modal input,.modal select,.modal textarea,
+.card input,.card select,.card textarea,
+input,select,textarea{
+  width:100%;
+  min-height:46px;
+  padding:.75rem .85rem!important;
+  border:2px solid #B9AA45!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  color:#111!important;
+  outline:none;
+  margin-bottom:.35rem;
+}
+input::placeholder,textarea::placeholder{color:#5E5E5E;opacity:1}
+input:focus,select:focus,textarea:focus{border-color:var(--nf-focus)!important;box-shadow:0 0 0 3px rgba(11,87,208,.16)!important}
+select{
+  background:var(--nf-yellow-soft)!important;
+  border-color:#8D7900!important;
+  font-weight:800;
+}
+select:hover{background:#FFE66B!important}
+select option{background:#fff;color:#111;font-weight:600}
+button{background:var(--nf-black)!important;color:var(--nf-yellow)!important;border:2px solid var(--nf-black)!important;min-height:44px;box-shadow:0 2px 7px rgba(0,0,0,.12)}
+button:hover,button:focus-visible{background:var(--nf-yellow)!important;color:var(--nf-black)!important;border-color:var(--nf-black)!important}
+button.secondary{background:#FFF8C9!important;color:var(--nf-black)!important;border-color:#8D7900!important}
+button.danger{background:var(--nf-danger)!important;color:#fff!important;border-color:var(--nf-danger)!important}
+.tabs{background:var(--nf-black)!important;border-top:3px solid var(--nf-yellow-strong)}
+.tabs button{background:#fff!important;color:var(--nf-black)!important;border:1px solid #A89520!important}
+.tabs button:hover,.tabs button:focus-visible{background:var(--nf-yellow)!important;color:var(--nf-black)!important}
+.fab{background:var(--nf-black)!important;color:var(--nf-yellow)!important;border:3px solid var(--nf-yellow)!important}
+.notice,.empty{background:var(--nf-yellow-soft)!important;color:var(--nf-black)!important;border:1px solid #C5AE00}
+.chip{background:var(--nf-black)!important;color:var(--nf-yellow)!important;border:1px solid var(--nf-black)!important}
+.muted,.mini,.small,.footer-note{color:var(--nf-muted)!important}
+.quick-actions,.dashboard-actions,.actions,.row,.unitrow{gap:.85rem!important}
+.modal .actions{margin-top:1.15rem;padding-top:.9rem;border-top:2px solid #EEE2A0}
+.modal-backdrop{background:rgba(17,17,17,.62)!important}
+
+/* Separación visual para formularios largos. */
+form,.form-grid,.profile-form,.meal-form{display:grid;gap:.45rem}
+fieldset{border:2px solid #D8C75C;border-radius:14px;padding:1rem;margin:1rem 0;background:#FFFDF0}
+legend{padding:0 .5rem;font-weight:900;background:var(--nf-yellow);border-radius:8px}
+.help,.hint,.description{display:block;margin:.1rem 0 .45rem;color:var(--nf-muted);font-size:.88rem;line-height:1.35}
+
+/* Evita que una fila de campos termine visualmente “pegada”. */
+.row > *, .unitrow > *{min-width:0}
+.row label,.unitrow label{flex:1 1 180px}
+
+@media (max-width:700px){
+  .wrap{padding:.9rem .7rem 7.5rem}
+  .modal{padding:1rem!important;border-radius:16px}
+  .modal label{margin-top:1.1rem!important}
+  .row,.unitrow{display:grid!important;grid-template-columns:1fr!important;align-items:stretch!important}
+  .quick-actions,.dashboard-actions{display:grid!important;grid-template-columns:1fr!important}
+}

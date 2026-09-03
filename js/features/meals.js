@@ -1,3 +1,2 @@
-// NutriFamilia V7.1.2 bridge
-// Load legacy/root module from the application root.
+// NutriFamilia V7.1.2 — puente estable hacia meals.js raíz.
 document.write('<script src="./meals.js"><\/script>');
