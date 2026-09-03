@@ -30,6 +30,7 @@
     const el=document.getElementById('home'); if(!el)return;
     const p=getActiveProfile(); if(!p){el.innerHTML='<div class="home-empty"><h2>Crear perfil</h2><p>Necesitás un perfil para comenzar.</p><button onclick="newProfile()">Crear perfil</button></div>';return;}
     const date=localDate(), now=new Date(), time=now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    const dateLabel=(()=>{const d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();})();
     const t=totals(date,p.id), tg=targets(p), w=lastWeight(p.id), goal=p.goal||null;
     const water=db.waterByDate?.[`${p.id}|${date}`]||0, steps=Number(db.stepsByDate?.[`${p.id}|${date}`]||0);
     const activeCal=Number(db.healthSync?.[p.id]?.activeCalories||0);
@@ -44,7 +45,7 @@
       return `<div class="meal-block"><div class="meal-head"><div><div class="meal-title">${escLocal(type)}</div><div class="meal-summary">${xs.length?`${xs.length} alimento${xs.length>1?'s':''} · ${Math.round(k)} kcal`:'Todavía no registraste nada'}</div></div><button class="meal-add" onclick="addMeal()" aria-label="Agregar alimento a ${escLocal(type)}">＋</button></div>${xs.map(x=>{const idx=arr.indexOf(x);return `<div class="meal-line"><span>${escLocal(x.food)}<small>${escLocal(x.amount||x.qty||'')} ${escLocal(x.unit||'g')}</small></span><span class="meal-actions"><b>${Math.round(x.kcal||0)} kcal</b><button class="link-btn" onclick="editEntry(${idx})">Editar</button><button class="delete-btn" onclick="deleteEntry(${idx})" aria-label="Eliminar ${escLocal(x.food)}">×</button></span></div>`}).join('')}</div>`;
     }).join('');
     el.innerHTML=`<section class="nf-home">
-      <div class="nf-topbar"><div></div><div class="nf-datetime">${icon('clock')}<span>${escLocal(date)} · ${time}</span></div></div>
+      <div class="nf-topbar"><div></div><div class="nf-datetime">${icon('clock')}<span>${dateLabel} · ${time}</span></div></div>
       <div class="nf-brand">NutriFamilia</div>
       <div class="nf-calories">
         <div class="nf-cal-title">Calorías de hoy</div>
