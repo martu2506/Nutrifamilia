@@ -1,172 +1,241 @@
-/* NutriFamilia V7.1.2 — auditoría integral y compatibilidad */
+/* NutriFamilia V7.1.2 — compatibilidad, correcciones funcionales y QA nutricional */
 (function(){
   'use strict';
   var W=window;
   W.NF_COMPAT=W.NF_COMPAT||{};
-  W.NF_COMPAT.version='7.1.2-audit1';
+  W.NF_COMPAT.version='7.1.2-final1';
   W.NF_COMPAT.patches=[];
   function note(x){W.NF_COMPAT.patches.push(x)}
-  function report(type,msg){if(W.NF_RUNTIME&&Array.isArray(W.NF_RUNTIME.errors))W.NF_RUNTIME.errors.push({type:type,message:String(msg)})}
-  function escFallback(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])})}
-  if(typeof W.esc!=='function')W.esc=escFallback;
+  function report(type,msg){
+    if(W.NF_RUNTIME&&Array.isArray(W.NF_RUNTIME.errors))W.NF_RUNTIME.errors.push({type:type,message:String(msg)});
+  }
+  if(typeof W.esc!=='function')W.esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]})};
 
-  // 1) Preserve useful data from older localStorage namespaces when the current DB is empty.
+  /* Recupera datos de nombres históricos sin tocar una DB ya existente. */
   function migrateLegacy(){
     try{
-      if(typeof db==='undefined'||!db||Array.isArray(db.profiles)&&db.profiles.length)return;
-      var keys=['nutrifamilia_final_v1','nutrifamilia_v6_6_6','nutrifamilia_final_v1_standalone'];
+      if(typeof db==='undefined'||!db)return;
+      if(Array.isArray(db.profiles)&&db.profiles.length)return;
+      var keys=['nutrifamilia_final_v1','nutrifamilia_final_v1_standalone','nutrifamilia_v6_6_6','nutrifamilia_v6_6_6_standalone'];
       for(var i=0;i<keys.length;i++){
-        var raw=localStorage.getItem(keys[i]); if(!raw)continue;
-        var x; try{x=JSON.parse(raw)}catch(_){continue}
+        var raw=localStorage.getItem(keys[i]);
+        if(!raw)continue;
+        var x;try{x=JSON.parse(raw)}catch(_){continue}
         if(!x||!Array.isArray(x.profiles))continue;
-        if(typeof normalize==='function')x=normalize(x);
+        if(typeof W.normalize==='function')x=W.normalize(x);
         db=x;
-        if(typeof save==='function')save();
+        if(typeof W.save==='function')W.save();
         note('migrated:'+keys[i]);
         break;
       }
     }catch(e){report('migration',e.message||e)}
   }
 
-  // 2) Make documented food units first-class, especially egg-as-a-unit.
-  var _allFoods=null;
-  if(typeof W.allFoods==='function'){
-    _allFoods=W.allFoods;
+  /* Unidades documentadas: 1 huevo sin cáscara = 50 g para la referencia local. */
+  var baseAllFoods=W.allFoods;
+  if(typeof baseAllFoods==='function'){
     W.allFoods=function(){
-      var fs=_allFoods.apply(this,arguments);
+      var fs=baseAllFoods.apply(this,arguments)||{};
       ['Huevo crudo','Huevo hervido','Huevo revuelto'].forEach(function(name){
-        var f=fs&&fs[name];
-        if(!f)return;
-        if(!Array.isArray(f.unitOptions)||!f.unitOptions.length)f.unitOptions=[{value:'g',label:'g',gramsPerUnit:1}];
+        var f=fs[name]; if(!f)return;
+        f.unitOptions=Array.isArray(f.unitOptions)&&f.unitOptions.length?f.unitOptions.slice():[{value:'g',label:'g',gramsPerUnit:1}];
         if(!f.unitOptions.some(function(o){return o&&o.value==='unit'}))f.unitOptions.push({value:'unit',label:'huevo (sin cáscara)',gramsPerUnit:50});
-        if(name==='Huevo crudo'){f.unitMode='per100g';f.unitLabel='g';}
+        if(name!=='Huevo crudo' && f.unitLabel==='g')f.unitLabel='g';
       });
       return fs;
     };
-    note('food-units');
+    note('documented-food-units');
   }
 
-  // 3) Central calculation fix: when a documented unit exists and caller omitted the unit,
-  // infer the unit only for small integer egg quantities. Explicit grams always remain grams.
-  if(typeof W.calcEntryFromFood==='function'){
-    var _calc=W.calcEntryFromFood;
-    W.calcEntryFromFood=function(foodName,amount,base){
-      base=base||{};
-      var b=Object.assign({},base);
-      var n=Number(String(amount).replace(',','.'));
-      if((!b.inputUnit&&!b.unitChoice&&!b.unit)&&/^Huevo (crudo|hervido|revuelto)$/i.test(String(foodName))&&Number.isFinite(n)&&n>0&&n<=10&&Math.abs(n-Math.round(n))<1e-9){
+
+  /* Unidades prácticas comunes con peso comestible aproximado. Gramos queda disponible para precisión. */
+  var UNIT_PATCHES={
+    'Banana':{value:'unit',label:'banana mediana (aprox.)',gramsPerUnit:118},
+    'Manzana':{value:'unit',label:'manzana mediana (aprox.)',gramsPerUnit:182},
+    'Pera':{value:'unit',label:'pera mediana (aprox.)',gramsPerUnit:178},
+    'Naranja':{value:'unit',label:'naranja mediana (aprox.)',gramsPerUnit:131},
+    'Kiwi':{value:'unit',label:'kiwi (aprox.)',gramsPerUnit:69},
+    'Limón':{value:'unit',label:'limón (aprox.)',gramsPerUnit:58},
+    'Palta':{value:'unit',label:'palta mediana (aprox.)',gramsPerUnit:150},
+    'Tomate':{value:'unit',label:'tomate mediano (aprox.)',gramsPerUnit:123},
+    'Cebolla':{value:'unit',label:'cebolla mediana (aprox.)',gramsPerUnit:110},
+    'Zanahoria':{value:'unit',label:'zanahoria mediana (aprox.)',gramsPerUnit:61},
+    'Pepino':{value:'unit',label:'pepino mediano (aprox.)',gramsPerUnit:301},
+    'Morrón':{value:'unit',label:'morrón mediano (aprox.)',gramsPerUnit:119},
+    'Pimiento verde crudo':{value:'unit',label:'pimiento verde mediano (aprox.)',gramsPerUnit:119},
+    'Zapallito':{value:'unit',label:'zapallito mediano (aprox.)',gramsPerUnit:196},
+    'Zapallito crudo':{value:'unit',label:'zapallito mediano (aprox.)',gramsPerUnit:196},
+    'Papa hervida':{value:'unit',label:'papa mediana (aprox.)',gramsPerUnit:173}
+  };
+  if(typeof W.allFoods==='function'){
+    var __foodsWithUnits=W.allFoods;
+    W.allFoods=function(){
+      var fs=__foodsWithUnits.apply(this,arguments)||{};
+      Object.keys(UNIT_PATCHES).forEach(function(name){
+        var f=fs[name],u=UNIT_PATCHES[name];if(!f)return;
+        f.unitMode=f.unitMode||'per100g';
+        f.unitOptions=Array.isArray(f.unitOptions)?f.unitOptions.slice():[{value:'g',label:'g',gramsPerUnit:1}];
+        if(!f.unitOptions.some(function(o){return o&&o.value===u.value}))f.unitOptions.push(u);
+        f.unitBasisNote='Peso de unidad aproximado; para máxima precisión usar gramos.';
+      });
+      return fs;
+    };
+    note('common-unit-registry');
+  }
+
+  /* Cálculo central: solo inferir huevo como unidad cuando el usuario no dio unidad explícita. */
+  var baseCalc=W.calcEntryFromFood;
+  if(typeof baseCalc==='function'){
+    W.calcEntryFromFood=function(name,amount,base){
+      var b=Object.assign({},base||{}), n=Number(String(amount).replace(',','.'));
+      if(!b.inputUnit&&!b.unitChoice&&!b.unit && /^Huevo (crudo|hervido|revuelto)$/i.test(String(name)) && Number.isFinite(n) && n>0 && n<=12 && Math.abs(n-Math.round(n))<1e-9){
         b.inputUnit='unit';
       }
-      var out=_calc.call(this,foodName,amount,b);
-      if(out&&typeof W.allFoods==='function'){
-        var f=W.allFoods()[foodName];
-        if(f&&((Number(f.veg)||0)>0||(Number(f.fruit)||0)>0)){
-          out.plantKey=out.plantKey||String(foodName);
-          out.plantKeys=Array.isArray(out.plantKeys)?out.plantKeys:[String(foodName)];
-        }
-      }
-      return out;
+      return baseCalc.call(this,name,amount,b);
     };
-    note('central-calc');
+    note('egg-unit-inference');
   }
 
-  // 4) Meal picker: choose documented unit by default; never force 100 g into a new meal.
-  function setMealPickerDefaults(){
-    try{
-      var s=document.getElementById('food'),q=document.getElementById('qty'),u=document.getElementById('qtyUnit');
-      if(!s||!q||!u||typeof W.allFoods!=='function')return;
-      var f=W.allFoods()[s.value];if(!f)return;
-      var opts=f.unitMode==='portion'?[{value:'portion',label:f.unitLabel||'porción'}]:(Array.isArray(f.unitOptions)&&f.unitOptions.length?f.unitOptions:[{value:'g',label:'g',gramsPerUnit:1}]);
-      var selected=u.dataset.userUnit;
-      if(!selected||!opts.some(function(o){return o.value===selected}))selected=opts.some(function(o){return o.value!=='g'})?opts.find(function(o){return o.value!=='g'}).value:opts[0].value;
-      u.innerHTML=opts.map(function(o){return '<option value="'+W.esc(o.value)+'">'+W.esc(o.label)+'</option>'}).join('');
-      u.value=selected;u.dataset.userUnit=selected;
-      if(f.unitMode==='portion'||selected!=='g'){
-        if(!q.value||Number(q.value)===100)q.value='1';
-        q.min='0.25';q.step=f.unitMode==='portion'?'0.25':'1';
-      }else{
-        // Grams are precise: require the user to enter the amount instead of silently assuming 100 g.
-        if(!u.dataset.userTouched)q.value='';
-        q.min='0.5';q.step='1';
-      }
-      u.onchange=function(){u.dataset.userUnit=u.value;u.dataset.userTouched='1';if(u.value!=='g')q.value=q.value||'1';else q.value='';};
-    }catch(e){report('meal-picker',e.message||e)}
+  function currentMealRefs(){return {s:document.getElementById('food'),q:document.getElementById('qty'),u:document.getElementById('qtyUnit')}}
+  function makeDefaultUnit(refs){
+    var s=refs.s,q=refs.q,u=refs.u;
+    if(!s||!q||!u||typeof W.allFoods!=='function')return;
+    var fs=W.allFoods(),f=fs[s.value]; if(!f)return;
+    var opts=f.unitMode==='portion'?[{value:'portion',label:f.unitLabel||'porción'}]:(Array.isArray(f.unitOptions)&&f.unitOptions.length?f.unitOptions:[{value:'g',label:'g',gramsPerUnit:1}]);
+    var previous=u.dataset.userUnit||'';
+    var preferred=opts.find(function(o){return o.value===previous}) || opts.find(function(o){return o.value!=='g'}) || opts[0];
+    u.innerHTML=opts.map(function(o){return '<option value="'+W.esc(o.value)+'">'+W.esc(o.label)+'</option>'}).join('');
+    u.value=preferred.value;u.dataset.userUnit=preferred.value;
+    var touched=u.dataset.userTouched==='1';
+    if(!touched){
+      if(preferred.value!=='g'||f.unitMode==='portion')q.value='1';
+      else q.value='';
+    }
+    q.min=(preferred.value==='g'&&!f.unitMode? '0.5':'0.25');
+    q.step=(preferred.value==='g'&&!f.unitMode?'1':'0.25');
+    q.placeholder=preferred.value==='g'?'Ej. 120':'Ej. 1';
+  }
+  function markMealControls(){
+    var r=currentMealRefs();if(!r.u)return;
+    if(!r.u.dataset.nfBound){
+      r.u.dataset.nfBound='1';
+      r.u.addEventListener('change',function(){r.u.dataset.userTouched='1';r.u.dataset.userUnit=r.u.value;});
+      r.u.addEventListener('input',function(){r.u.dataset.userTouched='1';r.u.dataset.userUnit=r.u.value;});
+    }
+    if(r.s&&!r.s.dataset.nfBound){
+      r.s.dataset.nfBound='1';
+      r.s.addEventListener('change',function(){if(r.u){r.u.dataset.userTouched='';r.u.dataset.userUnit='';}setTimeout(makeDefaultUnit,0,r);});
+    }
+    makeDefaultUnit(r);
   }
   if(typeof W.addMeal==='function'){
-    var _addMeal=W.addMeal;
-    W.addMeal=function(pre){var r=_addMeal.apply(this,arguments);setTimeout(setMealPickerDefaults,0);return r};
+    var baseAddMeal=W.addMeal;
+    W.addMeal=function(pre){var out=baseAddMeal.apply(this,arguments);setTimeout(markMealControls,0);setTimeout(markMealControls,30);return out};
     note('meal-defaults');
   }
   if(typeof W.updateMealUnitUI==='function'){
-    var _update=W.updateMealUnitUI;
-    W.updateMealUnitUI=function(){var r=_update.apply(this,arguments);setMealPickerDefaults();return r};
-    note('unit-switch');
+    var baseUpdateMeal=W.updateMealUnitUI;
+    W.updateMealUnitUI=function(){var out=baseUpdateMeal.apply(this,arguments);setTimeout(markMealControls,0);return out};
+    note('meal-unit-ui');
+  }
+  if(typeof W.saveMeal==='function'){
+    var baseSaveMeal=W.saveMeal;
+    W.saveMeal=function(){
+      try{
+        var r=currentMealRefs(),f=r.s&&typeof W.allFoods==='function'?W.allFoods()[r.s.value]:null;
+        if(f&&r.u&&r.u.value==='g'&&r.u.dataset.userTouched!=='1'&&r.u.options.length>1){
+          var unitOpt=[].slice.call(r.u.options).find(function(o){return o.value!=='g'});
+          if(unitOpt){r.u.value=unitOpt.value;r.u.dataset.userUnit=unitOpt.value; if(!r.q.value||Number(r.q.value)===100)r.q.value='1';}
+        }
+      }catch(e){report('meal-save-guard',e.message||e)}
+      return baseSaveMeal.apply(this,arguments);
+    };
+    note('meal-save-guard');
   }
 
-  // 5) Repair already-saved accidental egg entries only when they are the classic 1–3 g mistake.
-  try{
-    if(typeof db!=='undefined'&&Array.isArray(db.entries)){
-      db.entries.forEach(function(e){
-        if(/^Huevo crudo$/i.test(String(e.food))&&String(e.inputUnit||e.unit)==='g'&&Number(e.amount)>0&&Number(e.amount)<=3&&typeof W.calcEntryFromFood==='function'){
-          var fixed=W.calcEntryFromFood('Huevo crudo',Number(e.amount),Object.assign({},e,{inputUnit:'unit'}));
-          if(fixed){Object.assign(e,fixed);note('repaired-egg-entry')}
-        }
+  /* Recetas: evitar 100 como valor inicial cuando la unidad es una porción/unidad. */
+  if(typeof W.addRecipeRow==='function'){
+    var baseAddRecipe=W.addRecipeRow;
+    W.addRecipeRow=function(){var out=baseAddRecipe.apply(this,arguments);setTimeout(function(){
+      document.querySelectorAll('.recipe-row').forEach(function(row){
+        var q=row.querySelector('.rq'),u=row.querySelector('.ru');
+        if(q&&u&&u.value!=='g'&&!q.dataset.nfTouched)q.value='1';
       });
-      if(typeof save==='function'&&W.NF_COMPAT.patches.indexOf('repaired-egg-entry')>=0)save();
-    }
-  }catch(e){report('egg-repair',e.message||e)}
+    },0);return out};
+    note('recipe-defaults');
+  }
 
-  // 6) Improve plant diversity bookkeeping for existing and new entries.
+  /* Corrige diversidad vegetal en entradas antiguas, sin cambiar cantidades. */
   if(typeof W.plantDiversityToday==='function'){
-    var _pdt=W.plantDiversityToday;
     W.plantDiversityToday=function(pid,date){
-      var set=new Set();
-      try{(db.entries||[]).filter(function(x){return x.pid===pid&&x.date===(date||localDate())}).forEach(function(x){
+      var d=date||W.localDate(),set=new Set();
+      (db.entries||[]).filter(function(x){return x.pid===pid&&x.date===d}).forEach(function(x){
         if(Array.isArray(x.plantKeys))x.plantKeys.forEach(function(k){set.add(k)});
         else if(x.plantKey)set.add(x.plantKey);
-        else if(typeof W.allFoods==='function'){var f=W.allFoods()[x.food];if(f&&(Number(f.veg)>0||Number(f.fruit)>0))set.add(String(x.food))}
+        else if(typeof W.allFoods==='function'){
+          var f=W.allFoods()[x.food];
+          if(f&&(Number(f.veg)>0||Number(f.fruit)>0))set.add(String(x.food));
+        }
       });
-      }catch(e){return _pdt.apply(this,arguments)}
       return set.size;
     };
     note('plant-diversity');
   }
 
-  // 7) Browser/runtime audit. It does not modify user data.
-  W.NutriFamiliaDeepAudit=function(){
-    var R=[];function ok(name,pass,detail){R.push({name:name,pass:!!pass,detail:String(detail||'')})}
-    try{
-      ok('Version',typeof VERSION!=='undefined'&&String(VERSION)==='7.1.2',typeof VERSION!=='undefined'?VERSION:'missing');
-      ok('Runtime',!!W.NF_RUNTIME&&W.NF_RUNTIME.version==='7.1.2','runtime');
-      ok('DB',typeof db!=='undefined'&&db&&Array.isArray(db.profiles)&&Array.isArray(db.entries)&&Array.isArray(db.weights),'colecciones');
-      ok('Foods',typeof W.allFoods==='function'&&Object.keys(W.allFoods()).length>=98,Object.keys(W.allFoods()).length);
-      var fs=W.allFoods();
-      ok('Egg unit',!!fs['Huevo crudo']&&Array.isArray(fs['Huevo crudo'].unitOptions)&&fs['Huevo crudo'].unitOptions.some(function(o){return o.value==='unit'}),'unidad huevo');
-      if(typeof W.calcEntryFromFood==='function'){
-        var e3=W.calcEntryFromFood('Huevo crudo',3);ok('3 eggs => unit',!!e3&&e3.inputUnit==='unit'&&e3.amount===3&&Math.round(e3.grams)===150,'3 unidades / 150 g');
-        var g3=W.calcEntryFromFood('Huevo crudo',3,{inputUnit:'g'});ok('3 g stays 3 g',!!g3&&g3.inputUnit==='g'&&g3.grams===3,'explicit grams');
-        var ch=W.calcEntryFromFood('Pechuga de pollo',100,{inputUnit:'g'});ok('Chicken 100 g',!!ch&&ch.grams===100&&Number(ch.kcal)>0,'cálculo');
-      }
-      ok('UI functions',['render','showTab','addMeal','saveMeal','addWeight','saveWeight','newProfile','createProfile'].every(function(n){return typeof W[n]==='function'}),'funciones');
-      ok('Export/Import',typeof W.exportData==='function'&&typeof W.importData==='function','backup');
-      ok('Health',typeof W.healthConnectAvailable==='function'&&typeof W.onHealthData==='function','health');
-      ok('AI',typeof W.aiConfigured==='function'&&typeof W.askAI==='function','IA opcional');
-      ok('Recipes',typeof W.newRecipe==='function'&&typeof W.saveRecipe==='function','recetas');
-      ok('SW','serviceWorker' in navigator,'service worker');
-      return {version:'7.1.2',ok:R.every(function(x){return x.pass}),results:R,errors:(W.NF_RUNTIME&&W.NF_RUNTIME.errors)||[]};
-    }catch(e){R.push({name:'Audit exception',pass:false,detail:e.message||String(e)});return {version:'7.1.2',ok:false,results:R,errors:[e.message||String(e)]}}
+  /* Auditoría nutricional: detecta datos incompletos o inconsistentes; no inventa valores. */
+  W.nutriDataAudit=function(){
+    var R=[],fs=typeof W.allFoods==='function'?W.allFoods():{};
+    function push(name,pass,detail){R.push({name:name,pass:!!pass,detail:String(detail||'')})}
+    var names=Object.keys(fs);
+    push('Base de alimentos',names.length>=98,names.length+' alimentos');
+    var invalid=names.filter(function(n){var f=fs[n]||{};return !Number.isFinite(Number(f.kcal))||Number(f.kcal)<0||!['per100g','portion'].includes(f.unitMode)});
+    push('Estructura nutricional',invalid.length===0,invalid.length?invalid.slice(0,12).join(', '):'sin errores estructurales');
+    var noSource=names.filter(function(n){var f=fs[n]||{};return !f.source||!f.sourceStatus||!f.basis});
+    push('Trazabilidad',noSource.length===0,noSource.length+' sin fuente/base/estado completo');
+    var badEnergy=names.filter(function(n){var f=fs[n]||{},k=Number(f.kcal),p=Number(f.p),c=Number(f.c),fat=Number(f.f);if(![k,p,c,fat].every(Number.isFinite)||k<=0)return false;var m1=4*p+4*c+9*fat;return Math.abs(m1-k)/k>.25});
+    push('Consistencia energética',badEnergy.length===0,badEnergy.length+' fuera de ±25% respecto de macros declarados');
+    var egg=fs['Huevo crudo'];
+    push('Huevo crudo por unidad',!!egg&&egg.unitOptions.some(function(o){return o.value==='unit'&&Number(o.gramsPerUnit)===50}),egg?JSON.stringify(egg.unitOptions):'no disponible');
+    var cooked=fs['Huevo hervido'];
+    push('Huevo hervido base USDA',!!cooked&&Number(cooked.kcal)===155&&Number(cooked.p)>12, cooked?String(cooked.kcal)+' kcal/100 g':'no disponible');
+    var chicken=fs['Pechuga de pollo'];
+    push('Pechuga de pollo base',!!chicken&&Number(chicken.kcal)>0&&Number(chicken.p)>20, chicken?String(chicken.kcal)+' kcal/100 g':'no disponible');
+    var waterTarget=typeof W.targets==='function'&&typeof W.getActiveProfile==='function'&&W.getActiveProfile()?W.targets(W.getActiveProfile()).water:null;
+    push('Objetivo de agua',waterTarget==null||Number(waterTarget)>0,waterTarget==null?'sin perfil activo':''+waterTarget+' ml/día');
+    var foodQuality={provisional:0,withSource:0,unknownMicros:0};
+    names.forEach(function(n){var f=fs[n];if(String(f.sourceStatus||'').toLowerCase().includes('provisional'))foodQuality.provisional++;if(f.source)foodQuality.withSource++;if(f.dataQuality==='incompleto')foodQuality.unknownMicros++});
+    push('Datos provisionales identificados',true,foodQuality.provisional+' alimentos explícitamente provisionales');
+    return {ok:R.every(function(x){return x.pass}),results:R,summary:foodQuality};
   };
 
-  // 8) One safe automatic audit after all synchronous scripts have loaded.
-  setTimeout(function(){try{W.NF_COMPAT.deepAudit=W.NutriFamiliaDeepAudit();if(!W.NF_COMPAT.deepAudit.ok)report('deep-audit','Uno o más controles funcionales fallaron.')}catch(e){report('deep-audit',e.message||e)}},0);
+  W.NutriFamiliaDeepAudit=function(){
+    var R=[];function ok(n,p,d){R.push({name:n,pass:!!p,detail:String(d||'')})}
+    try{
+      ok('Versión',typeof W.VERSION!=='undefined'&&String(W.VERSION)==='7.1.2',typeof W.VERSION!=='undefined'?W.VERSION:'faltante');
+      ok('Runtime',!!W.NF_RUNTIME&&W.NF_RUNTIME.version==='7.1.2','runtime');
+      ok('Base nutricional',typeof W.allFoods==='function'&&Object.keys(W.allFoods()).length>=98,Object.keys(W.allFoods()).length);
+      ok('Cálculo por alimento',typeof W.calcEntryFromFood==='function','calcEntryFromFood');
+      if(typeof W.calcEntryFromFood==='function'){
+        var e3=W.calcEntryFromFood('Huevo crudo',3);ok('3 huevos = 3 unidades / 150 g',!!e3&&e3.inputUnit==='unit'&&e3.amount===3&&Math.round(Number(e3.grams))===150,JSON.stringify(e3));
+        var g3=W.calcEntryFromFood('Huevo crudo',3,{inputUnit:'g'});ok('3 g explícitos siguen siendo 3 g',!!g3&&g3.inputUnit==='g'&&Number(g3.grams)===3,JSON.stringify(g3));
+      }
+      ok('UI', ['render','showTab','addMeal','saveMeal','addWeight','saveWeight','newProfile'].every(function(n){return typeof W[n]==='function'}),'funciones principales');
+      ok('Recetas',typeof W.newRecipe==='function'&&typeof W.saveRecipe==='function','recetas');
+      ok('Backup',typeof W.exportData==='function'&&typeof W.importData==='function','export/import');
+      ok('Salud',typeof W.healthConnectAvailable==='function'&&typeof W.onHealthData==='function','Health Connect');
+      ok('IA segura',typeof W.callAI==='function'&&W.callAI.toString().indexOf('Authorization')<0,'sin API key en navegador');
+      var qa=W.nutriDataAudit();ok('QA nutricional',qa.ok,qa.results.filter(function(x){return !x.pass}).length+' observaciones críticas');
+      return {version:'7.1.2-final1',ok:R.every(function(x){return x.pass}),results:R,nutrition:qa,errors:(W.NF_RUNTIME&&W.NF_RUNTIME.errors)||[]};
+    }catch(e){return {version:'7.1.2-final1',ok:false,results:[{name:'Excepción',pass:false,detail:e.message||String(e)}],errors:[e.message||String(e)]}}
+  };
 
-  // 9) Register Service Worker and make cache transitions deterministic.
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.addEventListener('controllerchange',function(){
-      try{if(sessionStorage.getItem('nf-sw-reloaded-audit1')==='1')return;sessionStorage.setItem('nf-sw-reloaded-audit1','1');setTimeout(function(){location.reload()},80)}catch(_){}
-    });
-    W.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(e){report('service-worker',e.message||e)})},{once:true});
-  }
-
+  setTimeout(function(){try{W.NF_COMPAT.deepAudit=W.NutriFamiliaDeepAudit()}catch(e){report('deep-audit',e.message||e)}},0);
   migrateLegacy();
+
+  if('serviceWorker' in navigator){
+    W.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(e){report('service-worker',e.message||e)})},{once:true});
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      try{if(sessionStorage.getItem('nf-sw-reloaded-final1')==='1')return;sessionStorage.setItem('nf-sw-reloaded-final1','1');setTimeout(function(){location.reload()},100)}catch(_){ }
+    });
+  }
 })();
