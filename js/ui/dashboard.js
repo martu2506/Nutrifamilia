@@ -1,1 +1,1 @@
-document.write('<script src="../../dashboard.js"><\/script>');
+document.write('<script src="./dashboard.js"><\/script>');

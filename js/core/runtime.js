@@ -1,1 +1,1 @@
-document.write('<script src="../../runtime.js"><\/script>');
+document.write('<script src="./runtime.js"><\/script>');

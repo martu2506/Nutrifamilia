@@ -1,1 +1,1 @@
-document.write('<script src="../../voice.js"><\/script>');
+document.write('<script src="./voice.js"><\/script>');

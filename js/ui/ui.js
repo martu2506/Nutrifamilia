@@ -1,1 +1,1 @@
-document.write('<script src="../../ui.js"><\/script>');
+document.write('<script src="./ui.js"><\/script>');

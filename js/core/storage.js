@@ -1,1 +1,1 @@
-document.write('<script src="../../storage.js"><\/script>');
+document.write('<script src="./storage.js"><\/script>');
