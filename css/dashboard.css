@@ -1,2 +1,24 @@
-/* NutriFamilia V7.1.2 — placeholder module stylesheet.
-   Shared styles live in base.css; this file exists so the declared asset path resolves. */
+/* NutriFamilia V7.1.2 — dashboard centered override */
+.dashboard-macros{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:1rem;
+  align-items:stretch;
+  justify-content:center;
+  justify-items:stretch;
+  max-width:860px;
+  margin:1rem auto;
+}
+.macro-gauge-card{
+  width:100%;
+  min-width:0;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+.dashboard-scale{display:flex;justify-content:space-between;max-width:860px;margin:.5rem auto}
+.dashboard-status{text-align:center}
+@media(max-width:700px){.dashboard-macros{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:430px){.dashboard-macros{grid-template-columns:1fr;}}
