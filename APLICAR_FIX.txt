@@ -1,0 +1,15 @@
+NutriFamilia V7.1.2 — FIX DE ESTRUCTURA
+
+Objetivo
+- Resolver los 404 generados porque index.html apunta a js/... y css/... pero el repo tenía los módulos JS en la raíz y no tenía la carpeta css.
+- Mantener los módulos raíz existentes como fuente de verdad, sin reescribir la lógica de nutrición.
+
+Aplicación
+1. Copiar el contenido de este paquete en la raíz del repositorio Nutrifamilia.
+2. Conservar los archivos raíz existentes: runtime.js, nutrition-data.js, nutrition-engine.js, storage.js, health.js, ai.js, voice.js, ai-results.js, meals.js, recipes.js, data-io.js, ui.js, dashboard.js y diagnostics.js.
+3. Reemplazar sw.js por el incluido aquí.
+4. No hace falta editar index.html: las rutas que ya declara pasarán a resolver mediante los shims js/... y css/....
+5. Publicar/commit y luego abrir la PWA con recarga completa.
+
+Nota
+Los archivos js/... son shims deliberadamente pequeños: cargan el módulo raíz correspondiente para evitar duplicar la lógica existente.
