@@ -1,0 +1,38 @@
+/* NutriFamilia V7.1.2 — Inicio visual seleccionado por el usuario */
+:root{
+  --nf-aqua:#7FE3D2;
+  --nf-aqua-soft:#BFF3E8;
+  --nf-aqua-deep:#2FB8A5;
+  --nf-yellow:#FFD83D;
+  --nf-black:#111111;
+  --nf-whiteish:#F7FFFD;
+  --nf-line:#42B8A8;
+  --nf-shadow:0 8px 24px rgba(17,17,17,.10);
+  font-family:Arial,Helvetica,sans-serif!important;
+}
+html,body{font-family:Arial,Helvetica,sans-serif!important;background:var(--nf-yellow)!important;color:var(--nf-black)!important}
+body,button,input,select,textarea{font-family:Arial,Helvetica,sans-serif!important}
+.wrap{width:min(980px,100%)!important;margin:0 auto!important;padding-top:1.35rem!important}
+.card,.meal,.modal,.meal-card,.meal-line,.notice,.empty,fieldset{background:var(--nf-aqua)!important;color:var(--nf-black)!important;border-color:var(--nf-line)!important;box-shadow:var(--nf-shadow)!important}
+.modal{background:var(--nf-aqua)!important}
+input,textarea{background:var(--nf-whiteish)!important;color:var(--nf-black)!important}
+select{background:var(--nf-aqua-soft)!important;color:var(--nf-black)!important;border-color:var(--nf-aqua-deep)!important}
+.tabs button{font-family:Arial,Helvetica,sans-serif!important}
+.dashboard-hero{width:min(760px,100%);margin:0 auto 1rem!important;border-radius:28px!important;padding:1.25rem 1.1rem 1.4rem!important}
+.dashboard-heading{text-align:center;margin-bottom:.45rem}.dashboard-heading .eyebrow{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.7}.dashboard-heading h2{margin:.2rem 0 0;font-size:1.55rem}
+.dashboard-calorie-row{display:flex;justify-content:center;align-items:center;gap:1.1rem;max-width:500px;margin:.2rem auto .5rem}
+.dashboard-kcal-copy{text-align:left;min-width:155px}.kcal-label{display:block;font-size:.9rem;font-weight:800;opacity:.72}.dashboard-kcal-copy strong{font-size:2.4rem;line-height:1}.dashboard-kcal-copy .target{font-weight:700}.dashboard-kcal-copy .remaining{margin-top:.5rem;font-size:.86rem;line-height:1.3}
+.nf-gauge-large{width:210px;height:145px;flex:0 0 210px}.gauge-track{stroke:rgba(17,17,17,.18)!important}.gauge-progress{stroke:var(--nf-black)!important}.gauge-tick{stroke:rgba(17,17,17,.32)!important}.needle{background:var(--nf-black)!important}.gauge-center{display:flex;flex-direction:column;bottom:5px!important}.gauge-center strong{font-size:1.4rem}.gauge-center small{font-size:.7rem;opacity:.7}
+.dashboard-macros{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:1rem!important;max-width:620px;margin:1rem auto 0!important;justify-items:center}
+.macro-gauge-card{background:transparent!important;border:0!important;box-shadow:none!important;padding:.25rem!important;color:var(--nf-black)!important;width:100%;display:flex;flex-direction:column;align-items:center;gap:.18rem}
+.macro-ring{width:126px;height:126px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--nf-black) var(--macro-progress),rgba(17,17,17,.16) 0);position:relative}
+.macro-ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--nf-aqua)}
+.macro-ring-inner{position:relative;z-index:1;width:90px;height:90px;border-radius:50%;background:var(--nf-aqua-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(17,17,17,.14)}
+.macro-ring-inner strong{font-size:1.45rem;line-height:1}.macro-ring-inner span{font-size:.78rem;font-weight:800;opacity:.7}.macro-name{font-weight:900;font-size:.98rem}.macro-target{font-size:.78rem;opacity:.7}
+.dashboard-actions{max-width:760px;margin:.75rem auto 1rem!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important}
+.dashboard-actions button{width:100%}
+.meal-stack{display:grid;gap:.65rem}.meal-card{border-radius:16px;padding:.8rem;border:1px solid rgba(17,17,17,.12);box-shadow:none!important}.meal-line{display:flex;justify-content:space-between;gap:.75rem;align-items:center;margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(17,17,17,.12);box-shadow:none!important;background:transparent!important}.meal-line small{display:block;opacity:.7}
+.quick-actions,.actions,.row,.unitrow{gap:.8rem!important}
+.tabs{background:var(--nf-black)!important}.tabs button{background:var(--nf-aqua-soft)!important;color:var(--nf-black)!important}.tabs button:hover,.tabs button:focus-visible{background:var(--nf-yellow)!important}
+.notice{box-shadow:none!important;margin:.45rem 0!important}.modal-backdrop{background:rgba(17,17,17,.62)!important}
+@media(max-width:700px){.dashboard-hero{border-radius:22px!important;padding:1rem .8rem 1.15rem!important}.dashboard-calorie-row{gap:.2rem;flex-direction:column}.dashboard-kcal-copy{text-align:center;min-width:0}.nf-gauge-large{width:200px;height:135px;flex-basis:135px}.dashboard-macros{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:.35rem!important}.macro-ring{width:94px;height:94px}.macro-ring::before{inset:7px}.macro-ring-inner{width:68px;height:68px}.macro-ring-inner strong{font-size:1.08rem}.macro-name{font-size:.82rem}.macro-target{font-size:.7rem}.dashboard-actions{grid-template-columns:1fr!important}}
