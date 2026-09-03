@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="./css/accessibility.css">
 <link rel="stylesheet" href="./css/theme-yellow-black.css">
 <link rel="stylesheet" href="./css/dashboard.css">
+<link rel="stylesheet" href="./css/tabs-fix.css">
 </head>
 <body>
 <header><h1>NutriFamilia</h1><p>Comé, registrá y entendé tu día sin complicarte</p></header>
@@ -24,7 +25,6 @@
   <section class="hidden" id="weight"></section>
   <section class="hidden" id="profile"></section>
 </main>
-
 <nav class="tabs" aria-label="Navegación principal">
   <button type="button" aria-label="Inicio" data-tab="home">
     <span class="tab-icon">🏠</span>
@@ -47,10 +47,8 @@
     <span class="tab-label">Perfil</span>
   </button>
 </nav>
-
 <button class="fab" id="addBtn" type="button" aria-label="Agregar alimento">+</button>
 <div class="hidden" id="modal"></div>
-
 <script src="./js/core/runtime.js"></script>
 <script src="./js/data/nutrition-data.js"></script>
 <script src="./js/core/nutrition-engine.js"></script>
