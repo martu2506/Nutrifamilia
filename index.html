@@ -8,18 +8,63 @@
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A5%97%3C/text%3E%3C/svg%3E" rel="icon"/>
 <title>NutriFamilia</title>
-<link rel="stylesheet" href="./css/base.css"><link rel="stylesheet" href="./css/components.css"><link rel="stylesheet" href="./css/layout.css"><link rel="stylesheet" href="./css/accessibility.css"><link rel="stylesheet" href="./css/theme-yellow-black.css"><link rel="stylesheet" href="./css/dashboard.css">
+<link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/accessibility.css">
+<link rel="stylesheet" href="./css/theme-yellow-black.css">
+<link rel="stylesheet" href="./css/dashboard.css">
 </head>
 <body>
 <header><h1>NutriFamilia</h1><p>Comé, registrá y entendé tu día sin complicarte</p></header>
-<main class="wrap"><section id="home"></section><section class="hidden" id="journal"></section><section class="hidden" id="progress"></section><section class="hidden" id="weight"></section><section class="hidden" id="profile"></section></main>
+<main class="wrap">
+  <section id="home"></section>
+  <section class="hidden" id="journal"></section>
+  <section class="hidden" id="progress"></section>
+  <section class="hidden" id="weight"></section>
+  <section class="hidden" id="profile"></section>
+</main>
+
 <nav class="tabs" aria-label="Navegación principal">
-<button type="button" aria-label="Inicio" data-tab="home">⌂<br/>Inicio</button>
-<button type="button" aria-label="Comidas" data-tab="journal">◈<br/>Comidas</button>
-<button type="button" aria-label="Progreso" data-tab="progress">◔<br/>Progreso</button>
-<button type="button" aria-label="Peso" data-tab="weight">◉<br/>Peso</button>
-<button type="button" aria-label="Perfil" data-tab="profile">○<br/>Perfil</button>
+  <button type="button" aria-label="Inicio" data-tab="home">
+    <span class="tab-icon">🏠</span>
+    <span class="tab-label">Inicio</span>
+  </button>
+  <button type="button" aria-label="Comidas" data-tab="journal">
+    <span class="tab-icon">🍽️</span>
+    <span class="tab-label">Comidas</span>
+  </button>
+  <button type="button" aria-label="Progreso" data-tab="progress">
+    <span class="tab-icon">📊</span>
+    <span class="tab-label">Progreso</span>
+  </button>
+  <button type="button" aria-label="Peso" data-tab="weight">
+    <span class="tab-icon">⚖️</span>
+    <span class="tab-label">Peso</span>
+  </button>
+  <button type="button" aria-label="Perfil" data-tab="profile">
+    <span class="tab-icon">👤</span>
+    <span class="tab-label">Perfil</span>
+  </button>
 </nav>
-<button class="fab" id="addBtn" type="button" aria-label="Agregar alimento">+</button><div class="hidden" id="modal"></div>
-<script src="./js/core/runtime.js"></script><script src="./js/data/nutrition-data.js"></script><script src="./js/core/nutrition-engine.js"></script><script src="./js/core/storage.js"></script><script src="./js/features/health.js"></script><script src="./js/features/ai.js"></script><script src="./js/features/voice.js"></script><script src="./js/features/ai-results.js"></script><script src="./js/features/meals.js"></script><script src="./js/features/recipes.js"></script><script src="./js/core/data-io.js"></script><script src="./js/ui/ui.js"></script><script src="./js/ui/dashboard.js"></script><script src="./js/core/diagnostics.js"></script><script src="./js/compat.js"></script>
-</body></html>
+
+<button class="fab" id="addBtn" type="button" aria-label="Agregar alimento">+</button>
+<div class="hidden" id="modal"></div>
+
+<script src="./js/core/runtime.js"></script>
+<script src="./js/data/nutrition-data.js"></script>
+<script src="./js/core/nutrition-engine.js"></script>
+<script src="./js/core/storage.js"></script>
+<script src="./js/features/health.js"></script>
+<script src="./js/features/ai.js"></script>
+<script src="./js/features/voice.js"></script>
+<script src="./js/features/ai-results.js"></script>
+<script src="./js/features/meals.js"></script>
+<script src="./js/features/recipes.js"></script>
+<script src="./js/core/data-io.js"></script>
+<script src="./js/ui/ui.js"></script>
+<script src="./js/ui/dashboard.js"></script>
+<script src="./js/core/diagnostics.js"></script>
+<script src="./js/compat.js"></script>
+</body>
+</html>
