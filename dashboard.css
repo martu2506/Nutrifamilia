@@ -1,0 +1,309 @@
+/* NutriFamilia V7.2.1 — dashboard.css — contraste corregido */
+
+:root{
+  --nf-yellow:#FFD84D;
+  --nf-yellow-soft:#FFF2A8;
+  --nf-aqua:#B8F2E6;
+  --nf-aqua-mid:#7EDCCB;
+  --nf-black:#111111;
+  --nf-ink:rgba(17,17,17,.9);
+  --nf-line:rgba(17,17,17,.2);
+  --nf-orange:#E8650A;
+  --nf-purple:#6C5FC7;
+  --nf-teal:#1A8C76;
+  --nf-green:#2E8B3A;
+  --nf-red:#C0392B;
+  --nf-font:Arial,Helvetica,sans-serif;
+  --nf-radius:18px;
+}
+
+*{box-sizing:border-box}
+body{font-family:var(--nf-font)!important;color:var(--nf-black)!important;background:var(--nf-yellow)!important}
+header{background:transparent!important;padding:10px 16px 2px!important;max-width:980px;margin:auto!important}
+header h1{font-size:clamp(18px,4vw,26px)!important;font-weight:900!important;margin:0!important;line-height:1.1!important}
+header p{margin:2px 0 0!important;font-size:12px!important;opacity:.7}
+.wrap{max-width:980px!important;margin:0 auto!important;padding:0 12px 100px!important}
+
+/* ── HOME ── */
+.nf-home{
+  background:var(--nf-aqua);
+  border-radius:var(--nf-radius);
+  padding:14px 18px 24px;
+  box-shadow:0 10px 32px rgba(0,0,0,.13);
+  max-width:940px;
+  margin:0 auto;
+  color:var(--nf-black);
+  overflow:hidden;
+}
+.nf-welcome-screen{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px;text-align:center}
+.nf-welcome-screen .nf-welcome-icon{font-size:52px}
+.nf-welcome-screen h2{margin:0;font-size:22px;font-weight:900}
+
+/* ── TOPBAR ── */
+.nf-topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:2px solid rgba(17,17,17,.2);margin-bottom:10px}
+.nf-topbar-title{font-size:13px;font-weight:900;letter-spacing:.06em}
+.nf-topbar-date{font-size:11px;font-weight:700;opacity:.75}
+
+/* ── KICKER ── */
+.nf-kicker{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:rgba(17,17,17,.6);margin-bottom:6px}
+
+.nf-section{padding:4px 0 12px;border-bottom:2px solid rgba(17,17,17,.15)}
+
+/* ══════════════════════════════════
+   GAUGE DE CALORÍAS
+   ══════════════════════════════════ */
+.nf-cal-gauge{
+  position:relative;
+  max-width:320px;
+  margin:0 auto;
+  height:140px;
+  text-align:center;
+}
+.nf-cal-gauge svg{display:block;width:100%;height:100%;overflow:visible}
+
+/* Track — fondo del arco, oscuro y visible */
+.nf-gauge-track{
+  fill:none;
+  stroke:rgba(17,17,17,.25);
+  stroke-width:14;
+  stroke-linecap:round;
+}
+/* Progreso — naranja oscuro bien visible */
+.nf-gauge-progress{
+  fill:none;
+  stroke:var(--nf-orange);
+  stroke-width:14;
+  stroke-linecap:round;
+  transition:stroke-dashoffset .5s ease;
+}
+.nf-gauge-progress.over{stroke:var(--nf-red)}
+
+.nf-gauge-ticks{stroke:rgba(17,17,17,.4);stroke-width:1.8;stroke-linecap:round}
+
+/* Aguja */
+.nf-gauge-needle{
+  position:absolute;
+  left:50%;bottom:24%;
+  width:4px;height:38%;
+  background:var(--nf-black);
+  border-radius:4px 4px 0 0;
+  transform-origin:50% 100%;
+  transform:translateX(-50%) rotate(var(--needle-angle,-90deg));
+  transition:transform .5s ease;
+}
+.nf-gauge-needle span{
+  display:block;width:12px;height:12px;
+  background:var(--nf-black);border-radius:50%;
+  position:absolute;bottom:-6px;left:-4px;
+}
+
+/* Centro numérico */
+.nf-gauge-center{
+  position:absolute;left:0;right:0;bottom:24px;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+}
+.nf-gauge-center strong{font-size:32px;font-weight:900;line-height:1;color:var(--nf-black)}
+.nf-gauge-center span{font-size:12px;font-weight:800;color:rgba(17,17,17,.7)}
+.nf-gauge-center small{font-size:11px;color:rgba(17,17,17,.55)}
+
+.nf-gauge-status{display:block;margin-top:4px;font-size:12px;font-weight:800;text-align:center;color:var(--nf-black)}
+.nf-gauge-status.over{color:var(--nf-red)}
+.nf-gauge-status.ok{color:#1a6e37}
+
+/* ══════════════════════════════════
+   MACROS — 4 ANILLOS
+   ══════════════════════════════════ */
+.nf-macros-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:14px 0 12px;
+  border-bottom:2px solid rgba(17,17,17,.15);
+}
+.nf-macro{text-align:center;min-width:0}
+
+/* Anillo — fondo oscuro para que se vea aunque esté en 0 */
+.nf-macro-ring{
+  width:70px;height:70px;
+  border-radius:50%;
+  /* fondo siempre visible: track oscuro */
+  background:
+    conic-gradient(
+      var(--clr, var(--nf-orange)) var(--fill, 0%),
+      rgba(17,17,17,.18) 0%
+    );
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 5px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.nf-macro-ring.is-over{
+  background:conic-gradient(var(--nf-red) var(--fill,0%), rgba(17,17,17,.18) 0%);
+}
+
+/* Interior blanco para el número */
+.nf-macro-ring-inner{
+  width:50px;height:50px;
+  border-radius:50%;
+  background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.1);
+}
+.nf-macro-ring-inner strong{font-size:14px;font-weight:900;line-height:1.1;color:var(--nf-black)}
+.nf-macro-ring-inner span{font-size:10px;font-weight:700;color:rgba(17,17,17,.6)}
+
+.nf-macro-label{font-size:11px;font-weight:900;color:var(--nf-black)}
+.nf-macro-target{font-size:10px;font-weight:700;color:rgba(17,17,17,.6);margin-top:1px}
+.nf-macro-over{font-size:10px;font-weight:900;color:var(--nf-red);margin-top:2px}
+
+/* ══════════════════════════════════
+   ACTIVIDAD Y AGUA — barras visibles
+   ══════════════════════════════════ */
+.nf-activity-card{padding:12px 0;border-bottom:2px solid rgba(17,17,17,.15)}
+
+.nf-prog-row{margin-bottom:12px}
+.nf-prog-labels{
+  display:flex;justify-content:space-between;
+  font-size:12px;font-weight:900;
+  color:var(--nf-black);margin-bottom:5px;
+}
+.nf-prog-labels small{font-weight:700;color:rgba(17,17,17,.65)}
+
+/* Barra de fondo — oscura y visible */
+.nf-prog-bar{
+  height:9px;
+  background:rgba(17,17,17,.2);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.15);
+}
+/* Relleno — colores sólidos bien contrastados */
+.nf-prog-fill{
+  height:100%;border-radius:8px;
+  transition:width .5s ease;
+  min-width:3px;
+}
+.nf-prog-fill.ok{background:var(--nf-teal)}
+.nf-prog-fill.mid{background:var(--nf-orange)}
+.nf-prog-fill.low{background:rgba(17,17,17,.35)}
+
+.nf-steps-kcal{font-size:10px;font-weight:700;color:rgba(17,17,17,.6);margin:-4px 0 10px}
+
+/* Botones +250 ml y Editar — bien visibles */
+.nf-water-btns{display:flex;gap:8px;margin-top:8px}
+.nf-pill-btn{
+  border:2px solid rgba(17,17,17,.5);
+  border-radius:10px;padding:8px 16px;
+  font-family:var(--nf-font);font-size:12px;font-weight:900;
+  cursor:pointer;
+  background:rgba(17,17,17,.12);
+  color:var(--nf-black);
+  transition:background .15s,border-color .15s;
+}
+.nf-pill-btn:hover{background:rgba(17,17,17,.22);border-color:rgba(17,17,17,.7)}
+.nf-pill-btn.secondary{background:transparent;border:2px solid rgba(17,17,17,.45)}
+
+/* ══════════════════════════════════
+   PLAN NUTRICIONAL
+   ══════════════════════════════════ */
+.nf-plan-card{padding:10px 0;border-bottom:2px solid rgba(17,17,17,.15)}
+.nf-plan-row{display:flex;align-items:center;justify-content:space-between}
+.nf-plan-row strong{font-size:14px;font-weight:900;color:var(--nf-black)}
+.nf-text-btn{
+  background:rgba(17,17,17,.1);
+  border:2px solid rgba(17,17,17,.35);
+  border-radius:8px;padding:5px 10px;
+  font-family:var(--nf-font);font-size:12px;font-weight:900;
+  cursor:pointer;color:var(--nf-black);
+  transition:background .15s;
+}
+.nf-text-btn:hover{background:rgba(17,17,17,.2)}
+
+/* ══════════════════════════════════
+   REGISTRO POR COMIDA
+   ══════════════════════════════════ */
+.nf-meals-section{padding:12px 0 4px}
+.nf-meal-block{border-top:2px solid rgba(17,17,17,.15);padding:9px 0}
+.nf-meal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.nf-meal-name{font-size:13px;font-weight:900;color:var(--nf-black)}
+.nf-meal-head .muted{margin-left:8px;font-size:11px;font-weight:700;color:rgba(17,17,17,.6)}
+
+.nf-meal-add{
+  width:32px;height:32px;border-radius:50%;border:2px solid rgba(17,17,17,.4);
+  background:rgba(17,17,17,.12);color:var(--nf-black);
+  font-size:22px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:400;transition:background .15s;
+}
+.nf-meal-add:hover{background:rgba(17,17,17,.25)}
+
+.nf-food-row{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:6px 0;border-top:1px dashed rgba(17,17,17,.2);font-size:12px;
+}
+.nf-food-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nf-food-info span{font-weight:800;color:var(--nf-black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nf-food-info small{font-size:10px;color:rgba(17,17,17,.6)}
+.nf-food-btns{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.nf-icon-btn{
+  border:1.5px solid rgba(17,17,17,.3);background:rgba(17,17,17,.08);
+  cursor:pointer;font-size:15px;color:var(--nf-black);
+  padding:4px 7px;border-radius:7px;transition:background .15s;font-weight:700;
+}
+.nf-icon-btn:hover{background:rgba(17,17,17,.18)}
+.nf-icon-btn.danger{color:var(--nf-red);border-color:rgba(192,57,43,.4)}
+.nf-icon-btn.danger:hover{background:rgba(192,57,43,.12)}
+
+.nf-food-empty{font-size:11px;color:rgba(17,17,17,.5);font-style:italic;padding:2px 0}
+.nf-food-extra{display:block;font-size:10px;color:rgba(17,17,17,.5);padding:3px 0}
+.nf-all-empty{text-align:center;padding:16px 8px;font-size:13px;font-weight:700;color:rgba(17,17,17,.6)}
+.nf-more-btn{
+  display:block;width:100%;margin-top:10px;
+  background:rgba(17,17,17,.12);border:2px solid rgba(17,17,17,.25);
+  border-radius:12px;padding:10px;
+  font-family:var(--nf-font);font-size:12px;font-weight:900;
+  cursor:pointer;color:var(--nf-black);text-align:center;
+  transition:background .15s;
+}
+.nf-more-btn:hover{background:rgba(17,17,17,.22)}
+
+/* ══════════════════════════════════
+   TABS, FAB, FORMULARIOS
+   ══════════════════════════════════ */
+.tabs{font-family:var(--nf-font)!important;background:#111!important;border-top:0!important}
+.tabs button{font-family:inherit!important;background:var(--nf-aqua)!important;color:#111!important;font-weight:800!important}
+.tabs button.active,.tabs button:hover{background:var(--nf-yellow)!important;color:#111!important}
+.fab{background:#111!important;color:var(--nf-yellow)!important;border:3px solid var(--nf-yellow)!important}
+
+.card,.meal,.modal,.notice,.empty{
+  background:var(--nf-aqua)!important;
+  color:#111!important;
+  border:2px solid rgba(17,17,17,.3)!important;
+}
+input,select,textarea{
+  font-family:var(--nf-font)!important;
+  background:#fff!important;
+  color:#111!important;
+  border:2px solid rgba(17,17,17,.4)!important;
+}
+
+/* ══════════════════════════════════
+   RESPONSIVO
+   ══════════════════════════════════ */
+@media(max-width:600px){
+  .nf-home{border-radius:14px;padding:10px 12px 20px}
+  .nf-macros-grid{gap:6px}
+  .nf-macro-ring{width:58px;height:58px}
+  .nf-macro-ring-inner{width:40px;height:40px}
+  .nf-macro-ring-inner strong{font-size:12px}
+  .nf-macro-label{font-size:10px}
+  .nf-cal-gauge{height:120px}
+  .nf-gauge-center strong{font-size:26px}
+}
+@media(max-width:380px){
+  .nf-macros-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .nf-macro-ring{width:72px;height:72px}
+  .nf-macro-ring-inner{width:52px;height:52px}
+}
+@media(prefers-reduced-motion:reduce){
+  .nf-gauge-progress,.nf-gauge-needle,.nf-prog-fill,.nf-macro-ring{transition:none!important}
+}
