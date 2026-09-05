@@ -1,4 +1,4 @@
-/* NutriFamilia V7.1.2 — Dashboard final unificado */
+/* NutriFamilia V7.2.0 — Dashboard final unificado */
 (function(){
   const escLocal=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const clamp=(v,min=0,max=100)=>Math.max(min,Math.min(max,Number(v)||0));

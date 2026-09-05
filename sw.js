@@ -1,4 +1,4 @@
-const CACHE='nutrifamilia-v7.1.2-audit1';
+const CACHE='nutrifamilia-v7.2.0';
 const SHELL=[
  './index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
  './css/base.css','./css/components.css','./css/layout.css','./css/accessibility.css','./css/theme-yellow-black.css','./css/dashboard.css',

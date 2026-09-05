@@ -1,9 +1,9 @@
-/* NutriFamilia V7.1.2 — compatibilidad, correcciones funcionales y QA nutricional */
+/* NutriFamilia V7.2.0 — compatibilidad, correcciones funcionales y QA nutricional */
 (function(){
   'use strict';
   var W=window;
   W.NF_COMPAT=W.NF_COMPAT||{};
-  W.NF_COMPAT.version='7.1.2-final1';
+  W.NF_COMPAT.version='7.2.0-final1';
   W.NF_COMPAT.patches=[];
   function note(x){W.NF_COMPAT.patches.push(x)}
   function report(type,msg){
@@ -211,8 +211,8 @@
   W.NutriFamiliaDeepAudit=function(){
     var R=[];function ok(n,p,d){R.push({name:n,pass:!!p,detail:String(d||'')})}
     try{
-      ok('Versión',typeof W.VERSION!=='undefined'&&String(W.VERSION)==='7.1.2',typeof W.VERSION!=='undefined'?W.VERSION:'faltante');
-      ok('Runtime',!!W.NF_RUNTIME&&W.NF_RUNTIME.version==='7.1.2','runtime');
+      ok('Versión',typeof W.VERSION!=='undefined'&&String(W.VERSION)==='7.2.0',typeof W.VERSION!=='undefined'?W.VERSION:'faltante');
+      ok('Runtime',!!W.NF_RUNTIME&&W.NF_RUNTIME.version==='7.2.0','runtime');
       ok('Base nutricional',typeof W.allFoods==='function'&&Object.keys(W.allFoods()).length>=98,Object.keys(W.allFoods()).length);
       ok('Cálculo por alimento',typeof W.calcEntryFromFood==='function','calcEntryFromFood');
       if(typeof W.calcEntryFromFood==='function'){
@@ -225,8 +225,8 @@
       ok('Salud',typeof W.healthConnectAvailable==='function'&&typeof W.onHealthData==='function','Health Connect');
       ok('IA segura',typeof W.callAI==='function'&&W.callAI.toString().indexOf('Authorization')<0,'sin API key en navegador');
       var qa=W.nutriDataAudit();ok('QA nutricional',qa.ok,qa.results.filter(function(x){return !x.pass}).length+' observaciones críticas');
-      return {version:'7.1.2-final1',ok:R.every(function(x){return x.pass}),results:R,nutrition:qa,errors:(W.NF_RUNTIME&&W.NF_RUNTIME.errors)||[]};
-    }catch(e){return {version:'7.1.2-final1',ok:false,results:[{name:'Excepción',pass:false,detail:e.message||String(e)}],errors:[e.message||String(e)]}}
+      return {version:'7.2.0-final1',ok:R.every(function(x){return x.pass}),results:R,nutrition:qa,errors:(W.NF_RUNTIME&&W.NF_RUNTIME.errors)||[]};
+    }catch(e){return {version:'7.2.0-final1',ok:false,results:[{name:'Excepción',pass:false,detail:e.message||String(e)}],errors:[e.message||String(e)]}}
   };
 
   setTimeout(function(){try{W.NF_COMPAT.deepAudit=W.NutriFamiliaDeepAudit()}catch(e){report('deep-audit',e.message||e)}},0);

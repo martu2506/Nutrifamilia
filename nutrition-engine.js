@@ -1,3 +1,49 @@
+
+/* ── Grupos botánicos para diversidad vegetal
+   Mapea nombre de alimento → ID de grupo botánico (especie/familia)
+   Así "Tomate crudo", "Tomate cocido", "Tomate" cuentan como 1 sola planta */
+const PLANT_GROUP_MAP={
+  'Tomate':                  'lycopersicum',
+  'Tomate crudo':            'lycopersicum',
+  'Tomate cocido':           'lycopersicum',
+  'Brócoli':                 'brassica_oleracea',
+  'Coliflor':                'brassica_oleracea_botrytis',
+  'Lechuga':                 'lactuca_sativa',
+  'Rúcula':                  'eruca_vesicaria',
+  'Cebolla':                 'allium_cepa',
+  'Verdeo':                  'allium_fistulosum',
+  'Morrón':                  'capsicum_annuum',
+  'Pimiento verde crudo':    'capsicum_annuum',
+  'Zanahoria':               'daucus_carota',
+  'Zapallito':               'cucurbita_pepo',
+  'Zapallito crudo':         'cucurbita_pepo',
+  'Calabaza':                'cucurbita_maxima',
+  'Pepino':                  'cucumis_sativus',
+  'Champiñones':             'agaricus_bisporus',
+  'Palta':                   'persea_americana',
+  'Banana':                  'musa_spp',
+  'Manzana':                 'malus_domestica',
+  'Pera':                    'pyrus_communis',
+  'Naranja':                 'citrus_sinensis',
+  'Kiwi':                    'actinidia_deliciosa',
+  'Frutilla':                'fragaria_x_ananassa',
+  'Arándanos':               'vaccinium_myrtillus',
+  'Limón':                   'citrus_limon',
+  'Lentejas cocidas':        'lens_culinaris',
+  'Garbanzos cocidos':       'cicer_arietinum',
+  'Avena en hojuelas':       'avena_sativa',
+  'Avena cocida':            'avena_sativa',
+  'Maní':                    'arachis_hypogaea',
+  'Almendras':               'prunus_dulcis',
+  'Nueces':                  'juglans_regia',
+  'Papa hervida':            'solanum_tuberosum',
+  'Batata hervida':          'ipomoea_batatas',
+};
+
+function plantGroupId(foodName){
+  return PLANT_GROUP_MAP[foodName] || foodName.toLowerCase().replace(/\s+/g,'_');
+}
+
 function objectiveLabel(id){return OBJECTIVES[id]?.label||id}
 function getObjectives(p){let ids=Array.isArray(p.objectives)&&p.objectives.length?p.objectives:[p.goalType==='Bajar peso'?'lose_fat':'food_quality'];return ids.filter(id=>OBJECTIVES[id])}
 function compatibleObjectives(ids){const out=[];for(const a of ids){for(const b of ids){if(a===b)continue;if(!OBJECTIVE_COMPAT[a]?.has(b))out.push([a,b]);}}return out.filter((x,i)=>out.findIndex(y=>y[0]===x[1]&&y[1]===x[0])<i)}
@@ -7,4 +53,4 @@ function objectiveSummary(p){const op=objectiveProfile(p);if(op.conflicts.length
 const foodMeta={
  'Pechuga de pollo':'whole','Pollo muslo sin piel':'whole','Patamuslo sin piel':'whole','Carne vacuna magra':'whole','Bife de carne magra':'whole','Vacío magro':'whole','Bondiola de cerdo':'whole','Cerdo magro':'whole','Atún al natural':'whole','Sardinas en aceite':'whole','Merluza':'whole','Salmón':'whole','Huevo hervido':'whole','Huevo revuelto':'whole','Brócoli':'plant','Coliflor':'plant','Lechuga':'plant','Tomate':'plant','Rúcula':'plant','Cebolla':'plant','Morrón':'plant','Zanahoria':'plant','Pepino':'plant','Verdeo':'plant','Champiñones':'plant','Palta':'plant','Banana':'plant','Manzana':'plant','Pera':'plant','Naranja':'plant','Kiwi':'plant','Frutilla':'plant','Arándanos':'plant','Limón':'plant','Lentejas cocidas':'plant','Garbanzos cocidos':'plant','Avena en hojuelas':'plant','Pan blanco':'ultra','Factura':'ultra','Alfajor':'ultra','Pizza muzzarella':'ultra','Mayonesa':'ultra','Milanesa de pollo':'processed','Milanesa de carne':'processed'
 };
-function foodWithMeta(name,v){const o={...v};o.state=o.state||(/\bcrudo\b/i.test(name)?'crudo':/\b(hervido|cocido|plancha|horno|asado|salteado|revuelto)\b/i.test(name)?(name.match(/\b(hervido|cocido|plancha|horno|asado|salteado|revuelto)\b/i)||[])[1]:'sin especificar');o.basis=o.basis||(o.unitMode==='portion'?`por ${o.unitLabel||'porción'}`:'por 100 g');o.source=o.source||'Base local provisional';o.sourceStatus=o.sourceStatus||'Pendiente de validación alimento por alimento';o.unitOptions=Array.isArray(o.unitOptions)?o.unitOptions:[{value:'g',label:'g',gramsPerUnit:1}];return o}
+function foodWithMeta(name,v){const o={...v};o.plantGroupId=plantGroupId(name);o.state=o.state||(/\bcrudo\b/i.test(name)?'crudo':/\b(hervido|cocido|plancha|horno|asado|salteado|revuelto)\b/i.test(name)?(name.match(/\b(hervido|cocido|plancha|horno|asado|salteado|revuelto)\b/i)||[])[1]:'sin especificar');o.basis=o.basis||(o.unitMode==='portion'?`por ${o.unitLabel||'porción'}`:'por 100 g');o.source=o.source||'Base local provisional';o.sourceStatus=o.sourceStatus||'Pendiente de validación alimento por alimento';o.unitOptions=Array.isArray(o.unitOptions)?o.unitOptions:[{value:'g',label:'g',gramsPerUnit:1}];return o}

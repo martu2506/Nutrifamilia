@@ -30,7 +30,7 @@ function plantDiversity(pid){
  db.entries.filter(x=>x.pid===pid&&days(7).includes(x.date)).forEach(x=>{if(x.plantKey)set.add(x.plantKey);});
  return set.size;
 }
-function plantDiversityToday(pid,date=localDate()){let set=new Set();db.entries.filter(x=>x.pid===pid&&x.date===date).forEach(x=>{if(Array.isArray(x.plantKeys))x.plantKeys.forEach(k=>set.add(k));else if(x.plantKey)set.add(x.plantKey)});return set.size}
+function plantDiversityToday(pid,date=localDate()){let set=new Set();db.entries.filter(x=>x.pid===pid&&x.date===date).forEach(x=>{if(x.plantGroupId)set.add(x.plantGroupId);else if(Array.isArray(x.plantKeys))x.plantKeys.forEach(k=>set.add(k));else if(x.plantKey)set.add(x.plantKey)});return set.size}
 function nutritionScore(p,date=localDate()){
  const t=totals(date,p.id),tg=targets(p);
  if(!t||t.kcal<=0)return {score:0,components:{}};
@@ -47,4 +47,4 @@ function smartScoreLabel(s){return s>=80?'Excelente':s>=65?'Bien encaminado':s>=
 function healthConnectAvailable(){return !!window.NutriNative&&window.NutriNative.healthConnectAvailable()}
 function connectHealth(){if(!healthConnectAvailable()){alert('Health Connect no está disponible o todavía no fue inicializado en este teléfono.');return}window.NutriNative.requestHealthConnect()}
 function syncHealth(){if(!healthConnectAvailable()){alert('Health Connect no está disponible.');return}window.NutriNative.syncHealthConnect()}
-window.onHealthData=function(d){if(d.error){alert(d.error);return}let p=getActiveProfile();if(d.steps!=null)db.stepsByDate[`${p.id}|${localDate()}`]=Math.max(0,Math.min(50000,Number(d.steps)||0));if(Number(d.weight)>=30&&Number(d.weight)<=300){let ws=weights(p.id);let today=ws.find(x=>x.date===localDate());if(!today)db.weights.push({pid:p.id,date:localDate(),kg:d.weight,source:'Health Connect'})}if(d.sleepHours>0){db.sleepByDate[`${p.id}|${localDate()}`]=d.sleepHours}db.healthSync=db.healthSync||{};db.healthSync[p.id]={date:localDate(),activeCalories:d.activeCalories||0,heartRateAvg:d.heartRateAvg||0};save();render();alert('Health Connect sincronizado.');}
+window.onHealthData=function(d){if(d.error){alert(d.error);return}let p=getActiveProfile();if(d.steps!=null)db.stepsByDate[`${p.id}|${localDate()}`]=Math.max(0,Math.min(50000,Number(d.steps)||0));if(Number(d.weight)>=30&&Number(d.weight)<=300){let ws=weights(p.id);let today=ws.find(x=>x.date===localDate());if(!today)db.weights.push({pid:p.id,date:localDate(),kg:d.weight,source:'Health Connect'})}if(d.sleepHours>0){db.sleepByDate[`${p.id}|${localDate()}`]=d.sleepHours}db.healthSync=db.healthSync||{};const _hdate=localDate();db.healthSync[p.id]=db.healthSync[p.id]||{};db.healthSync[p.id][_hdate]={date:_hdate,activeCalories:d.activeCalories||0,heartRateAvg:d.heartRateAvg||0};save();render();alert('Health Connect sincronizado.');}

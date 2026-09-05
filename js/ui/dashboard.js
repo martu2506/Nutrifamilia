@@ -1,131 +1,202 @@
-/* NutriFamilia V7.1.2 — Inicio final: composición unificada, reloj de calorías, 4 macros, plan, pasos, agua y comidas. */
+/* NutriFamilia V7.2.0 — Dashboard reparado
+   Clases CSS y JS unificadas. Bug addMeal(tipo) corregido.
+   Diseño inspirado en referencia Pulso: gauge semicircular grande, macros con anillos, pasos, agua, comidas por tipo. */
 (function(){
   const escLocal=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const num=v=>Number.isFinite(Number(v))?Number(v):0;
-  const pct=(v,t)=>Math.max(0,Math.min(100,Math.round((num(v)/Math.max(1,num(t)))*100)));
-  const clamp01=v=>Math.max(0,Math.min(1,num(v)));
-  const icon=(name,label='')=>{
-    const p={
-      plan:'<path d="M6 4h12v4H6zM4 9h16v11H4z"/><path d="M8 13h8M8 16h5"/>',
-      protein:'<path d="M6 4c0 4 2 5 2 8 0 3-2 4-2 8M18 4c0 4-2 5-2 8 0 3 2 4 2 8M8 10h8"/>',
-      fiber:'<path d="M12 20V9M12 12c-3-2-5-3-7-2 1 3 3 5 7 5M12 13c3-2 5-3 7-2-1 3-3 5-7 5M12 9c0-3-1-5-4-6 0 3 1 5 4 6z"/>',
-      carbs:'<path d="M4 18c3-2 5-4 8-10 3 6 5 8 8 10"/><path d="M6 20h12"/>',
-      fat:'<path d="M12 4c4 4 7 7 7 10a7 7 0 0 1-14 0c0-3 3-6 7-10z"/>',
-      steps:'<circle cx="9" cy="5" r="2"/><path d="M11 8l-2 5 3 2 1 5M9 12l-4 3M13 8l4 4-3 3"/>',
-      water:'<path d="M12 3s6 6 6 11a6 6 0 0 1-12 0c0-5 6-11 6-11z"/>',
-      food:'<path d="M5 7h14M7 4h10M6 10v8M18 10v8M5 20h14"/>',
-      edit:'<path d="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4"/>',
-      chevron:'<path d="m9 6 6 6-6 6"/>'
-    };
-    return `<svg class="nf-icon" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p[name]||p.plan}</g></svg>${label?`<span>${escLocal(label)}</span>`:''}`;
-  };
+  const clamp=(v,mn=0,mx=100)=>Math.max(mn,Math.min(mx,num(v)));
+  const ratio=(v,t)=>{const n=num(v),d=num(t);return d>0?Math.max(0,n/d):0;};
 
+  /* ── Gauge semicircular ── */
   function calorieGauge(value,target){
-    const v=num(value),t=Math.max(1,num(target)),ratio=v/t;
-    const p=Math.min(1,Math.max(0,ratio));
-    const angle=-90+(180*p);
+    const v=num(value),t=Math.max(1,num(target));
+    const pct=clamp(v/t*100)/100;
+    const ARC=251.2; // longitud del semiarco (π×r, r=80)
+    const offset=(ARC*(1-pct)).toFixed(1);
+    const angle=(-90+180*Math.min(1,v/t)).toFixed(1);
     const excess=Math.max(0,v-t);
+    const overPct=v>t?Math.round((v-t)/t*100):0;
+    const statusTxt=v>t
+      ?`<span class="nf-gauge-status over">Exceso: +${Math.round(excess)} kcal (${overPct}% sobre objetivo)</span>`
+      :v===t
+      ?`<span class="nf-gauge-status ok">✓ Objetivo alcanzado</span>`
+      :`<span class="nf-gauge-status">Restan ${Math.round(t-v)} kcal</span>`;
     return `<div class="nf-cal-gauge" role="img" aria-label="Calorías consumidas: ${Math.round(v)} de ${Math.round(t)} kcal">
-      <svg viewBox="0 0 320 190" aria-hidden="true">
-        <path class="nf-gauge-track" d="M45 150 A115 115 0 0 1 275 150"/>
-        <path class="nf-gauge-progress" d="M45 150 A115 115 0 0 1 275 150" stroke-dasharray="361.28" stroke-dashoffset="${(361.28*(1-p)).toFixed(1)}"/>
-        <path class="nf-gauge-over" d="M45 150 A115 115 0 0 1 275 150" stroke-dasharray="361.28" stroke-dashoffset="${p>=1?0:361.28}"/>
-        <g class="nf-gauge-ticks"><path d="M45 150l-4 2M72 91l-5-3M160 35v-6M248 91l5-3M275 150l4 2"/></g>
+      <svg viewBox="0 0 200 120" aria-hidden="true">
+        <path class="nf-gauge-track" d="M20 100 A80 80 0 0 1 180 100"/>
+        <path class="nf-gauge-progress${v>t?' over':''}" d="M20 100 A80 80 0 0 1 180 100"
+          stroke-dasharray="${ARC}" stroke-dashoffset="${offset}"/>
+        <path class="nf-gauge-ticks" d="M20 100l-3 2M49 42l-3-3M100 20v-5M151 42l3-3M180 100l3 2" fill="none"/>
       </svg>
-      <div class="nf-gauge-needle" style="--needle-angle:${angle}deg"><span></span></div>
-      <div class="nf-gauge-center"><strong>${Math.round(v)}</strong><span>kcal</span><small>/ ${Math.round(t)}</small></div>
-      <div class="nf-gauge-note">${ratio>1?`Exceso: +${Math.round(excess)} kcal`:ratio===1?'Objetivo alcanzado':`Restan ${Math.round(t-v)} kcal`}</div>
+      <div class="nf-gauge-needle" style="--needle-angle:${angle}deg" aria-hidden="true"><span></span></div>
+      <div class="nf-gauge-center">
+        <strong>${Math.round(v)}</strong><span>kcal</span><small>de ${Math.round(t)}</small>
+      </div>
+      ${statusTxt}
     </div>`;
   }
 
-  function macroCircle(label,value,target,unit,iconName){
-    const raw=num(value),tar=Math.max(.0001,num(target)),p=Math.min(1,Math.max(0,raw/tar)),over=raw>tar;
-    return `<div class="nf-macro" aria-label="${escLocal(label)}: ${Math.round(raw)} de ${Math.round(tar)} ${escLocal(unit)}">
-      <div class="nf-macro-circle ${over?'is-over':''}" style="--fill:${(p*360).toFixed(1)}deg"><div class="nf-macro-inner"><strong>${Math.round(p*100)}%</strong></div></div>
-      <div class="nf-macro-label">${icon(iconName)}<span>${escLocal(label)}</span></div>
-      <div class="nf-macro-value">${Math.round(raw)} <small>/ ${Math.round(tar)} ${escLocal(unit)}</small></div>
-      ${over?`<div class="nf-over">+${Math.round(raw-tar)} ${escLocal(unit)}</div>`:''}
+  /* ── Anillo de macro (conic-gradient CSS) ── */
+  function macroRing(label,value,target,unit,color){
+    const v=num(value),t=Math.max(0.0001,num(target));
+    const pct=clamp(v/t*100);
+    const over=v>t;
+    const displayPct=Math.round(pct);
+    return `<div class="nf-macro" aria-label="${escLocal(label)}: ${Math.round(v)} de ${Math.round(t)} ${escLocal(unit)}">
+      <div class="nf-macro-ring${over?' is-over':''}" style="--fill:${Math.round(pct)}%;--clr:${color}">
+        <div class="nf-macro-ring-inner">
+          <strong>${Math.round(v)}</strong>
+          <span>${escLocal(unit)}</span>
+        </div>
+      </div>
+      <div class="nf-macro-label">${escLocal(label)}</div>
+      <div class="nf-macro-target">de ${Math.round(t)} ${escLocal(unit)}</div>
+      ${over?`<div class="nf-macro-over">+${Math.round(v-t)} ${escLocal(unit)}</div>`:''}
     </div>`;
   }
 
-  function stepEstimate(steps,p){
-    const n=Math.max(0,num(steps));
+  /* ── Barra de progreso ── */
+  function progressBar(label,value,target,unit,{reverse=false,warn=false}={}){
+    const v=num(value),t=Math.max(0.0001,num(target));
+    const pct=clamp(v/t*100);
+    const ok=reverse?v<=t:pct>=100;
+    const cls=ok?'ok':warn&&pct<60?'low':'mid';
+    return `<div class="nf-prog-row">
+      <div class="nf-prog-labels">
+        <span>${escLocal(label)}</span>
+        <span>${Math.round(v)} <small>/ ${Math.round(t)} ${escLocal(unit)}</small></span>
+      </div>
+      <div class="nf-prog-bar"><div class="nf-prog-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>
+    </div>`;
+  }
+
+  /* ── Fecha y hora ── */
+  function dateLabel(){
+    return new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long'})
+      .format(new Date()).replace(/^./,c=>c.toUpperCase());
+  }
+
+  /* ── Estimación de kcal por pasos ── */
+  function stepKcal(steps,p){
     const kg=Math.max(40,Math.min(250,num(lastWeight(p.id)||p.weight)||70));
+    const n=Math.max(0,num(steps));
+    // Referencia ACSM simplificada: ~0.04 kcal/paso para 70 kg, ajustado por peso
     return Math.round(n*kg*0.04/70);
   }
 
-  function timeLabel(){return new Intl.DateTimeFormat('es-AR',{hour:'2-digit',minute:'2-digit'}).format(new Date());}
-  function dateLabel(){return new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date()).replace(/^./,c=>c.toUpperCase());}
-
-  function mealRows(date,pid){
-    const arr=entriesFor(date,pid);
-    if(!arr.length)return `<div class="nf-empty"><div class="nf-empty-icon">${icon('food')}</div><div><strong>Aún no registraste alimentos</strong><p>Agregalos desde el botón + o desde Comidas.</p></div></div>`;
-    return arr.slice().reverse().slice(0,8).map((x)=>{
-      const idx=arr.indexOf(x);
-      const qty=x.amount??x.qty??x.grams??'';
-      const unit=x.unit||x.inputUnit||'g';
-      return `<div class="nf-food-row"><div class="nf-food-main"><div class="nf-food-icon">${icon('food')}</div><div><strong>${escLocal(x.food)}</strong><span>${escLocal(String(qty))} ${escLocal(unit)} · ${Math.round(num(x.kcal))} kcal</span></div></div><div class="nf-food-actions"><button class="nf-icon-btn" type="button" onclick="editEntry(${idx})" aria-label="Editar ${escLocal(x.food)}">${icon('edit')}</button><button class="nf-icon-btn danger" type="button" onclick="deleteEntry(${idx})" aria-label="Eliminar ${escLocal(x.food)}">×</button></div></div>`;
+  /* ── Filas de comidas por tipo ── */
+  function mealTypeBlock(type,arr,allArr){
+    const xs=arr.filter(x=>x.type===type);
+    const kcalType=xs.reduce((a,x)=>a+num(x.kcal),0);
+    const items=xs.slice(0,4).map(x=>{
+      const idx=allArr.indexOf(x);
+      return `<div class="nf-food-row">
+        <div class="nf-food-info">
+          <span>${escLocal(x.food)}</span>
+          <small>${escLocal(String(x.amount??x.qty??''))} ${escLocal(x.unit||'g')} · ${Math.round(num(x.kcal))} kcal</small>
+        </div>
+        <div class="nf-food-btns">
+          <button class="nf-icon-btn" type="button" onclick="editEntry(${idx})" aria-label="Editar ${escLocal(x.food)}">✎</button>
+          <button class="nf-icon-btn danger" type="button" onclick="deleteEntry(${idx})" aria-label="Eliminar ${escLocal(x.food)}">×</button>
+        </div>
+      </div>`;
     }).join('');
+    const extra=xs.length>4?`<small class="nf-food-extra">+${xs.length-4} más en Comidas</small>`:'';
+    /* BUG CORREGIDO: addMeal recibe el tipo explícitamente */
+    return `<div class="nf-meal-block">
+      <div class="nf-meal-head">
+        <div>
+          <span class="nf-meal-name">${escLocal(type)}</span>
+          ${xs.length?`<small class="muted">${Math.round(kcalType)} kcal</small>`:''}
+        </div>
+        <button class="nf-meal-add" type="button" onclick="addMeal('${escLocal(type)}')" aria-label="Agregar alimento a ${escLocal(type)}">+</button>
+      </div>
+      ${xs.length?items+''+extra:`<div class="nf-food-empty">Sin registros aún</div>`}
+    </div>`;
   }
 
+  /* ── Render principal ── */
   window.renderHome=function(){
     const el=document.getElementById('home'); if(!el)return;
     const p=getActiveProfile();
-    if(!p){el.innerHTML=`<section class="nf-home"><div class="nf-welcome"><div class="nf-welcome-icon">${icon('plan')}</div><h2>Bienvenido a NutriFamilia</h2><p>Creá tu perfil para empezar a registrar alimentación, peso y actividad.</p></div></section>`;return;}
-    const date=localDate(),t=totals(date,p.id),tg=targets(p),steps=num(db.stepsByDate?.[`${p.id}|${date}`]),water=num(db.waterByDate?.[`${p.id}|${date}`]),plan=typeof planLabel==='function'?planLabel(p.pattern||'balanced'):(p.pattern||'Equilibrada');
-    const fiberTarget=Math.max(25,num(tg.fiber)||25);
-    const planName=String(plan).replace(/^[^A-Za-zÁÉÍÓÚÜÑ]+/,'');
-    const html=`
-      <section class="nf-home" aria-label="Inicio de NutriFamilia">
-        <header class="nf-topbar">
-          <div class="nf-top-title">NUTRIFAMILIA</div>
-          <div class="nf-date">${escLocal(dateLabel())}</div>
-          <div class="nf-time">${escLocal(timeLabel())}</div>
-        </header>
-
-        <div class="nf-calories">
-          <div class="nf-section-kicker">NUTRICIÓN DEL DÍA</div>
-          ${calorieGauge(t.kcal,tg.cal)}
-        </div>
-
-        <div class="nf-macros" aria-label="Macronutrientes">
-          <div class="nf-macro-col left">
-            ${macroCircle('Proteína',t.p,tg.protein,'g','protein')}
-            ${macroCircle('Fibra',t.fib,fiberTarget,'g','fiber')}
-          </div>
-          <div class="nf-macro-col right">
-            ${macroCircle('Hidratos',t.c,tg.carbs,'g','carbs')}
-            ${macroCircle('Grasas',t.f,tg.fat,'g','fat')}
-          </div>
-        </div>
-
-        <div class="nf-plan-row">
-          <div class="nf-inline-icon">${icon('plan')}</div>
-          <div class="nf-plan-copy"><span>PLAN NUTRICIONAL</span><strong>${escLocal(planName)}</strong></div>
-          <button type="button" class="nf-text-btn" onclick="showTab('profile')">${icon('edit')}<span>Editar</span></button>
-        </div>
-
-        <div class="nf-activity-row">
-          <div class="nf-activity-icon">${icon('steps')}</div>
-          <div class="nf-activity-copy"><span>Pasos de hoy</span><strong>${steps.toLocaleString('es-AR')}</strong></div>
-          <div class="nf-activity-kcal"><strong>≈ ${stepEstimate(steps,p)} kcal</strong><span>gasto estimado</span></div>
-        </div>
-
-        <div class="nf-water-row">
-          <div class="nf-inline-icon">${icon('water')}</div>
-          <div class="nf-water-copy"><span>Agua</span><strong>${Math.round(water)} ml</strong></div>
-          <div class="nf-water-actions"><button type="button" class="nf-pill" onclick="addWater(250)">+250</button><button type="button" class="nf-pill" onclick="setWaterDialog()">Editar</button></div>
-        </div>
-
-        <div class="nf-food-section">
-          <div class="nf-food-head"><div><span class="nf-section-kicker">REGISTRO DEL DÍA</span><h2>${icon('food')}<span>Alimentos</span></h2></div><button type="button" class="nf-add-btn" onclick="addMeal()">+</button></div>
-          <div class="nf-food-list">${mealRows(date,p.id)}</div>
-          <button type="button" class="nf-more-btn" onclick="showTab('journal')">Ver todas las comidas ${icon('chevron')}</button>
-        </div>
+    if(!p){
+      el.innerHTML=`<section class="nf-home nf-welcome-screen">
+        <div class="nf-welcome-icon">🥗</div>
+        <h2>Bienvenido a NutriFamilia</h2>
+        <p>Creá tu perfil para empezar a registrar alimentación, peso y actividad.</p>
+        <button type="button" onclick="newProfile()">+ Crear perfil</button>
       </section>`;
-    el.innerHTML=html;
+      return;
+    }
+
+    const date=localDate();
+    const t=totals(date,p.id);
+    const tg=targets(p);
+    const steps=num(db.stepsByDate?.[`${p.id}|${date}`]);
+    const water=num(db.waterByDate?.[`${p.id}|${date}`]);
+    const arr=entriesFor(date,p.id);
+    const fiberTarget=Math.max(25,num(tg.fiber)||25);
+    const waterTarget=num(tg.water)||2000;
+    const stepsTarget=9700;
+
+    el.innerHTML=`
+    <section class="nf-home" aria-label="Panel principal NutriFamilia">
+
+      <!-- Encabezado -->
+      <div class="nf-topbar">
+        <div class="nf-topbar-title">NUTRIFAMILIA</div>
+        <div class="nf-topbar-date">${escLocal(dateLabel())}</div>
+      </div>
+
+      <!-- Gauge calorías -->
+      <div class="nf-section">
+        <div class="nf-kicker">CALORÍAS DEL DÍA</div>
+        ${calorieGauge(t.kcal,tg.cal)}
+      </div>
+
+      <!-- Macros: 4 anillos -->
+      <div class="nf-macros-grid" aria-label="Macronutrientes">
+        ${macroRing('Proteína',t.p,tg.protein,'g','#7C6FD4')}
+        ${macroRing('Hidratos',t.c,tg.carbs,'g','#3CB8A0')}
+        ${macroRing('Grasas',t.f,tg.fat,'g','#F47A2A')}
+        ${macroRing('Fibra',t.fib,fiberTarget,'g','#5BAE6A')}
+      </div>
+
+      <!-- Pasos y agua -->
+      <div class="nf-activity-card">
+        <div class="nf-kicker">ACTIVIDAD Y AGUA</div>
+        ${progressBar('Pasos',steps,stepsTarget,'pasos')}
+        <div class="nf-steps-kcal">≈ ${stepKcal(steps,p)} kcal de gasto estimado</div>
+        ${progressBar('Agua',water,waterTarget,'ml',{warn:true})}
+        <div class="nf-water-btns">
+          <button type="button" class="nf-pill-btn" onclick="addWater(250)">+250 ml</button>
+          <button type="button" class="nf-pill-btn secondary" onclick="setWaterDialog()">Editar</button>
+        </div>
+      </div>
+
+      <!-- Plan nutricional -->
+      <div class="nf-plan-card">
+        <span class="nf-kicker">PLAN NUTRICIONAL</span>
+        <div class="nf-plan-row">
+          <strong>${escLocal((typeof planLabel==='function'?planLabel(p.pattern||'balanced'):(p.pattern||'Equilibrada')).replace(/^[^\w]+/,''))}</strong>
+          <button type="button" class="nf-text-btn" onclick="showTab('profile')">✎ Editar</button>
+        </div>
+      </div>
+
+      <!-- Registro por comida -->
+      <div class="nf-meals-section">
+        <div class="nf-kicker">REGISTRO DEL DÍA</div>
+        ${['Desayuno','Almuerzo','Merienda','Cena','Snack'].map(t=>mealTypeBlock(t,arr,arr)).join('')}
+        ${!arr.length?`<div class="nf-all-empty">Todavía no registraste alimentos hoy. Usá el botón + para agregar.</div>`:''}
+        <button type="button" class="nf-more-btn" onclick="showTab('journal')">Ver todas las comidas →</button>
+      </div>
+
+    </section>`;
   };
 
-  window.dashboardGaugeMath={pct,clamp01};
-  setInterval(()=>{if(document.getElementById('home')&&!document.getElementById('home').classList.contains('hidden'))window.renderHome()},30000);
+  /* Refrescar cada 60 s si está visible */
+  setInterval(()=>{
+    const h=document.getElementById('home');
+    if(h&&!h.classList.contains('hidden'))window.renderHome();
+  },60000);
 })();

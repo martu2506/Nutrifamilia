@@ -1,1 +1,15 @@
-NutriFamilia V7.1.2 — engineering hardening + amarillo/negro + accesibilidad + persistencia/unidades
+NutriFamilia V7.2.0 — Revisión estructural
+
+Cambios respecto a V7.1.2:
+- Dashboard: clases CSS y JS unificadas (bug crítico resuelto)
+- Gauge de calorías: muestra exceso >100% en rojo con porcentaje
+- Macros: 4 anillos con conic-gradient, colores individuales
+- addMeal(tipo): ahora el botón + de cada comida pasa el tipo correcto
+- Valor inicial de cantidad: vacío para gramos (no 100), 1 para unidades
+- Recetas: campo cantidad sin value=100 por defecto
+- Health Connect: activeCalories guardado por fecha
+- Diversidad vegetal: usa plantGroupId (grupo botánico) en lugar del nombre
+- Planes Keto/Low Carb: advertencias clínicas agregadas
+- self-test: adaptado al nuevo dashboard
+- Service Worker: cache name actualizado
+- Todas las versiones declaradas: 7.2.0

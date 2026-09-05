@@ -1,7 +1,7 @@
 {
   "name": "NutriFamilia",
   "short_name": "NutriFamilia",
-  "description": "Control familiar sencillo de peso y nutrición — V7.1.2",
+  "description": "Control familiar sencillo de peso y nutrición — V7.2.0",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -22,5 +22,5 @@
       "purpose": "any maskable"
     }
   ],
-  "version": "7.1.2"
+  "version": "7.2.0"
 }
