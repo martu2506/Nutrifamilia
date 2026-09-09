@@ -34,7 +34,96 @@
 .nf-journal-meals{display:flex;flex-direction:column;gap:9px}.nf-journal-meal{background:#fff;border:1px solid #ddd;border-radius:14px;padding:10px}.nf-journal-meal-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}.nf-journal-meal-head h3{margin:0;font-size:16px}.nf-journal-item{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(17,17,17,.08);font-size:12px}.nf-journal-item>div:last-child{text-align:right}.nf-journal-total{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(17,17,17,.14);font-size:10px}.nf-journal-total span{display:flex;justify-content:space-between;background:#f7f7f7;padding:4px 6px;border-radius:6px}
 @media(max-width:430px){.nf-meal-draft-item{align-items:flex-start}.nf-draft-item-right{flex-direction:column;align-items:flex-end}.nf-meal-total-macros,.nf-journal-total{grid-template-columns:1fr 1fr}}
 
-.nf-role-picker{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 0}.nf-role-picker>span{font-size:11px;font-weight:900}.nf-role-btn{padding:7px 10px;border-radius:16px;border:1px solid rgba(17,17,17,.2);background:#fff;font:inherit;font-size:11px;font-weight:800}.nf-role-btn.active{background:#111;color:#FFD84D}.nf-role-badge,.nf-role-inline{display:inline-block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;opacity:.7}.nf-protein-group{padding:7px 5px 4px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;opacity:.65;border-top:1px solid rgba(17,17,17,.1);margin-top:3px}.nf-role-inline{margin-right:4px;opacity:.65}
-.nf-meal-role-sections{display:grid;gap:8px;margin:8px 0 12px}.nf-meal-role-section{border:1px solid rgba(17,17,17,.14);border-radius:12px;background:rgba(255,255,255,.55);padding:8px}.nf-meal-role-section.active{border-color:#111}.nf-meal-role-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.nf-meal-role-heading>div{display:flex;flex-direction:column;gap:2px}.nf-meal-role-heading b{font-size:13px}.nf-meal-role-heading small{font-size:10px;opacity:.65}.nf-role-empty{font-size:11px;opacity:.6;padding:7px 2px 2px}.nf-meal-role-section .nf-meal-draft-list{margin-top:7px}
+
+
 .nf-save-meal-top{margin:8px 0 10px}
 .nf-food-subcategory{margin-top:10px}
+
+/* ══════════════════════════════════════════════════════
+   V7.8.0 — CSS faltante: modal categorías + sistema peso
+   ══════════════════════════════════════════════════════ */
+
+/* Botones de categoría en modal de alimentos */
+.cat-btn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 6px;background:#fff;
+  border:1.5px solid rgba(17,17,17,.15);border-radius:12px;
+  cursor:pointer;font-size:11px;font-weight:800;text-align:center;
+  line-height:1.2;transition:background .1s,border-color .1s;
+  font-family:inherit;color:var(--nf-black,#111);
+}
+.cat-btn:hover,.cat-btn:active{background:#f0fdf8;border-color:#3CB8A0}
+.cat-btn span{font-size:10px;display:block;margin-top:1px}
+
+/* Sistema de peso — resumen */
+.nf-weight-summary{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;margin-bottom:14px;
+}
+.nf-weight-stat{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 6px;background:rgba(255,255,255,.5);
+  border-radius:12px;border:1.5px solid rgba(17,17,17,.12);text-align:center;
+}
+.nf-weight-stat span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;opacity:.6}
+.nf-weight-stat strong{font-size:15px;font-weight:900}
+.nf-weight-stat small{font-size:9px;opacity:.55}
+
+/* Delta y progreso */
+.nf-weight-delta{
+  font-size:13px;margin:8px 0;padding:8px 12px;
+  background:rgba(39,174,96,.1);border:1.5px solid rgba(39,174,96,.3);
+  border-radius:10px;text-align:center;
+}
+.nf-weight-progress{margin:8px 0}
+.nf-weight-progress-bar{
+  height:8px;background:rgba(17,17,17,.15);border-radius:8px;overflow:hidden;margin-bottom:4px;
+}
+.nf-weight-progress-bar i{
+  display:block;height:100%;background:#27AE60;border-radius:8px;
+  transition:width .5s ease;font-style:normal;
+}
+.nf-weight-trend{font-size:12px;font-weight:800;padding:4px 0;opacity:.8}
+.nf-register-weight{
+  display:block;width:100%;margin-top:14px;padding:12px;
+  background:#111;color:#FFD84D;border:0;border-radius:12px;
+  font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;
+  transition:opacity .15s;
+}
+.nf-register-weight:hover{opacity:.85}
+
+/* Historial de peso */
+.nf-weight-history{display:flex;flex-direction:column;gap:0}
+.nf-weight-row{
+  display:grid;grid-template-columns:1fr 1fr auto;
+  align-items:center;gap:8px;
+  padding:9px 4px;border-bottom:1px solid rgba(17,17,17,.1);
+  font-size:13px;
+}
+.nf-weight-row.is-first{background:rgba(17,17,17,.04);font-weight:700}
+.nf-weight-diff{font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px;white-space:nowrap}
+.nf-weight-diff.down{color:#27AE60;background:rgba(39,174,96,.1)}
+.nf-weight-diff.up{color:#E74C3C;background:rgba(231,76,60,.1)}
+.nf-weight-diff.same{color:#888;background:rgba(0,0,0,.07)}
+.nf-icon-btn{background:transparent;border:0;cursor:pointer;font-size:15px;padding:3px 5px;opacity:.7}
+.nf-icon-btn:hover{opacity:1}
+.nf-icon-btn.danger{color:#E74C3C}
+
+/* Tabla de peso (alias para compatibilidad) */
+.weight-table{width:100%;border-collapse:collapse;font-size:13px}
+.weight-table th{
+  text-align:left;padding:6px 4px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.05em;opacity:.6;border-bottom:2px solid rgba(17,17,17,.15);
+}
+.weight-table td{padding:8px 4px;border-bottom:1px solid rgba(17,17,17,.1)}
+.weight-table tr.first-weight td{background:rgba(17,17,17,.04);font-weight:700}
+.weight-summary{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;
+}
+.weight-stat{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 6px;background:rgba(255,255,255,.5);border-radius:12px;
+  border:1.5px solid rgba(17,17,17,.12);text-align:center;
+}
+
+.nf-category-explorer{margin:4px 0 2px}.nf-category-explorer summary{cursor:pointer;font-weight:900;font-size:12px;padding:7px 2px}.nf-category-explorer[open] summary{margin-bottom:3px}.nf-meal-draft{display:flex;flex-direction:column;gap:7px}.nf-draft-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.nf-draft-heading span{font-size:10px;opacity:.65}.nf-meal-draft .nf-save-meal{margin-top:2px}

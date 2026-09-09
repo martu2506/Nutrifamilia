@@ -112,7 +112,7 @@ const foods={
 };
 
 
-// V7.7.0: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
+// V7.8.0: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
 Object.assign(foods, {
  'Café':{kcal:2,p:.1,c:.3,f:0,fib:0,sugar:0,sat:0,sodium:2,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de bebida preparada',source:'Bebida preparada; composición dependiente de preparación',sourceStatus:'provisional'},
  'Mate amargo':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Infusión de yerba mate; composición dependiente de preparación',sourceStatus:'provisional'},
@@ -225,7 +225,7 @@ Object.assign(foods,{
  'Aceite de oliva':{...foods['Aceite de oliva'],kcal:900,p:0,c:0,f:100,fib:0,sugar:0,sat:14.2,sodium:0},
  'Manteca':{...foods['Manteca'],kcal:758,p:.5,c:.5,f:84,fib:0,sugar:0,sat:50.93,sodium:223}
 });
-/* V7.7.0 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
+/* V7.8.0 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
    Valores por 100 g/ml salvo unidades explícitas. Se marcan provisionales cuando no existe
    una coincidencia individual auditada en SARA 2/USDA dentro de esta versión. */
 Object.assign(foods,{
@@ -348,7 +348,7 @@ const SOURCE_POLICY={
  unresolved:'Do not overwrite by inference; mark as provisional/unknown'
 };
 
-/* V7.7.0 — panadería y comidas de rotisería habituales en Argentina.
+/* V7.8.0 — panadería y comidas de rotisería habituales en Argentina.
    Valores aproximados por 100 g salvo unidades/porciones explícitas; provisionales cuando corresponde. */
 Object.assign(foods,{
  'Medialuna':{kcal:390,p:7,c:50,f:18,fib:1.5,sugar:14,sat:8,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:45},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -365,7 +365,7 @@ Object.assign(foods,{
  'Canastita de verdura':{kcal:210,p:6,c:22,f:11,fib:2,sugar:2,sat:4,sodium:450,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Arrollado de carne':{kcal:240,p:20,c:4,f:16,fib:.5,sugar:1,sat:5,sodium:450,unitOptions:[{value:'slice',label:'porción',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
-/* V7.7.0 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
+/* V7.8.0 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
 Object.assign(foods,{
  'Milanesa napolitana':{kcal:290,p:21,c:12,f:17,fib:.7,sugar:1,sat:5,sodium:520,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:220},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Suprema de pollo':{kcal:250,p:22,c:14,f:12,fib:.8,sugar:.5,sat:3,sodium:420,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:180},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -385,7 +385,7 @@ Object.assign(foods,{
  'Palmerita':{kcal:450,p:5,c:60,f:22,fib:1.5,sugar:25,sat:9,sodium:180,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:35},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
 
-/* V7.7.0 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
+/* V7.8.0 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
    se diferencian bife de costilla (más graso) y bife de paleta/churrasco, y se incorpora pechito de cerdo. */
 Object.assign(foods,{
  'Bife de costilla':{kcal:280,p:25,c:0,f:20,fib:0,sugar:0,sat:7,sodium:55,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'bife',gramsPerUnit:220}],sourceStatus:'provisional; corte vacuno con hueso, porción comestible estimada'},
@@ -400,7 +400,7 @@ Object.assign(foods,{
  'Carré de cerdo':{kcal:220,p:27,c:0,f:13,fib:0,sugar:0,sat:4.5,sodium:60,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'porción',gramsPerUnit:180}],sourceStatus:'provisional'}
 });
 
-/* V7.7.0 — ampliación de catálogo y metadatos nutricionales auditables. */
+/* V7.8.0 — ampliación de catálogo y metadatos nutricionales auditables. */
 Object.assign(foods,{
 'Miel':{kcal:304,p:.3,c:82.4,f:0,fib:.2,sugar:82.1,sat:0,sodium:4,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:21},{value:'tsp',label:'cucharadita',gramsPerUnit:7},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; composición genérica de miel'},
 'Mostaza':{kcal:66,p:4.4,c:5.8,f:3.3,fib:3.3,sugar:.9,sat:.2,sodium:1135,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:15},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; depende de formulación'},
@@ -429,7 +429,7 @@ Object.assign(foods,{
 'Estofado de pollo':{kcal:150,p:15,c:7,f:7,fib:1.5,sugar:2,sat:2,sodium:300,veg:0,fruit:0,unitOptions:[{value:'portion',label:'plato',gramsPerUnit:250},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; receta variable'},
 });
 
-/* V7.7.0 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
+/* V7.8.0 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
 Object.assign(foods,{
  'Asado de tira':{kcal:250,p:24,c:0,f:17,fib:0,sugar:0,sat:7,sodium:70,unitOptions:[{value:'unit',label:'tira',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}],source:'Referencia genérica de carne vacuna/costilla; composición variable',sourceStatus:'provisional'},
  'Chorizo':{kcal:454,p:13,c:1.1,f:44.2,fib:0,sugar:0,sat:14,sodium:900,unitOptions:[{value:'unit',label:'chorizo',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],source:'Argenfoods: cerdo, chorizo fresco crudo',sourceStatus:'provisional; producto y cocción pueden variar'},
@@ -444,7 +444,9 @@ Object.assign(foods,{
  'Gelatina con fruta':{kcal:70,p:2,c:15,f:.1,fib:.8,sugar:13,sat:0,sodium:35,subcategory:'postres',unitOptions:[{value:'portion',label:'porción',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}],source:'Preparación compuesta genérica',sourceStatus:'provisional; depende de gelatina y fruta'},
  'Flan':{kcal:145,p:4.5,c:18,f:6,fib:0,sugar:14,sat:3.5,sodium:80,subcategory:'postres',unitOptions:[{value:'portion',label:'porción',gramsPerUnit:120},{value:'g',label:'g',gramsPerUnit:1}],source:'Preparación compuesta genérica',sourceStatus:'provisional; receta variable'},
  'Helado':{kcal:210,p:3.5,c:24,f:11,fib:0,sugar:20,sat:7,sodium:70,subcategory:'postres',unitOptions:[{value:'scoop',label:'bocha',gramsPerUnit:60},{value:'g',label:'g',gramsPerUnit:1}],source:'Referencia genérica de helado',sourceStatus:'provisional; sabor y marca varían'},
- 'Ensalada de frutas':{kcal:55,p:.6,c:13,f:.2,fib:1.8,sugar:10,sat:0,sodium:2,subcategory:'postres',unitOptions:[{value:'portion',label:'porción',gramsPerUnit:200},{value:'g',label:'g',gramsPerUnit:1}],source:'Preparación compuesta de frutas frescas',sourceStatus:'provisional; mezcla de frutas variable'}
+ 'Ensalada de frutas':{kcal:55,p:.6,c:13,f:.2,fib:1.8,sugar:10,sat:0,sodium:2,subcategory:'postres',unitOptions:[{value:'portion',label:'porción',gramsPerUnit:200},{value:'g',label:'g',gramsPerUnit:1}],source:'Preparación compuesta de frutas frescas',sourceStatus:'provisional; mezcla de frutas variable'},
+ 'Medialuna de manteca':{kcal:390,p:7,c:50,f:18,fib:1.5,sugar:14,sat:8,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}],source:'Estimación provisional',sourceStatus:'provisional; tamaño y receta de panadería pueden variar'},
+ 'Facturas surtidas':{kcal:340,p:6.5,c:45,f:15,fib:1,sugar:10,sat:7,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}],source:'Estimación provisional',sourceStatus:'provisional; valores aproximados para facturas variadas (vigilantes, cañoncitos, palmeritas)'}
 });
 const EVIDENCE={version:VERSION,primary:[{name:'SARA 2',country:'Argentina',year:2022,url:'https://bancos.salud.gob.ar/sites/default/files/2022-09/tabla-composicion-quimica-alimentos-argentina_ennys2.pdf'},{name:'ArgenFoods',country:'Argentina',url:'https://www.argenfood.unlu.edu.ar/'}],guidelines:[{name:'GAPA',country:'Argentina',url:'https://www.argentina.gob.ar/salud/alimentacion-saludable/grafico'},{name:'OMS dieta saludable',url:'https://www.who.int/es/news-room/fact-sheets/detail/healthy-diet'}]};
 const NUTRIENT_RULES={fiber_g_day:{value:25,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},fruit_veg_g_day:{value:400,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},sodium_mg_day:{value:2000,unit:'mg',scope:'adult general limit',source:'OMS 2026'},free_sugars_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},sat_fat_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},trans_fat_pct_kcal:{value:1,unit:'%',scope:'general upper limit',source:'OMS 2026'}};

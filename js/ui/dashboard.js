@@ -1,4 +1,4 @@
-/* NutriFamilia V7.7.0 — Dashboard único, estable y alineado con la captura de referencia. */
+/* NutriFamilia V7.8.0 — Dashboard único, estable y alineado con la captura de referencia. */
 (function(){
   'use strict';
   const escLocal=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -15,7 +15,16 @@
     clock:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
     food:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v18M9 3v8M3 3v8M6 11V3M14 3v18M14 3c3 0 4 2 4 5s-1 5-4 5"/></svg>`
   };
-  const mealIcon=type=>({Desayuno:'🍳',Almuerzo:'🍴',Merienda:'☕',Cena:'🍽️',Snack:'🥜'}[type]||'🍽️');
+
+  /* Íconos de comida con colores fijos — funcionan en cualquier dispositivo */
+  const MEAL_SVG = {
+    Desayuno: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="#F4A800"/><line x1="12" y1="2" x2="12" y2="5" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="19" x2="12" y2="22" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="2" y1="12" x2="5" y2="12" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="19" y1="12" x2="22" y2="12" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="4.9" y1="4.9" x2="6.7" y2="6.7" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="17.3" y1="17.3" x2="19.1" y2="19.1" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="17.3" y1="6.7" x2="19.1" y2="4.9" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/><line x1="4.9" y1="19.1" x2="6.7" y2="17.3" stroke="#F4A800" stroke-width="2" stroke-linecap="round"/></svg>`,
+    Almuerzo: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3v18M9 3v8M3 3v8M6 11V3M14 3v18M14 3c3 0 4 2 4 5s-1 5-4 5" stroke="#2E8B57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    Merienda: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2C8 2 5 6 5 10c0 3 1.5 5.5 4 7v3h6v-3c2.5-1.5 4-4 4-7 0-4-3-8-7-8z" fill="#E74C3C" opacity="0.8"/><path d="M9 19h6" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    Cena:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="#2C3E7A" stroke="#1a2550" stroke-width="1"/><circle cx="15" cy="9" r="1.5" fill="#F4D03F"/><circle cx="18" cy="13" r="1" fill="#F4D03F"/><circle cx="13" cy="14" r="1" fill="#F4D03F"/></svg>`,
+    Snack:    `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#F39C12" stroke="#D68910" stroke-width="1"/></svg>`,
+  };
+  function mealIcon(type){ return MEAL_SVG[type] || MEAL_SVG.Snack; }
 
   function dateLabel(){return new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long'}).format(new Date()).replace(/^./,c=>c.toUpperCase());}
   function currentHealth(p,date){const hs=db.healthSync?.[p.id]; return hs?.[date]||null;}
@@ -61,7 +70,7 @@
 
   function mealTypeBlock(type,arr){
     const xs=arr.filter(x=>x.type===type), kcalType=xs.reduce((a,x)=>a+num(x.kcal),0);
-    const items=xs.slice(0,4).map(x=>{const idx=arr.indexOf(x);return `<div class="nf-food-row"><div class="nf-food-info"><span>${x.mealRole?`<small class="nf-role-inline">${escLocal(({principal:'Principal',guarnicion:'Guarnición',extra:'Extra'}[x.mealRole]||x.mealRole))}</small> `:''}${escLocal(x.food)}</span><small>${escLocal(String(x.amount??x.qty??x.grams??''))} ${escLocal(x.unit||'g')} · ${Math.round(num(x.kcal))} kcal</small></div><div class="nf-food-btns"><button class="nf-icon-btn" type="button" onclick="editEntry(${idx})" aria-label="Editar">${SVG.edit}</button><button class="nf-icon-btn danger" type="button" onclick="deleteEntry(${idx})" aria-label="Eliminar">×</button></div></div>`;}).join('');
+    const items=xs.slice(0,4).map(x=>{const idx=arr.indexOf(x);return `<div class="nf-food-row"><div class="nf-food-info"><span>${escLocal(x.food)}</span><small>${escLocal(String(x.amount??x.qty??x.grams??''))} ${escLocal(x.unit||'g')} · ${Math.round(num(x.kcal))} kcal</small></div><div class="nf-food-btns"><button class="nf-icon-btn" type="button" onclick="editEntry(${idx})" aria-label="Editar">${SVG.edit}</button><button class="nf-icon-btn danger" type="button" onclick="deleteEntry(${idx})" aria-label="Eliminar">×</button></div></div>`;}).join('');
     return `<div class="nf-meal-block"><div class="nf-meal-head"><div class="nf-meal-title"><span class="nf-meal-icon" aria-hidden="true">${mealIcon(type)}</span><span class="nf-meal-name">${escLocal(type)}</span>${xs.length?`<small class="nf-meal-kcal">${Math.round(kcalType)} kcal</small>`:''}</div><button class="nf-meal-add" type="button" onclick="addMeal('${escLocal(type)}')" aria-label="Agregar a ${escLocal(type)}">+</button></div>${xs.length ? items + (xs.length>4 ? `<small class="nf-food-extra">+${xs.length-4} más en Comidas</small>` : '') : '<div class="nf-food-empty">Sin registros aún</div>'}</div>`;
   }
 

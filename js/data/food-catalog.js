@@ -1,4 +1,4 @@
-/* NutriFamilia V7.7.0 — catálogo argentino reducido y orientado al registro cotidiano. */
+/* NutriFamilia V7.8.0 — catálogo argentino reducido y orientado al registro cotidiano. */
 (function(){
   'use strict';
   const CATEGORY_DEFS = [
@@ -93,7 +93,9 @@
     "Galletitas de agua": "panificados",
     "Galletitas dulces": "panificados",
     "Medialuna": "panificados",
+    "Medialuna de manteca": "panificados",
     "Factura": "panificados",
+    "Facturas surtidas": "panificados",
     "Bizcochos": "panificados",
     "Budín": "panificados",
     "Pasta frola": "panificados",
@@ -257,7 +259,7 @@
     'Banana':'🍌','Manzana':'🍎','Pera':'🍐','Naranja':'🍊','Mandarina':'🍊','Frutilla':'🍓','Arándanos':'🫐','Limón':'🍋','Durazno':'🍑','Uva':'🍇','Sandía':'🍉','Melón':'🍈','Ananá':'🍍','Mango':'🥭','Palta':'🥑',
     'Tomate':'🍅','Tomate crudo':'🍅','Tomate cherry':'🍅','Cebolla':'🧅','Zanahoria':'🥕','Pepino':'🥒','Brócoli':'🥦','Coliflor':'🥦','Lechuga':'🥬','Rúcula':'🥬','Espinaca':'🥬','Acelga':'🥬','Repollo':'🥬','Berenjena':'🍆','Zapallo':'🎃','Calabaza':'🎃','Choclo':'🌽','Arvejas':'🫛','Remolacha':'🥕','Champiñones':'🍄','Morrón':'🫑','Pimiento verde crudo':'🫑','Zapallito':'🥒',
     'Arroz cocido':'🍚','Arroz integral cocido':'🍚','Pasta cocida':'🍝','Ñoquis de papa':'🥔','Ravioles de ricota':'🥟','Avena cocida':'🥣','Avena en hojuelas':'🥣','Granola':'🥣','Polenta cocida':'🥣','Lentejas cocidas':'🫘','Garbanzos cocidos':'🫘','Porotos cocidos':'🫘',
-    'Pan integral':'🍞','Pan blanco':'🍞','Pan francés':'🥖','Pan lactal':'🍞','Tostada':'🍞','Galletitas de agua':'🍪','Factura':'🥐','Medialuna':'🥐','Pasta frola':'🥧','Bizcochos':'🥨','Budín':'🍰','Muffin':'🧁','Churro':'🥨','Alfajor':'🍪','Rosca':'🍩','Galletitas dulces':'🍪','Dulce de leche':'🍯','Mermelada':'🍓',
+    'Pan integral':'🍞','Pan blanco':'🍞','Pan francés':'🥖','Pan lactal':'🍞','Tostada':'🍞','Galletitas de agua':'🍪','Factura':'🥐','Facturas surtidas':'🥐','Medialuna':'🥐','Medialuna de manteca':'🥐','Pasta frola':'🥧','Bizcochos':'🥨','Budín':'🍰','Muffin':'🧁','Churro':'🥨','Alfajor':'🍪','Rosca':'🍩','Galletitas dulces':'🍪','Dulce de leche':'🍯','Mermelada':'🍓',
     'Asado de tira':'🥩','Chorizo':'🌭','Morcilla':'🌭','Salame':'🥩','Salchicha de Viena':'🌭','Jamón crudo':'🥩','Crema de leche':'🥛','Aceite de girasol':'🫒','Dulce de batata':'🍠','Gelatina con fruta':'🍮','Flan':'🍮','Helado':'🍨','Ensalada de frutas':'🍓','Fideos cocidos':'🍝','Milanesa':'🥩','Milanesa napolitana':'🥩','Suprema de pollo':'🍗','Pollo al horno':'🍗','Carne al horno':'🥩','Albóndigas de carne':'🍖','Lasagna':'🍝','Canelones de carne':'🍝','Ravioles de carne':'🥟','Fideos con tuco':'🍝','Arroz con pollo':'🍚','Ensalada rusa':'🥗','Ensalada de papa y huevo':'🥗','Matambre arrollado':'🍖','Sándwich de miga':'🥪','Tortita negra':'🍪','Palmerita':'🥐','Empanada de carne al horno':'🥟','Empanada de pollo al horno':'🥟','Empanada de carne frita':'🥟','Empanada de jamón y queso':'🥟','Pizza muzzarella':'🍕','Pizza napolitana':'🍕','Pizza de jamón y morrón':'🍕','Tarta de verduras':'🥧','Tarta de jamón y queso':'🥧','Pastel de papa':'🥘','Locro':'🥘','Puré de papa':'🥔','Puré de calabaza':'🎃','Ensalada mixta':'🥗','Ensalada de lechuga y tomate':'🥗','Tortilla de papa':'🥔','Croquetas de papa':'🥔','Canastita de verdura':'🥧','Arrollado de carne':'🍖',
     'Maní':'🥜','Almendras':'🥜','Nueces':'🌰','Aceite de oliva':'🫒','Aceite (1 cucharadita)':'🫒','Manteca':'🧈','Mayonesa':'🥫'
   };

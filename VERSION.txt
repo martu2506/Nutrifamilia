@@ -1,4 +1,9 @@
-NutriFamilia V7.7.0 — release limpia y autónoma
-Identidad única: 7.7.0
-Namespace de datos local: nutrifamilia_v7_7_0
-Cache PWA: nutrifamilia-v7.7.0
+NutriFamilia V7.8.0 — Correcciones estructurales post-auditoría
+
+Cambios de esta release final:
+- Flujo de comidas simplificado: buscar → seleccionar → cantidad/unidad → agregar → guardar.
+- Eliminados por completo Principal/Guarnición/Extra de la interfaz, borradores, edición y dashboard.
+- Categorías secundarias dentro de “Explorar categorías”.
+- Recientes y Favoritos quedan accesibles antes de las categorías.
+- Los ítems agregados vuelven al buscador para registrar varios alimentos rápidamente.
+- Se elimina cualquier `mealRole` residual al normalizar datos.
