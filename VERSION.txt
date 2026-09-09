@@ -1,9 +1,1 @@
-NutriFamilia V7.8.1 — Correcciones estructurales post-auditoría
-
-Cambios de esta release final:
-- Flujo de comidas simplificado: buscar → seleccionar → cantidad/unidad → agregar → guardar.
-- Eliminados por completo Principal/Guarnición/Extra de la interfaz, borradores, edición y dashboard.
-- Categorías secundarias dentro de “Explorar categorías”.
-- Recientes y Favoritos quedan accesibles antes de las categorías.
-- Los ítems agregados vuelven al buscador para registrar varios alimentos rápidamente.
-- Se elimina cualquier `mealRole` residual al normalizar datos.
+7.8.2

@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.1 — catálogo argentino reducido y orientado al registro cotidiano. */
+/* NutriFamilia V7.8.2 — catálogo argentino reducido y orientado al registro cotidiano. */
 (function(){
   'use strict';
   const CATEGORY_DEFS = [
@@ -270,7 +270,7 @@
   const PROTEIN_GROUP_ORDER=Object.keys(PROTEIN_GROUPS);
   function foodProteinGroups(name){return PROTEIN_GROUP_ORDER.filter(g=>PROTEIN_GROUPS[g].includes(name))}
   function proteinGroupIndex(name){const groups=foodProteinGroups(name);return groups.length?PROTEIN_GROUP_ORDER.indexOf(groups[0]):999}
-  function searchFoods(query,category){const fs=typeof allFoods==='function'?allFoods():{};const q=norm(query),alias=ALIASES[q];const names=[...VISIBLE_FOODS].sort((a,b)=>{if(category==='carnes-proteinas'){const ga=proteinGroupIndex(a),gb=proteinGroupIndex(b);if(ga!==gb)return ga-gb}if(category==='comidas-preparadas'){const ad=fs[a]?.subcategory==='postres',bd=fs[b]?.subcategory==='postres';if(ad!==bd)return ad?1:-1}return a.localeCompare(b,'es')});return names.filter(name=>{const f=fs[name];if(!f)return false;if(category&&categoryIdFor(name,f)!==category)return false;if(!q)return true;const n=norm(name);return n.includes(q)||q.includes(n)||norm(alias)===n||Object.entries(ALIASES).some(([k,v])=>norm(v)===n&&norm(k).includes(q))}).slice(0,80)}
+  function searchFoods(query,category){const fs=typeof allFoods==='function'?allFoods():{};const q=norm(query),alias=ALIASES[q];const names=[...VISIBLE_FOODS].filter(name=>{const f=fs[name];if(!f)return false;if(category&&categoryIdFor(name,f)!==category)return false;if(!q)return true;const n=norm(name);return n.includes(q)||q.includes(n)||norm(alias)===n||Object.entries(ALIASES).some(([k,v])=>norm(v)===n&&norm(k).includes(q))}).sort((a,b)=>{if(q){const an=norm(a),bn=norm(b);const score=n=>{const i=n.indexOf(q);if(n===q)return 0;if(n.startsWith(q))return 10;if(n.split(/\s+/).some(w=>w.startsWith(q)))return 20;if(i>=0)return 40;return 100};const sa=score(an),sb=score(bn);if(sa!==sb)return sa-sb;const ai=an.indexOf(q),bi=bn.indexOf(q);if(ai!==bi)return ai-bi}if(category==='carnes-proteinas'){const ga=proteinGroupIndex(a),gb=proteinGroupIndex(b);if(ga!==gb)return ga-gb}if(category==='comidas-preparadas'){const ad=fs[a]?.subcategory==='postres',bd=fs[b]?.subcategory==='postres';if(ad!==bd)return ad?1:-1}return a.localeCompare(b,'es')}).slice(0,80);return names}
   function categoryFoods(category){return searchFoods('',category)}
   function foodCategories(){return CATEGORY_DEFS.map(([id,label])=>({id,label}))}
   function resolveFoodSearch(query){const q=norm(query),alias=ALIASES[q];if(alias&&VISIBLE_FOODS.has(alias)&&typeof allFoods==='function'&&allFoods()[alias])return alias;const list=searchFoods(q);return list[0]||null}
