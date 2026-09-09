@@ -1,6 +1,7 @@
 const UNIT_OVERRIDES={
   'Bife de costilla':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'bife',gramsPerUnit:220}]},
   'Bife de paleta / churrasco':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'bife',gramsPerUnit:180}]},
+  'Hamburguesa casera de carne':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'hamburguesa',gramsPerUnit:100}]},
   'Asado':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'portion',label:'porción',gramsPerUnit:250}]},
   'Vacío':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'portion',label:'porción',gramsPerUnit:220}]},
   'Paleta vacuna':{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'portion',label:'porción',gramsPerUnit:180}]},
