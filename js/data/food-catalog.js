@@ -1,0 +1,283 @@
+/* NutriFamilia V7.7.0 — catálogo argentino reducido y orientado al registro cotidiano. */
+(function(){
+  'use strict';
+  const CATEGORY_DEFS = [
+    ['carnes-proteinas','🥩 Carnes y proteínas'],
+    ['vegetales','🥬 Verduras y hortalizas'],
+    ['ensaladas-guarniciones','🥗 Ensaladas y guarniciones'],
+    ['frutas','🍎 Frutas'],
+    ['panificados','🍞 Panificados y panadería'],
+    ['cereales-legumbres','🍚 Cereales, pastas y legumbres'],
+    ['lacteos','🥛 Lácteos'],
+    ['frutos-grasas','🥜 Frutos secos y grasas'],
+    ['infusiones','☕ Infusiones'],
+    ['bebidas','🥤 Bebidas'],
+    ['extras','🧂 Extras'],
+    ['comidas-preparadas','🍽️ Comidas preparadas']
+  ];
+  const CATEGORY_IDS = new Set([...CATEGORY_DEFS.map(x=>x[0]),'otros']);
+
+  const VISIBLE_FOOD_CATEGORY_MAP = {
+    "Huevo hervido": "carnes-proteinas",
+    "Huevo revuelto": "carnes-proteinas",
+    "Omelette de 2 huevos": "carnes-proteinas",
+    "Carne vacuna magra": "carnes-proteinas",
+    "Bife de costilla": "carnes-proteinas",
+    "Bife de paleta / churrasco": "carnes-proteinas",
+    "Asado": "carnes-proteinas",
+    "Vacío": "carnes-proteinas",
+    "Paleta vacuna": "carnes-proteinas",
+    "Roast beef": "carnes-proteinas",
+    "Nalga / cuadrada": "carnes-proteinas",
+    "Carne picada magra": "carnes-proteinas",
+    "Bondiola de cerdo": "carnes-proteinas",
+    "Pechito de cerdo": "carnes-proteinas",
+    "Costeleta de cerdo": "carnes-proteinas",
+    "Carré de cerdo": "carnes-proteinas",
+    "Pechuga de pollo": "carnes-proteinas",
+    "Pollo muslo sin piel": "carnes-proteinas",
+    "Patamuslo sin piel": "carnes-proteinas",
+    "Atún al natural": "carnes-proteinas",
+    "Merluza": "carnes-proteinas",
+    "Salmón": "carnes-proteinas",
+    "Jamón cocido": "carnes-proteinas",
+    "Cebolla": "vegetales",
+    "Papa hervida": "ensaladas-guarniciones",
+    "Batata hervida": "ensaladas-guarniciones",
+    "Zapallito": "vegetales",
+    "Calabaza": "vegetales",
+    "Brócoli": "vegetales",
+    "Coliflor": "vegetales",
+    "Lechuga": "vegetales",
+    "Rúcula": "vegetales",
+    "Morrón": "vegetales",
+    "Zanahoria": "vegetales",
+    "Pepino": "vegetales",
+    "Verdeo": "vegetales",
+    "Champiñones": "vegetales",
+    "Tomate": "vegetales",
+    "Espinaca": "vegetales",
+    "Acelga": "vegetales",
+    "Repollo": "vegetales",
+    "Berenjena": "vegetales",
+    "Zapallo": "vegetales",
+    "Choclo": "vegetales",
+    "Arvejas": "vegetales",
+    "Remolacha": "vegetales",
+    "Puré de papa": "ensaladas-guarniciones",
+    "Puré de calabaza": "ensaladas-guarniciones",
+    "Puré de batata": "ensaladas-guarniciones",
+    "Papa al horno": "ensaladas-guarniciones",
+    "Batata al horno": "ensaladas-guarniciones",
+    "Palta": "frutas",
+    "Banana": "frutas",
+    "Manzana": "frutas",
+    "Pera": "frutas",
+    "Naranja": "frutas",
+    "Kiwi": "frutas",
+    "Frutilla": "frutas",
+    "Arándanos": "frutas",
+    "Mandarina": "frutas",
+    "Durazno": "frutas",
+    "Uva": "frutas",
+    "Sandía": "frutas",
+    "Melón": "frutas",
+    "Ananá": "frutas",
+    "Mango": "frutas",
+    "Pan integral": "panificados",
+    "Pan blanco": "panificados",
+    "Pan de harina de almendras": "panificados",
+    "Pan francés": "panificados",
+    "Pan lactal": "panificados",
+    "Tostada": "panificados",
+    "Galletitas de agua": "panificados",
+    "Galletitas dulces": "panificados",
+    "Medialuna": "panificados",
+    "Factura": "panificados",
+    "Bizcochos": "panificados",
+    "Budín": "panificados",
+    "Pasta frola": "panificados",
+    "Churro": "panificados",
+    "Alfajor": "panificados",
+    "Sándwich de miga": "panificados",
+    "Dulce de leche": "extras",
+    "Mermelada": "extras",
+    "Miel": "extras",
+    "Mostaza": "extras",
+    "Ketchup": "extras",
+    "Azúcar": "extras",
+    "Edulcorante": "extras",
+    "Queso untable": "extras",
+    "Arroz cocido": "cereales-legumbres",
+    "Arroz integral cocido": "cereales-legumbres",
+    "Pasta cocida": "cereales-legumbres",
+    "Avena cocida": "cereales-legumbres",
+    "Avena en hojuelas": "cereales-legumbres",
+    "Polenta cocida": "cereales-legumbres",
+    "Lentejas cocidas": "cereales-legumbres",
+    "Garbanzos cocidos": "cereales-legumbres",
+    "Porotos cocidos": "cereales-legumbres",
+    "Leche descremada": "lacteos",
+    "Leche entera": "lacteos",
+    "Yogur natural": "lacteos",
+    "Yogur descremado": "lacteos",
+    "Queso fresco": "lacteos",
+    "Queso cremoso": "lacteos",
+    "Mozzarella": "lacteos",
+    "Ricota": "lacteos",
+    "Queso untable": "extras",
+    "Asado de tira": "carnes-proteinas",
+    "Chorizo": "carnes-proteinas",
+    "Morcilla": "carnes-proteinas",
+    "Salame": "carnes-proteinas",
+    "Salchicha de Viena": "carnes-proteinas",
+    "Jamón crudo": "carnes-proteinas",
+    "Fideos cocidos": "cereales-legumbres",
+    "Crema de leche": "lacteos",
+    "Aceite de girasol": "extras",
+    "Dulce de batata": "extras",
+    "Gelatina con fruta": "comidas-preparadas",
+    "Flan": "comidas-preparadas",
+    "Helado": "comidas-preparadas",
+    "Ensalada de frutas": "comidas-preparadas",
+    "Queso fresco sin sal": "lacteos",
+    "Maní": "frutos-grasas",
+    "Almendras": "frutos-grasas",
+    "Nueces": "frutos-grasas",
+    "Castañas de cajú": "frutos-grasas",
+    "Avellanas": "frutos-grasas",
+    "Pistachos": "frutos-grasas",
+    "Chía": "frutos-grasas",
+    "Semillas de girasol": "frutos-grasas",
+    "Linaza": "frutos-grasas",
+    "Pasta de maní": "frutos-grasas",
+    "Aceite de oliva": "extras",
+    "Aceite (1 cucharadita)": "extras",
+    "Manteca": "extras",
+    "Mayonesa": "extras",
+    "Sal": "extras",
+    "Café": "infusiones",
+    "Café con leche": "infusiones",
+    "Mate amargo": "infusiones",
+    "Mate dulce con azúcar": "infusiones",
+    "Mate con edulcorante": "infusiones",
+    "Mate cocido": "infusiones",
+    "Té": "infusiones",
+    "Agua": "bebidas",
+    "Agua con gas": "bebidas",
+    "Gaseosa común": "bebidas",
+    "Gaseosa sin azúcar": "bebidas",
+    "Jugo de naranja": "bebidas",
+    "Vino tinto": "bebidas",
+    "Cerveza": "bebidas",
+    "Fernet con cola": "bebidas",
+    "Empanada de carne al horno": "comidas-preparadas",
+    "Empanada de pollo al horno": "comidas-preparadas",
+    "Empanada de carne frita": "comidas-preparadas",
+    "Empanada de jamón y queso": "comidas-preparadas",
+    "Pizza muzzarella": "comidas-preparadas",
+    "Pizza napolitana": "comidas-preparadas",
+    "Pizza de jamón y morrón": "comidas-preparadas",
+    "Fainá": "comidas-preparadas",
+    "Ñoquis de papa": "comidas-preparadas",
+    "Ravioles de ricota": "comidas-preparadas",
+    "Ravioles de carne": "comidas-preparadas",
+    "Canelones de carne": "comidas-preparadas",
+    "Tarta de verduras": "comidas-preparadas",
+    "Tarta de jamón y queso": "comidas-preparadas",
+    "Pastel de papa": "comidas-preparadas",
+    "Locro": "comidas-preparadas",
+    "Tortilla de papa": "comidas-preparadas",
+    "Milanesa": "comidas-preparadas",
+    "Milanesa de carne": "comidas-preparadas",
+    "Milanesa de pollo": "comidas-preparadas",
+    "Milanesa napolitana": "comidas-preparadas",
+    "Suprema de pollo": "comidas-preparadas",
+    "Pollo al horno": "comidas-preparadas",
+    "Carne al horno": "comidas-preparadas",
+    "Albóndigas de carne": "comidas-preparadas",
+    "Lasagna": "comidas-preparadas",
+    "Fideos con tuco": "comidas-preparadas",
+    "Fideos con salsa de carne": "comidas-preparadas",
+    "Fideos con salsa de pollo": "comidas-preparadas",
+    "Ravioles con salsa": "comidas-preparadas",
+    "Ñoquis con tuco": "comidas-preparadas",
+    "Polenta con tuco": "comidas-preparadas",
+    "Guiso de lentejas": "comidas-preparadas",
+    "Guiso de carne": "comidas-preparadas",
+    "Guiso de pollo": "comidas-preparadas",
+    "Estofado de carne": "comidas-preparadas",
+    "Estofado de pollo": "comidas-preparadas",
+    "Arroz con pollo": "comidas-preparadas",
+    "Ensalada rusa": "ensaladas-guarniciones",
+    "Ensalada de papa y huevo": "ensaladas-guarniciones",
+    "Ensalada mixta": "ensaladas-guarniciones",
+    "Ensalada de lechuga y tomate": "ensaladas-guarniciones",
+    "Arroz con huevo": "ensaladas-guarniciones",
+    "Matambre arrollado": "comidas-preparadas",
+    "Queso fresco sin sal": "lacteos",
+    "Sal": "extras"
+  };
+  const ALIASES = {
+    cafe:'Café','cafe negro':'Café','café negro':'Café','cafe con leche':'Café con leche','café con leche':'Café con leche',
+    mate:'Mate amargo','mate amargo':'Mate amargo','mate dulce':'Mate dulce con azúcar','mate con azucar':'Mate dulce con azúcar','mate con azúcar':'Mate dulce con azúcar','mate con edulcorante':'Mate con edulcorante',
+    'mate cocido':'Mate cocido','mate cocido con azucar':'Mate cocido con azúcar','mate cocido con azúcar':'Mate cocido con azúcar','mate cocido con edulcorante':'Mate cocido con edulcorante',
+    te:'Té','té':'Té', pollo:'Pechuga de pollo', pechuga:'Pechuga de pollo',
+    bife:'Bife de paleta / churrasco','churrasco':'Bife de paleta / churrasco','bife de costilla':'Bife de costilla',
+    carne:'Carne vacuna magra', paleta:'Paleta vacuna', 'pechito':'Pechito de cerdo', 'pechito de cerdo':'Pechito de cerdo',
+    palta:'Palta', aguacate:'Palta', manzana:'Manzana', banana:'Banana', platano:'Banana', plátano:'Banana', tomate:'Tomate', morron:'Morrón', morrón:'Morrón', cebolla:'Cebolla',
+    leche:'Leche descremada', yogur:'Yogur natural', yogurt:'Yogur natural', pescado:'Merluza', atun:'Atún al natural', atún:'Atún al natural', arroz:'Arroz cocido', fideos:'Fideos cocidos', pasta:'Pasta cocida'
+  };
+
+  const LEGACY_FOOD_CATEGORY_MAP = {
+    'Huevo crudo':'carnes-proteinas','Pechuga de pollo cruda':'carnes-proteinas','Carne vacuna magra':'carnes-proteinas','Bife de carne magra':'carnes-proteinas','Vacío magro':'carnes-proteinas','Bondiola de cerdo':'carnes-proteinas','Cerdo magro':'carnes-proteinas','Hamburguesa casera de carne':'carnes-proteinas','Carne picada magra':'carnes-proteinas','Atún al natural':'carnes-proteinas','Atún en aceite escurrido':'carnes-proteinas','Sardinas en aceite':'carnes-proteinas','Merluza':'carnes-proteinas','Salmón':'carnes-proteinas','Jamón cocido':'carnes-proteinas'
+  };
+  const EXPLICIT_CATEGORY_MAP={...LEGACY_FOOD_CATEGORY_MAP,...VISIBLE_FOOD_CATEGORY_MAP};
+  const VISIBLE_FOODS=new Set(Object.keys(VISIBLE_FOOD_CATEGORY_MAP));
+  const COMMON = {
+    'Café':{kcal:2,p:.1,c:.3,f:0,fib:0,sugar:0,sat:0,sodium:2,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}] ,basis:'por 100 ml (estimación de bebida negra)',source:'Referencia de composición de bebida; verificar según preparación',sourceStatus:'provisional'},
+    'Mate amargo':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión',source:'Infusión preparada; composición dependiente de preparación',sourceStatus:'provisional'},
+    'Mate cocido':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión',source:'Infusión preparada; composición dependiente de preparación',sourceStatus:'provisional'},
+    'Té':{kcal:1,p:0,c:.2,f:0,fib:0,sugar:0,sat:0,sodium:1,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión',source:'Infusión preparada; composición dependiente de preparación',sourceStatus:'provisional'}
+  };
+  const PREPARED_CATEGORY_IDS=new Set(['comidas-preparadas','panificados']);
+  function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
+  function categoryIdFor(name,food){
+    const key=String(name||'');
+    if(food&&food.categoryId&&CATEGORY_IDS.has(food.categoryId)) return food.categoryId;
+    if(Object.prototype.hasOwnProperty.call(EXPLICIT_CATEGORY_MAP,key)) return EXPLICIT_CATEGORY_MAP[key];
+    return 'otros';
+  }
+  function foodKindFor(name,food){const id=categoryIdFor(name,food);return PREPARED_CATEGORY_IDS.has(id)?'prepared':(id==='bebidas'||id==='infusiones'?'beverage':'food')}
+  function applyExplicitTaxonomy(){try{const fs=typeof allFoods==='function'?allFoods():{};Object.entries(fs).forEach(([name,f])=>{if(f&&Object.prototype.hasOwnProperty.call(EXPLICIT_CATEGORY_MAP,name))f.categoryId=EXPLICIT_CATEGORY_MAP[name];else if(f)f.categoryId=f.categoryId&&CATEGORY_IDS.has(f.categoryId)?f.categoryId:'comidas-preparadas';if(f)f.foodKind=foodKindFor(name,f)})}catch(_ ){}}
+  const FOOD_ICONS = {
+    'Café':'☕','Café con leche':'☕','Mate amargo':'🧉','Mate dulce con azúcar':'🧉','Mate con edulcorante':'🧉','Mate cocido':'🍵','Mate cocido con azúcar':'🍵','Mate cocido con edulcorante':'🍵','Té':'🍵','Té con leche':'🍵','Agua':'💧','Agua con gas':'💧','Gaseosa común':'🥤','Gaseosa sin azúcar':'🥤','Jugo de naranja':'🧃','Vino tinto':'🍷','Vino blanco':'🍷','Cerveza':'🍺','Fernet con cola':'🥃',
+    'Huevo hervido':'🥚','Huevo crudo':'🥚','Huevo revuelto':'🍳','Omelette de 2 huevos':'🍳','Pechuga de pollo':'🍗','Pechuga de pollo a la plancha':'🍗','Pollo muslo sin piel':'🍗','Milanesa de pollo':'🍗','Milanesa de carne':'🥩','Carne vacuna magra':'🥩','Bife de carne magra':'🥩','Vacío magro':'🥩','Bondiola de cerdo':'🥩','Cerdo magro':'🥩','Hamburguesa casera de carne':'🍔','Atún al natural':'🐟','Atún en aceite escurrido':'🐟','Sardinas en aceite':'🐟','Merluza':'🐟','Salmón':'🐟',
+    'Queso fresco sin sal':'🧀','Arroz con huevo':'🍳','Sal':'🧂','Leche entera':'🥛','Leche descremada':'🥛','Yogur natural':'🥛','Yogur descremado':'🥛','Queso fresco':'🧀','Queso cremoso':'🧀','Queso port salut':'🧀','Queso rallado':'🧀','Queso untable':'🧀','Mozzarella':'🧀','Ricota':'🧀','Jamón cocido':'🥩',
+    'Banana':'🍌','Manzana':'🍎','Pera':'🍐','Naranja':'🍊','Mandarina':'🍊','Frutilla':'🍓','Arándanos':'🫐','Limón':'🍋','Durazno':'🍑','Uva':'🍇','Sandía':'🍉','Melón':'🍈','Ananá':'🍍','Mango':'🥭','Palta':'🥑',
+    'Tomate':'🍅','Tomate crudo':'🍅','Tomate cherry':'🍅','Cebolla':'🧅','Zanahoria':'🥕','Pepino':'🥒','Brócoli':'🥦','Coliflor':'🥦','Lechuga':'🥬','Rúcula':'🥬','Espinaca':'🥬','Acelga':'🥬','Repollo':'🥬','Berenjena':'🍆','Zapallo':'🎃','Calabaza':'🎃','Choclo':'🌽','Arvejas':'🫛','Remolacha':'🥕','Champiñones':'🍄','Morrón':'🫑','Pimiento verde crudo':'🫑','Zapallito':'🥒',
+    'Arroz cocido':'🍚','Arroz integral cocido':'🍚','Pasta cocida':'🍝','Ñoquis de papa':'🥔','Ravioles de ricota':'🥟','Avena cocida':'🥣','Avena en hojuelas':'🥣','Granola':'🥣','Polenta cocida':'🥣','Lentejas cocidas':'🫘','Garbanzos cocidos':'🫘','Porotos cocidos':'🫘',
+    'Pan integral':'🍞','Pan blanco':'🍞','Pan francés':'🥖','Pan lactal':'🍞','Tostada':'🍞','Galletitas de agua':'🍪','Factura':'🥐','Medialuna':'🥐','Pasta frola':'🥧','Bizcochos':'🥨','Budín':'🍰','Muffin':'🧁','Churro':'🥨','Alfajor':'🍪','Rosca':'🍩','Galletitas dulces':'🍪','Dulce de leche':'🍯','Mermelada':'🍓',
+    'Asado de tira':'🥩','Chorizo':'🌭','Morcilla':'🌭','Salame':'🥩','Salchicha de Viena':'🌭','Jamón crudo':'🥩','Crema de leche':'🥛','Aceite de girasol':'🫒','Dulce de batata':'🍠','Gelatina con fruta':'🍮','Flan':'🍮','Helado':'🍨','Ensalada de frutas':'🍓','Fideos cocidos':'🍝','Milanesa':'🥩','Milanesa napolitana':'🥩','Suprema de pollo':'🍗','Pollo al horno':'🍗','Carne al horno':'🥩','Albóndigas de carne':'🍖','Lasagna':'🍝','Canelones de carne':'🍝','Ravioles de carne':'🥟','Fideos con tuco':'🍝','Arroz con pollo':'🍚','Ensalada rusa':'🥗','Ensalada de papa y huevo':'🥗','Matambre arrollado':'🍖','Sándwich de miga':'🥪','Tortita negra':'🍪','Palmerita':'🥐','Empanada de carne al horno':'🥟','Empanada de pollo al horno':'🥟','Empanada de carne frita':'🥟','Empanada de jamón y queso':'🥟','Pizza muzzarella':'🍕','Pizza napolitana':'🍕','Pizza de jamón y morrón':'🍕','Tarta de verduras':'🥧','Tarta de jamón y queso':'🥧','Pastel de papa':'🥘','Locro':'🥘','Puré de papa':'🥔','Puré de calabaza':'🎃','Ensalada mixta':'🥗','Ensalada de lechuga y tomate':'🥗','Tortilla de papa':'🥔','Croquetas de papa':'🥔','Canastita de verdura':'🥧','Arrollado de carne':'🍖',
+    'Maní':'🥜','Almendras':'🥜','Nueces':'🌰','Aceite de oliva':'🫒','Aceite (1 cucharadita)':'🫒','Manteca':'🧈','Mayonesa':'🥫'
+  };
+  const CATEGORY_ICONS={'otros':'🍽️','carnes-proteinas':'🥩',vegetales:'🥬',frutas:'🍎',panificados:'🍞','cereales-legumbres':'🍚',lacteos:'🥛','frutos-grasas':'🥜',infusiones:'☕',bebidas:'🥤','comidas-preparadas':'🍽️','ensaladas-guarniciones':'🥗','extras':'🧂'};
+  function foodIcon(name,food){const n=String(name||'');if(FOOD_ICONS[n])return FOOD_ICONS[n];return CATEGORY_ICONS[categoryIdFor(n,food)]||'🍽️'}
+  function ensureCommonFoods(){try{if(typeof window==='undefined'||typeof window.allFoods!=='function')return;const current=window.allFoods();for(const [name,meta] of Object.entries(COMMON||{}))if(!current[name]&&typeof window.db!=='undefined'){window.db.customFoods=Array.isArray(window.db.customFoods)?window.db.customFoods:[];if(!window.db.customFoods.some(x=>x.name===name))window.db.customFoods.push({name,...meta,categoryId:'infusiones'})}}catch(_){}}
+  const PROTEIN_GROUPS={Vacuno:['Carne vacuna magra','Bife de carne magra','Bife de costilla','Bife de paleta / churrasco','Asado','Vacío','Paleta vacuna','Roast beef','Nalga / cuadrada','Carne picada magra'],Cerdo:['Bondiola de cerdo','Pechito de cerdo','Costeleta de cerdo','Carré de cerdo','Jamón cocido'],Pollo:['Pechuga de pollo','Pollo muslo sin piel','Patamuslo sin piel'],Pescado:['Atún al natural','Merluza','Salmón'],Huevos:['Huevo hervido','Huevo crudo','Huevo revuelto','Omelette de 2 huevos']};
+  const PROTEIN_GROUP_ORDER=Object.keys(PROTEIN_GROUPS);
+  function foodProteinGroups(name){return PROTEIN_GROUP_ORDER.filter(g=>PROTEIN_GROUPS[g].includes(name))}
+  function proteinGroupIndex(name){const groups=foodProteinGroups(name);return groups.length?PROTEIN_GROUP_ORDER.indexOf(groups[0]):999}
+  function searchFoods(query,category){const fs=typeof allFoods==='function'?allFoods():{};const q=norm(query),alias=ALIASES[q];const names=[...VISIBLE_FOODS].sort((a,b)=>{if(category==='carnes-proteinas'){const ga=proteinGroupIndex(a),gb=proteinGroupIndex(b);if(ga!==gb)return ga-gb}if(category==='comidas-preparadas'){const ad=fs[a]?.subcategory==='postres',bd=fs[b]?.subcategory==='postres';if(ad!==bd)return ad?1:-1}return a.localeCompare(b,'es')});return names.filter(name=>{const f=fs[name];if(!f)return false;if(category&&categoryIdFor(name,f)!==category)return false;if(!q)return true;const n=norm(name);return n.includes(q)||q.includes(n)||norm(alias)===n||Object.entries(ALIASES).some(([k,v])=>norm(v)===n&&norm(k).includes(q))}).slice(0,80)}
+  function categoryFoods(category){return searchFoods('',category)}
+  function foodCategories(){return CATEGORY_DEFS.map(([id,label])=>({id,label}))}
+  function resolveFoodSearch(query){const q=norm(query),alias=ALIASES[q];if(alias&&VISIBLE_FOODS.has(alias)&&typeof allFoods==='function'&&allFoods()[alias])return alias;const list=searchFoods(q);return list[0]||null}
+  applyExplicitTaxonomy();
+  window.NF_FOOD_CATEGORY_MAP=EXPLICIT_CATEGORY_MAP;
+  window.NF_FOOD_VISIBLE_CATEGORY_MAP=VISIBLE_FOOD_CATEGORY_MAP;
+  window.NF_FOOD_VISIBLE_SET=[...VISIBLE_FOODS];
+  window.NF_FOOD_CATEGORIES=CATEGORY_DEFS;
+  window.FOOD_ALIASES=ALIASES;
+  window.foodCategoryId=categoryIdFor;window.foodCategories=foodCategories;window.searchFoods=searchFoods;window.categoryFoods=categoryFoods;window.resolveFoodSearch=resolveFoodSearch;window.foodIcon=foodIcon;window.foodProteinGroups=foodProteinGroups;window.proteinGroupOrder=()=>PROTEIN_GROUP_ORDER.slice();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureCommonFoods,{once:true});else ensureCommonFoods();
+})();

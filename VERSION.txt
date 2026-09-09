@@ -1,0 +1,4 @@
+NutriFamilia V7.7.0 — release limpia y autónoma
+Identidad única: 7.7.0
+Namespace de datos local: nutrifamilia_v7_7_0
+Cache PWA: nutrifamilia-v7.7.0

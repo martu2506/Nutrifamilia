@@ -1,0 +1,91 @@
+:root{
+  --nf-yellow:#FFD84D;
+  --nf-yellow-soft:#FFF2A8;
+  --nf-aqua:#B8F2E6;
+  --nf-aqua-strong:#7EDCCB;
+  --nf-black:#111111;
+  --nf-border:#111111;
+  --nf-danger:#8B1E1E;
+  --nf-font: Arial, Helvetica, sans-serif;
+}
+
+html,body,button,input,select,textarea{font-family:var(--nf-font)!important}
+html{background:var(--nf-yellow)!important}
+body{background:var(--nf-yellow)!important;color:var(--nf-black)!important}
+
+header{background:var(--nf-black)!important;color:var(--nf-yellow)!important}
+.wrap{background:transparent!important}
+
+.card,.meal,.modal,.notice,.empty,
+fieldset,.profile-card,.form-card,.section-card,
+.dashboard-card,.metric-card,.macro-card,.macro-gauge-card{
+  background:var(--nf-aqua)!important;
+  color:var(--nf-black)!important;
+  border:2px solid var(--nf-black)!important;
+}
+
+input,select,textarea{
+  background:#ECFFFA!important;
+  color:var(--nf-black)!important;
+  border:2px solid var(--nf-black)!important;
+  border-radius:10px!important;
+}
+select:focus,input:focus,textarea:focus,
+button:focus-visible{
+  outline:3px solid var(--nf-yellow-soft)!important;
+  outline-offset:2px;
+}
+
+button{font-family:var(--nf-font)!important}
+button.secondary{background:var(--nf-aqua)!important;color:var(--nf-black)!important;border:2px solid var(--nf-black)!important}
+button.danger{background:var(--nf-danger)!important;color:#fff!important}
+
+.tabs{background:var(--nf-black)!important}
+.tabs button{background:var(--nf-aqua)!important;color:var(--nf-black)!important}
+.tabs button:hover,.tabs button:focus-visible{background:var(--nf-yellow)!important;color:var(--nf-black)!important}
+.fab{background:var(--nf-black)!important;color:var(--nf-yellow)!important;border:3px solid var(--nf-yellow)!important}
+
+.chip,.quickchips .chip{background:var(--nf-yellow-soft)!important;color:var(--nf-black)!important;border:1px solid var(--nf-black)!important}
+.notice,.empty{background:var(--nf-aqua)!important}
+
+/* Menús desplegables más fáciles de distinguir */
+select{font-weight:700;min-height:44px}
+select option{background:#ECFFFA;color:var(--nf-black)}
+
+/* Formularios: aire y jerarquía */
+.modal{padding:1.25rem!important}
+.modal label{margin:1rem 0 .4rem!important}
+.modal input,.modal select,.modal textarea{padding:.8rem!important;min-height:44px}
+.row{row-gap:.9rem!important}
+
+/* Dashboard centrado */
+.dashboard-macros,.macro-grid{
+  width:100%;
+  max-width:860px;
+  margin:1rem auto!important;
+  justify-items:stretch;
+}
+.dashboard-macros > *, .macro-grid > *{min-width:0}
+
+.macro-gauge-card{
+  min-height:140px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center!important;
+}
+
+.nf-gauge,.nf-gauge-large{margin-left:auto!important;margin-right:auto!important}
+.dashboard-scale{max-width:860px;margin:.5rem auto!important}
+.dashboard-status{text-align:center!important}
+.dashboard-actions,.quick-actions{justify-content:center!important}
+.dashboard-actions > *, .quick-actions > *{max-width:240px}
+
+/* En celular, dos columnas y luego una cuando haga falta */
+@media (max-width:700px){
+  .dashboard-macros,.macro-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:430px){
+  .dashboard-macros,.macro-grid{grid-template-columns:1fr!important}
+}
