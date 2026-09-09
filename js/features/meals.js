@@ -74,13 +74,21 @@ function filterEditFoodInput(id){
  const input=document.getElementById(id),results=document.getElementById(id+'Results');if(!input||!results)return;
  const current=input.dataset.selectedFood||'';const q=input.value||'';const names=_nfEditFoodNames(q,current);
  if(q&&names.length){results.innerHTML=_nfEditFoodResults(q,current);results.classList.remove('hidden')}else{results.innerHTML='';results.classList.add('hidden')}
- if(!q&&current)input.value=current;
+ // The original food is restored only while the field is protected. Once the user
+ // explicitly enters edit mode, an empty value is a valid intermediate search state.
+ if(!q&&!input.dataset.editing&&current)input.value=current;
+}
+function enableEditFoodField(id){
+ const input=document.getElementById(id);if(!input)return;
+ input.dataset.editing='true';input.readOnly=false;input.focus();input.select();
+ const btn=document.getElementById(id+'EditBtn');if(btn){btn.textContent='Editar';btn.disabled=true;}
 }
 function chooseEditFood(encoded){
  const name=decodeURIComponent(encoded||''),f=allFoods()[name];if(!f)return;
  const input=document.getElementById('efood')||document.getElementById('mdfood');
  if(!input)return;
- input.value=name;input.dataset.selectedFood=name;
+ input.value=name;input.dataset.selectedFood=name;input.dataset.editing='';input.readOnly=true;
+ const btn=document.getElementById(input.id+'EditBtn');if(btn){btn.textContent='Editar';btn.disabled=false;}
  const results=document.getElementById(input.id+'Results');if(results){results.innerHTML='';results.classList.add('hidden')}
  if(input.id==='efood')updateEditUnitUI(true,null, input.dataset.currentUnit||'');
  else updateMealDraftEditUnitUI(true,null,input.dataset.currentUnit||'');
@@ -89,7 +97,7 @@ function filterEditFoodPicker(){const input=document.getElementById('mdfood')||d
 function selectEditFood(){const s=document.getElementById('efood');if(s){s.dataset.selectedFood=s.value;updateEditUnitUI(true,null,s.dataset.currentUnit||'')}}
 function selectMealDraftEditFood(){const s=document.getElementById('mdfood');if(s){s.dataset.selectedFood=s.value;updateMealDraftEditUnitUI(true,null,s.dataset.currentUnit||'')}}
 function _nfEditFoodField(id,current){
- return `<div class="nf-edit-food-field"><label>Alimento</label><input id="${id}" type="search" value="${esc(current)}" data-selected-food="${esc(current)}" autocomplete="off" placeholder="🔍 Escribí 2 o 3 letras para buscar..." oninput="filterEditFoodInput('${id}')" onfocus="filterEditFoodInput('${id}')"><div id="${id}Results" class="search-results hidden"></div></div>`;
+ return `<div class="nf-edit-food-field"><label>Alimento</label><div class="nf-edit-food-row"><input id="${id}" type="search" value="${esc(current)}" data-selected-food="${esc(current)}" data-editing="" readonly autocomplete="off" placeholder="🔍 Escribí 2 o 3 letras para buscar..." oninput="filterEditFoodInput('${id}')"><button id="${id}EditBtn" type="button" class="secondary small nf-edit-food-btn" onclick="enableEditFoodField('${id}')">Editar</button></div><div id="${id}Results" class="search-results hidden"></div></div>`;
 }
 function updateMealDraftEditUnitUI(preserve=true,initial=null,initialUnit=null){const s=document.getElementById('mdfood'),q=document.getElementById('mdqty'),u=document.getElementById('mdunit');if(!s||!q||!u)return;const f=allFoods()[s.value];if(!f)return;const opts=f.unitMode==='portion'?[{value:'portion',label:f.unitLabel||'porción'}]:(Array.isArray(f.unitOptions)&&f.unitOptions.length?f.unitOptions:[{value:'g',label:'g',gramsPerUnit:1}]);u.innerHTML=opts.map(o=>`<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');const wanted=initialUnit||s.dataset.currentUnit||u.value;u.value=opts.some(o=>o.value===wanted)?wanted:preferredMealUnit(f,'');s.dataset.selectedFood=s.value;s.dataset.currentUnit=u.value;if(!preserve)q.value='1';else if(initial!=null)q.value=initial}
 function editMealDraftItemUI(i){const d=window._nfMealDraft,item=d?.items?.[Number(i)];if(!item)return;const current=item.food;openModal({title:'Editar alimento',body:`${_nfEditFoodField('mdfood',current)}<div class="unitrow"><div><label>Cantidad</label><input id="mdqty" type="number" min="0.25" step="1" value="${esc(item.amount)}"></div><div><label>Unidad</label><select id="mdunit"></select></div></div><button type="button" onclick="saveMealDraftItemEdit(${Number(i)})">Guardar cambios</button>`});const s=document.getElementById('mdfood');if(s)s.dataset.currentUnit=item.inputUnit||item.unit||'g';updateMealDraftEditUnitUI(true,item.amount,item.inputUnit||item.unit||'g')}

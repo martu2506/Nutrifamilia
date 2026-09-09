@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.2 — Dashboard único, estable y alineado con la captura de referencia. */
+/* NutriFamilia V7.8.3 — Dashboard único, estable y alineado con la captura de referencia. */
 (function(){
   'use strict';
   const escLocal=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -71,7 +71,7 @@
   function mealTypeBlock(type,arr){
     const xs=arr.filter(x=>x.type===type), kcalType=xs.reduce((a,x)=>a+num(x.kcal),0);
     const items=xs.slice(0,4).map(x=>{const idx=arr.indexOf(x);return `<div class="nf-food-row"><div class="nf-food-info"><span>${escLocal(x.food)}</span><small>${escLocal(String(x.amount??x.qty??x.grams??''))} ${escLocal(x.unit||'g')} · ${Math.round(num(x.kcal))} kcal</small></div><div class="nf-food-btns"><button class="nf-icon-btn" type="button" onclick="editEntry(${idx})" aria-label="Editar">${SVG.edit}</button><button class="nf-icon-btn danger" type="button" onclick="deleteEntry(${idx})" aria-label="Eliminar">×</button></div></div>`;}).join('');
-    return `<div class="nf-meal-block"><div class="nf-meal-head"><div class="nf-meal-title"><span class="nf-meal-icon" aria-hidden="true">${mealIcon(type)}</span><span class="nf-meal-name">${escLocal(type)}</span>${xs.length?`<small class="nf-meal-kcal">${Math.round(kcalType)} kcal</small>`:''}</div><button class="nf-meal-add" type="button" onclick="addMeal('${escLocal(type)}')" aria-label="Agregar a ${escLocal(type)}">+</button></div>${xs.length ? items + (xs.length>4 ? `<small class="nf-food-extra">+${xs.length-4} más en Comidas</small>` : '') : '<div class="nf-food-empty">Sin registros aún</div>'}</div>`;
+    return `<div class="nf-meal-block"><div class="nf-meal-head"><div class="nf-meal-title"><span class="nf-meal-icon" aria-hidden="true">${mealIcon(type)}</span><span class="nf-meal-name">${escLocal(type)}</span></div><button class="nf-meal-add" type="button" onclick="addMeal('${escLocal(type)}')" aria-label="Agregar a ${escLocal(type)}">+</button></div>${xs.length ? items + (xs.length>4 ? `<small class="nf-food-extra">+${xs.length-4} más en Comidas</small>` : '') : '<div class="nf-food-empty">Sin registros aún</div>'}</div>`;
   }
 
   window.renderHome=function(){
