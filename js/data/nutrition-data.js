@@ -75,7 +75,7 @@ const foods={
 'Almendras':{kcal:579,p:21.2,c:21.6,f:49.9,fib:12.5,sugar:4.4,sat:3.8,sodium:1,veg:0,fruit:0},
 'Nueces':{kcal:654,p:15.2,c:13.7,f:65.2,fib:6.7,sugar:2.6,sat:6.1,sodium:2,veg:0,fruit:0},
 'Aceite de oliva':{kcal:884,p:0,c:0,f:100,fib:0,sugar:0,sat:14,sodium:0,veg:0,fruit:0},
-'Aceite (1 cucharadita)':{kcal:45,p:0,c:0,f:5,fib:0,sugar:0,sat:.5,sodium:0,veg:0,fruit:0},
+'Aceite (1 cucharadita)':{kcal:900,p:0,c:0,f:100,fib:0,sugar:0,sat:11.1,sodium:0,veg:0,fruit:0,basis:'por 100 g de aceite; la cucharadita usa 5 g como equivalencia'},
 'Manteca':{kcal:717,p:.9,c:.1,f:81.1,fib:0,sugar:0,sat:51.4,sodium:11,veg:0,fruit:0},
 'Mayonesa':{kcal:680,p:1,c:0.6,f:75,fib:0,sugar:.6,sat:11,sodium:635,veg:0,fruit:0},
 'Empanada de carne al horno':{kcal:260,p:11,c:27,f:12,fib:1.5,sugar:2,sat:4,sodium:450,veg:0,fruit:0},
@@ -112,7 +112,7 @@ const foods={
 };
 
 
-// V7.8.0: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
+// V7.8.1: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
 Object.assign(foods, {
  'Café':{kcal:2,p:.1,c:.3,f:0,fib:0,sugar:0,sat:0,sodium:2,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de bebida preparada',source:'Bebida preparada; composición dependiente de preparación',sourceStatus:'provisional'},
  'Mate amargo':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Infusión de yerba mate; composición dependiente de preparación',sourceStatus:'provisional'},
@@ -189,7 +189,7 @@ const microDB={
 'Naranja':{calcium:40,iron:.1,magnesium:10,potassium:181,vitC:53.2,vitD:0,vitE:.18,b12:0,folate:30,omega3:0,zinc:.07,phosphorus:14,iodine:0,cholesterol:0},
 'Kiwi':{calcium:34,iron:.3,magnesium:17,potassium:312,vitC:92.7,vitD:0,vitE:1.5,b12:0,folate:25,omega3:.04,zinc:.14,phosphorus:34,iodine:0,cholesterol:0},
 'Limón':{calcium:26,iron:.6,magnesium:8,potassium:138,vitC:53,vitD:0,vitE:.15,b12:0,folate:11,omega3:.02,zinc:.06,phosphorus:16,iodine:0,cholesterol:0},
-'Aceite (1 cucharadita)':{calcium:.05,iron:.03,magnesium:0,potassium:.05,vitC:0,vitD:0,vitE:.8,b12:0,folate:0,omega3:.04,omega6:.5,zinc:0,phosphorus:0,iodine:0,cholesterol:0},
+'Aceite (1 cucharadita)':{calcium:1,iron:.6,magnesium:0,potassium:1,vitC:0,vitD:0,vitE:16,b12:0,folate:0,omega3:.8,omega6:10,zinc:0,phosphorus:0,iodine:0,cholesterol:0},
 'Manteca':{calcium:24,iron:0,magnesium:2,potassium:24,vitC:0,vitD:0,vitE:2.3,b12:.08,folate:3,omega3:.1,zinc:.1,phosphorus:23,iodine:5,cholesterol:215},
 'Mayonesa':{calcium:8,iron:.3,magnesium:2,potassium:20,vitC:0,vitD:.4,vitE:5.5,b12:.1,folate:6,omega3:.6,omega6:29,zinc:.1,phosphorus:15,iodine:2,cholesterol:42},
 'Empanada de carne al horno':{calcium:35,iron:1.8,magnesium:16,potassium:180,vitC:1,vitD:.1,vitE:.5,b12:.8,folate:20,omega3:.05,zinc:1.5,phosphorus:110,iodine:3,cholesterol:40},
@@ -225,7 +225,7 @@ Object.assign(foods,{
  'Aceite de oliva':{...foods['Aceite de oliva'],kcal:900,p:0,c:0,f:100,fib:0,sugar:0,sat:14.2,sodium:0},
  'Manteca':{...foods['Manteca'],kcal:758,p:.5,c:.5,f:84,fib:0,sugar:0,sat:50.93,sodium:223}
 });
-/* V7.8.0 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
+/* V7.8.1 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
    Valores por 100 g/ml salvo unidades explícitas. Se marcan provisionales cuando no existe
    una coincidencia individual auditada en SARA 2/USDA dentro de esta versión. */
 Object.assign(foods,{
@@ -348,7 +348,7 @@ const SOURCE_POLICY={
  unresolved:'Do not overwrite by inference; mark as provisional/unknown'
 };
 
-/* V7.8.0 — panadería y comidas de rotisería habituales en Argentina.
+/* V7.8.1 — panadería y comidas de rotisería habituales en Argentina.
    Valores aproximados por 100 g salvo unidades/porciones explícitas; provisionales cuando corresponde. */
 Object.assign(foods,{
  'Medialuna':{kcal:390,p:7,c:50,f:18,fib:1.5,sugar:14,sat:8,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:45},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -365,7 +365,7 @@ Object.assign(foods,{
  'Canastita de verdura':{kcal:210,p:6,c:22,f:11,fib:2,sugar:2,sat:4,sodium:450,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Arrollado de carne':{kcal:240,p:20,c:4,f:16,fib:.5,sugar:1,sat:5,sodium:450,unitOptions:[{value:'slice',label:'porción',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
-/* V7.8.0 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
+/* V7.8.1 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
 Object.assign(foods,{
  'Milanesa napolitana':{kcal:290,p:21,c:12,f:17,fib:.7,sugar:1,sat:5,sodium:520,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:220},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Suprema de pollo':{kcal:250,p:22,c:14,f:12,fib:.8,sugar:.5,sat:3,sodium:420,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:180},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -385,7 +385,7 @@ Object.assign(foods,{
  'Palmerita':{kcal:450,p:5,c:60,f:22,fib:1.5,sugar:25,sat:9,sodium:180,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:35},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
 
-/* V7.8.0 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
+/* V7.8.1 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
    se diferencian bife de costilla (más graso) y bife de paleta/churrasco, y se incorpora pechito de cerdo. */
 Object.assign(foods,{
  'Bife de costilla':{kcal:280,p:25,c:0,f:20,fib:0,sugar:0,sat:7,sodium:55,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'bife',gramsPerUnit:220}],sourceStatus:'provisional; corte vacuno con hueso, porción comestible estimada'},
@@ -400,7 +400,7 @@ Object.assign(foods,{
  'Carré de cerdo':{kcal:220,p:27,c:0,f:13,fib:0,sugar:0,sat:4.5,sodium:60,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'porción',gramsPerUnit:180}],sourceStatus:'provisional'}
 });
 
-/* V7.8.0 — ampliación de catálogo y metadatos nutricionales auditables. */
+/* V7.8.1 — ampliación de catálogo y metadatos nutricionales auditables. */
 Object.assign(foods,{
 'Miel':{kcal:304,p:.3,c:82.4,f:0,fib:.2,sugar:82.1,sat:0,sodium:4,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:21},{value:'tsp',label:'cucharadita',gramsPerUnit:7},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; composición genérica de miel'},
 'Mostaza':{kcal:66,p:4.4,c:5.8,f:3.3,fib:3.3,sugar:.9,sat:.2,sodium:1135,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:15},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; depende de formulación'},
@@ -429,7 +429,7 @@ Object.assign(foods,{
 'Estofado de pollo':{kcal:150,p:15,c:7,f:7,fib:1.5,sugar:2,sat:2,sodium:300,veg:0,fruit:0,unitOptions:[{value:'portion',label:'plato',gramsPerUnit:250},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; receta variable'},
 });
 
-/* V7.8.0 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
+/* V7.8.1 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
 Object.assign(foods,{
  'Asado de tira':{kcal:250,p:24,c:0,f:17,fib:0,sugar:0,sat:7,sodium:70,unitOptions:[{value:'unit',label:'tira',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}],source:'Referencia genérica de carne vacuna/costilla; composición variable',sourceStatus:'provisional'},
  'Chorizo':{kcal:454,p:13,c:1.1,f:44.2,fib:0,sugar:0,sat:14,sodium:900,unitOptions:[{value:'unit',label:'chorizo',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],source:'Argenfoods: cerdo, chorizo fresco crudo',sourceStatus:'provisional; producto y cocción pueden variar'},

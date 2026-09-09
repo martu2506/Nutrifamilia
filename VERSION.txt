@@ -1,4 +1,4 @@
-NutriFamilia V7.8.0 — Correcciones estructurales post-auditoría
+NutriFamilia V7.8.1 — Correcciones estructurales post-auditoría
 
 Cambios de esta release final:
 - Flujo de comidas simplificado: buscar → seleccionar → cantidad/unidad → agregar → guardar.
