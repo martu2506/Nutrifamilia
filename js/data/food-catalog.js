@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.5 — catálogo argentino reducido y orientado al registro cotidiano. */
+/* NutriFamilia V7.8.6 — catálogo argentino reducido y orientado al registro cotidiano. */
 (function(){
   'use strict';
   const CATEGORY_DEFS = [
@@ -109,7 +109,7 @@
     "Ketchup": "extras",
     "Azúcar": "extras",
     "Edulcorante": "extras",
-    "Queso untable": "extras",
+    "Queso untable": "lacteos",
     "Arroz cocido": "cereales-legumbres",
     "Arroz integral cocido": "cereales-legumbres",
     "Pasta cocida": "cereales-legumbres",
@@ -127,7 +127,7 @@
     "Queso cremoso": "lacteos",
     "Mozzarella": "lacteos",
     "Ricota": "lacteos",
-    "Queso untable": "extras",
+    "Queso untable": "lacteos",
     "Asado de tira": "carnes-proteinas",
     "Chorizo": "carnes-proteinas",
     "Morcilla": "carnes-proteinas",
@@ -136,7 +136,7 @@
     "Jamón crudo": "carnes-proteinas",
     "Fideos cocidos": "cereales-legumbres",
     "Crema de leche": "lacteos",
-    "Aceite de girasol": "extras",
+    "Aceite de girasol": "frutos-grasas",
     "Dulce de batata": "extras",
     "Gelatina con fruta": "comidas-preparadas",
     "Flan": "comidas-preparadas",
@@ -153,9 +153,9 @@
     "Semillas de girasol": "frutos-grasas",
     "Linaza": "frutos-grasas",
     "Pasta de maní": "frutos-grasas",
-    "Aceite de oliva": "extras",
-    "Aceite (1 cucharadita)": "extras",
-    "Manteca": "extras",
+    "Aceite de oliva": "frutos-grasas",
+    "Aceite (1 cucharadita)": "frutos-grasas",
+    "Manteca": "frutos-grasas",
     "Mayonesa": "extras",
     "Sal": "extras",
     "Café": "infusiones",

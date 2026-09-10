@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.5 — Dashboard único, estable y alineado con la captura de referencia. */
+/* NutriFamilia V7.8.6 — Dashboard único, estable y alineado con la captura de referencia. */
 (function(){
   'use strict';
   const escLocal=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
