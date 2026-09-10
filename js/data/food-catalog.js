@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.7 — catálogo argentino reducido y orientado al registro cotidiano. */
+/* NutriFamilia V7.8.8 — catálogo argentino reducido y orientado al registro cotidiano. */
 (function(){
   'use strict';
   const CATEGORY_DEFS = [
@@ -165,6 +165,7 @@
     "Mate con edulcorante": "infusiones",
     "Mate cocido": "infusiones",
     "Té": "infusiones",
+    "Té con leche": "infusiones",
     "Agua": "bebidas",
     "Agua con gas": "bebidas",
     "Gaseosa común": "bebidas",
@@ -274,7 +275,7 @@
     cafe:'Café','cafe negro':'Café','café negro':'Café','cafe con leche':'Café con leche','café con leche':'Café con leche',
     mate:'Mate amargo','mate amargo':'Mate amargo','mate dulce':'Mate dulce con azúcar','mate con azucar':'Mate dulce con azúcar','mate con azúcar':'Mate dulce con azúcar','mate con edulcorante':'Mate con edulcorante',
     'mate cocido':'Mate cocido','mate cocido con azucar':'Mate cocido con azúcar','mate cocido con azúcar':'Mate cocido con azúcar','mate cocido con edulcorante':'Mate cocido con edulcorante',
-    te:'Té','té':'Té', pollo:'Pechuga de pollo', pechuga:'Pechuga de pollo',
+    te:'Té','té':'Té','te con leche':'Té con leche','té con leche':'Té con leche', pollo:'Pechuga de pollo', pechuga:'Pechuga de pollo',
     bife:'Bife de paleta / churrasco','churrasco':'Bife de paleta / churrasco','bife de costilla':'Bife de costilla',
     carne:'Carne vacuna magra', paleta:'Paleta vacuna', 'pechito':'Pechito de cerdo', 'pechito de cerdo':'Pechito de cerdo',
     palta:'Palta', aguacate:'Palta', manzana:'Manzana', 'huevo duro':'Huevo hervido', banana:'Banana', platano:'Banana', plátano:'Banana', tomate:'Tomate', morron:'Morrón', morrón:'Morrón', cebolla:'Cebolla',
@@ -313,7 +314,7 @@
     'Asado de tira':'🥩','Chorizo':'🌭','Morcilla':'🌭','Salame':'🥩','Salchicha de Viena':'🌭','Jamón crudo':'🥩','Crema de leche':'🥛','Aceite de girasol':'🫒','Dulce de batata':'🍠','Gelatina con fruta':'🍮','Flan':'🍮','Helado':'🍨','Ensalada de frutas':'🍓','Fideos cocidos':'🍝','Milanesa':'🥩','Milanesa napolitana':'🥩','Suprema de pollo':'🍗','Pollo al horno':'🍗','Carne al horno':'🥩','Albóndigas de carne':'🍖','Lasagna':'🍝','Canelones de carne':'🍝','Ravioles de carne':'🥟','Fideos con tuco':'🍝','Arroz con pollo':'🍚','Ensalada rusa':'🥗','Ensalada de papa y huevo':'🥗','Matambre arrollado':'🍖','Sándwich de miga':'🥪','Tortita negra':'🍪','Palmerita':'🥐','Empanada de carne al horno':'🥟','Empanada de pollo al horno':'🥟','Empanada de carne frita':'🥟','Empanada de jamón y queso':'🥟','Pizza muzzarella':'🍕','Pizza napolitana':'🍕','Pizza de jamón y morrón':'🍕','Tarta de verduras':'🥧','Tarta de jamón y queso':'🥧','Pastel de papa':'🥘','Locro':'🥘','Puré de papa':'🥔','Puré de calabaza':'🎃','Ensalada mixta':'🥗','Ensalada de lechuga y tomate':'🥗','Tortilla de papa':'🥔','Croquetas de papa':'🥔','Canastita de verdura':'🥧','Arrollado de carne':'🍖',
     'Maní':'🥜','Almendras':'🥜','Nueces':'🌰','Aceite de oliva':'🫒','Aceite (1 cucharadita)':'🫒','Manteca':'🧈','Mayonesa':'🥫'
   };
-  const CATEGORY_ICONS={'otros':'🍽️','carnes-proteinas':'🥩',vegetales:'🥬',frutas:'🍎',panificados:'🍞','cereales-legumbres':'🍚',lacteos:'🥛','frutos-grasas':'🥜',infusiones:'☕',bebidas:'🥤','comidas-preparadas':'🍽️','ensaladas-guarniciones':'🥗','extras':'🧂'};
+  const CATEGORY_ICONS={'otros':'🍽️','carnes-proteinas':'🥩',vegetales:'🥬',frutas:'🍎',panificados:'🍞','cereales-legumbres':'🍚',lacteos:'🥛','frutos-grasas':'🥜',infusiones:'☕',bebidas:'🥤','comidas-preparadas':'🍽️','ensaladas-guarniciones':'🥗','extras':'🧂','postres':'🍨'};
   function foodIcon(name,food){const n=String(name||'');if(FOOD_ICONS[n])return FOOD_ICONS[n];return CATEGORY_ICONS[categoryIdFor(n,food)]||'🍽️'}
   function ensureCommonFoods(){try{if(typeof window==='undefined'||typeof window.allFoods!=='function')return;const current=window.allFoods();for(const [name,meta] of Object.entries(COMMON||{}))if(!current[name]&&typeof window.db!=='undefined'){window.db.customFoods=Array.isArray(window.db.customFoods)?window.db.customFoods:[];if(!window.db.customFoods.some(x=>x.name===name))window.db.customFoods.push({name,...meta,categoryId:'infusiones'})}}catch(_){}}
   const PROTEIN_GROUPS={Vacuno:['Carne vacuna magra','Bife de carne magra','Bife de costilla','Bife de paleta / churrasco','Asado','Vacío','Paleta vacuna','Roast beef','Nalga / cuadrada','Carne picada magra'],Cerdo:['Bondiola de cerdo','Pechito de cerdo','Costeleta de cerdo','Carré de cerdo','Jamón cocido'],Pollo:['Pechuga de pollo','Pollo muslo sin piel','Patamuslo sin piel'],Pescado:['Atún al natural','Merluza','Salmón'],Huevos:['Huevo hervido','Huevo crudo','Huevo revuelto','Omelette de 2 huevos']};

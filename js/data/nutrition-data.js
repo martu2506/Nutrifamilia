@@ -5,7 +5,7 @@ const foods={
 'Huevo hervido':{kcal:155,p:12.58,c:1.12,f:10.61,fib:0,sugar:0,sat:1.6,sodium:62,veg:0,fruit:0,state:'cocido',source:'USDA FoodData Central / composición de huevo cocido',sourceStatus:'referencia primaria/secondary cross-check; revisar versión exacta antes de uso clínico'},
 'Huevo crudo':{kcal:148,p:12.4,c:1.0,f:10.0,fib:0,sugar:.2,sat:3.2,sodium:129,calcium:48,iron:1.67,magnesium:11.4,potassium:132,vitD:2.46,b12:1.02,folate:71,phosphorus:184,zinc:1.24,iodine:.049,state:'crudo',source:'USDA FoodData Central, FDC 748967',sourceStatus:'dato USDA Foundation; 148 kcal, 12.4 g P, 1.0 g C, 10.0 g G por 100 g',unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'huevo (sin cáscara)',gramsPerUnit:50}],basis:'por 100 g; 1 huevo sin cáscara = 50 g en la referencia de porción'},
 'Cebolla cruda':{kcal:40,p:1.1,c:9.34,f:.1,fib:1.7,sugar:4.24,sat:.04,sodium:1,veg:100,fruit:0,state:'crudo',source:'USDA FoodData Central, FDC 170000',sourceStatus:'referencia USDA; valores por 100 g'},
-'Pimiento verde crudo':{kcal:23,p:.7,c:4.8,f:.1,fib:.9,state:'crudo',source:'USDA FoodData Central, FDC 2258588',sourceStatus:'referencia USDA; valores por 100 g'},
+'Pimiento verde crudo':{kcal:20,p:.86,c:4.64,f:.17,fib:1.7,sugar:2.4,sat:.058,sodium:3,state:'crudo',source:'USDA FoodData Central, FDC 170427',sourceStatus:'referencia USDA; valores por 100 g; secundaria cuando SARA 2 no ofrece coincidencia exacta'},
 'Zapallito crudo':{kcal:17,p:1.21,c:3.11,f:.32,fib:1,sugar:2.5,sat:.08,sodium:8,potassium:261,vitC:17.9,veg:100,fruit:0,state:'crudo',source:'USDA FoodData Central, FDC 169291',sourceStatus:'referencia USDA; valores por 100 g'},
 'Tomate crudo':{kcal:18,p:.88,c:3.89,f:.2,fib:1.2,sugar:2.63,sat:.03,sodium:5,potassium:237,calcium:10,iron:.27,vitC:7.9,veg:100,fruit:0,state:'crudo',source:'USDA FoodData Central, FDC 170457',sourceStatus:'referencia USDA; valores por 100 g'},
 'Pechuga de pollo cruda':{kcal:120,p:22.5,c:0,f:2.6,fib:0,sugar:0,sat:.8,sodium:45,veg:0,fruit:0,state:'crudo',source:'USDA FoodData Central, FDC 171077',sourceStatus:'referencia USDA; valores por 100 g'},
@@ -112,11 +112,11 @@ const foods={
 };
 
 
-// V7.8.7: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
+// V7.8.8: alimentos cotidianos de uso frecuente. Valores explícitos y provisionales.
 Object.assign(foods, {
- 'Café':{kcal:2,p:.1,c:.3,f:0,fib:0,sugar:0,sat:0,sodium:2,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de bebida preparada',source:'Bebida preparada; composición dependiente de preparación',sourceStatus:'provisional'},
- 'Mate amargo':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Infusión de yerba mate; composición dependiente de preparación',sourceStatus:'provisional'},
- 'Mate cocido':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Infusión de yerba mate; composición dependiente de preparación',sourceStatus:'provisional'},
+ 'Café':{kcal:2,p:.1,c:.3,f:0,fib:0,sugar:0,sat:0,sodium:2,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de bebida preparada',source:'USDA FoodData Central; coffee, brewed, prepared with tap water',sourceStatus:'referencia secundaria; preparación puede variar'},
+ 'Mate amargo':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Composición de infusión de yerba mate; sin azúcar/leche',sourceStatus:'provisional; depende de extracción y consumo de yerba'},
+ 'Mate cocido':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Composición de infusión de yerba mate; sin azúcar/leche',sourceStatus:'provisional; depende de extracción'},
  'Té':{kcal:1,p:0,c:.2,f:0,fib:0,sugar:0,sat:0,sodium:1,unitMode:'per100g',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],basis:'por 100 ml de infusión preparada',source:'Infusión de té; composición dependiente de preparación',sourceStatus:'provisional'}
 });
 
@@ -225,7 +225,7 @@ Object.assign(foods,{
  'Aceite de oliva':{...foods['Aceite de oliva'],kcal:900,p:0,c:0,f:100,fib:0,sugar:0,sat:14.2,sodium:0},
  'Manteca':{...foods['Manteca'],kcal:758,p:.5,c:.5,f:84,fib:0,sugar:0,sat:50.93,sodium:223}
 });
-/* V7.8.7 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
+/* V7.8.8 — ampliación de alimentos cotidianos y bebidas de uso habitual en Argentina.
    Valores por 100 g/ml salvo unidades explícitas. Se marcan provisionales cuando no existe
    una coincidencia individual auditada en SARA 2/USDA dentro de esta versión. */
 Object.assign(foods,{
@@ -278,12 +278,12 @@ Object.assign(foods,{
 'Sal':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:39300,veg:0,fruit:0,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'pinch',label:'pizca',gramsPerUnit:.5},{value:'tsp',label:'cucharadita',gramsPerUnit:5}],sourceStatus:'referencia de composición de sal; peso de pizca/cucharadita estimado'},
  'Dulce de leche':{kcal:315,p:5.8,c:55,f:8,fib:0,sugar:50,sat:5,sodium:100,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'tbsp',label:'cucharada',gramsPerUnit:20}],sourceStatus:'provisional'},
  'Mermelada':{kcal:250,p:.3,c:65,f:.1,fib:1,sugar:55,sat:0,sodium:20,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'tbsp',label:'cucharada',gramsPerUnit:20}],sourceStatus:'provisional'},
- 'Café con leche':{kcal:35,p:2,c:3.8,f:1.2,fib:0,sugar:3.8,sat:.7,sodium:30,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; depende de proporción café/leche'},
+ 'Café con leche':{kcal:35,p:2,c:3.8,f:1.2,fib:0,sugar:3.8,sat:.7,sodium:30,unitOptions:[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; receta de referencia calculada a partir de café preparado + leche; depende de proporción'},
  'Mate dulce con azúcar':{kcal:16,p:0,c:4,f:0,fib:0,sugar:4,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; depende de cantidad de azúcar agregada'},
  'Mate con edulcorante':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; sin aporte del edulcorante no calórico'},
  'Mate cocido con azúcar':{kcal:16,p:0,c:4,f:0,fib:0,sugar:4,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; depende de cantidad de azúcar'},
  'Mate cocido con edulcorante':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional'},
- 'Té con leche':{kcal:25,p:1.5,c:2.5,f:.8,fib:0,sugar:2.5,sat:.5,sodium:20,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional'},
+ 'Té con leche':{kcal:25,p:1.5,c:2.5,f:.8,fib:0,sugar:2.5,sat:.5,sodium:20,unitOptions:[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',basis:'por 100 ml; receta de referencia calculada a partir de té preparado + leche',source:'Derivación de componentes: USDA FoodData Central (té preparado + leche líquida)',sourceStatus:'provisional; depende de la proporción de leche'},
  'Agua':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'referencia de bebida sin aporte energético'},
  'Agua con gas':{kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'referencia de bebida sin aporte energético'},
  'Gaseosa común':{kcal:42,p:0,c:10.6,f:0,fib:0,sugar:10.6,sat:0,sodium:5,unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1}],unitLabel:'ml',sourceStatus:'provisional; valor típico de gaseosa azucarada'},
@@ -348,7 +348,7 @@ const SOURCE_POLICY={
  unresolved:'Do not overwrite by inference; mark as provisional/unknown'
 };
 
-/* V7.8.7 — panadería y comidas de rotisería habituales en Argentina.
+/* V7.8.8 — panadería y comidas de rotisería habituales en Argentina.
    Valores aproximados por 100 g salvo unidades/porciones explícitas; provisionales cuando corresponde. */
 Object.assign(foods,{
  'Medialuna':{kcal:390,p:7,c:50,f:18,fib:1.5,sugar:14,sat:8,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:45},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -365,7 +365,7 @@ Object.assign(foods,{
  'Canastita de verdura':{kcal:210,p:6,c:22,f:11,fib:2,sugar:2,sat:4,sodium:450,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Arrollado de carne':{kcal:240,p:20,c:4,f:16,fib:.5,sugar:1,sat:5,sodium:450,unitOptions:[{value:'slice',label:'porción',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
-/* V7.8.7 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
+/* V7.8.8 — ampliación adicional de comidas de rotisería y panadería cotidiana. */
 Object.assign(foods,{
  'Milanesa napolitana':{kcal:290,p:21,c:12,f:17,fib:.7,sugar:1,sat:5,sodium:520,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:220},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
  'Suprema de pollo':{kcal:250,p:22,c:14,f:12,fib:.8,sugar:.5,sat:3,sodium:420,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:180},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'},
@@ -385,7 +385,7 @@ Object.assign(foods,{
  'Palmerita':{kcal:450,p:5,c:60,f:22,fib:1.5,sugar:25,sat:9,sodium:180,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:35},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional'}
 });
 
-/* V7.8.7 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
+/* V7.8.8 — cortes argentinos de uso cotidiano. Valores provisionales por 100 g de porción comestible;
    se diferencian bife de costilla (más graso) y bife de paleta/churrasco, y se incorpora pechito de cerdo. */
 Object.assign(foods,{
  'Bife de costilla':{kcal:280,p:25,c:0,f:20,fib:0,sugar:0,sat:7,sodium:55,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'bife',gramsPerUnit:220}],sourceStatus:'provisional; corte vacuno con hueso, porción comestible estimada'},
@@ -400,7 +400,7 @@ Object.assign(foods,{
  'Carré de cerdo':{kcal:220,p:27,c:0,f:13,fib:0,sugar:0,sat:4.5,sodium:60,unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'porción',gramsPerUnit:180}],sourceStatus:'provisional'}
 });
 
-/* V7.8.7 — ampliación de catálogo y metadatos nutricionales auditables. */
+/* V7.8.8 — ampliación de catálogo y metadatos nutricionales auditables. */
 Object.assign(foods,{
 'Miel':{kcal:304,p:.3,c:82.4,f:0,fib:.2,sugar:82.1,sat:0,sodium:4,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:21},{value:'tsp',label:'cucharadita',gramsPerUnit:7},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; composición genérica de miel'},
 'Mostaza':{kcal:66,p:4.4,c:5.8,f:3.3,fib:3.3,sugar:.9,sat:.2,sodium:1135,veg:0,fruit:0,unitOptions:[{value:'tbsp',label:'cucharada',gramsPerUnit:15},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; depende de formulación'},
@@ -429,7 +429,7 @@ Object.assign(foods,{
 'Estofado de pollo':{kcal:150,p:15,c:7,f:7,fib:1.5,sugar:2,sat:2,sodium:300,veg:0,fruit:0,unitOptions:[{value:'portion',label:'plato',gramsPerUnit:250},{value:'g',label:'g',gramsPerUnit:1}],sourceStatus:'provisional; receta variable'},
 });
 
-/* V7.8.7 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
+/* V7.8.8 — alimentos cotidianos faltantes + postres mínimos. Valores base provisionales; validar según preparación/marca. */
 Object.assign(foods,{
  'Asado de tira':{kcal:250,p:24,c:0,f:17,fib:0,sugar:0,sat:7,sodium:70,unitOptions:[{value:'unit',label:'tira',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}],source:'Referencia genérica de carne vacuna/costilla; composición variable',sourceStatus:'provisional'},
  'Chorizo':{kcal:454,p:13,c:1.1,f:44.2,fib:0,sugar:0,sat:14,sodium:900,unitOptions:[{value:'unit',label:'chorizo',gramsPerUnit:100},{value:'g',label:'g',gramsPerUnit:1}],source:'Argenfoods: cerdo, chorizo fresco crudo',sourceStatus:'provisional; producto y cocción pueden variar'},
@@ -448,7 +448,7 @@ Object.assign(foods,{
  'Medialuna de manteca':{kcal:390,p:7,c:50,f:18,fib:1.5,sugar:14,sat:8,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}],source:'Estimación provisional',sourceStatus:'provisional; tamaño y receta de panadería pueden variar'},
  'Facturas surtidas':{kcal:340,p:6.5,c:45,f:15,fib:1,sugar:10,sat:7,sodium:300,unitOptions:[{value:'unit',label:'unidad',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}],source:'Estimación provisional',sourceStatus:'provisional; valores aproximados para facturas variadas (vigilantes, cañoncitos, palmeritas)'}
 });
-/* V7.8.7 — Unidades prácticas auditadas: sólo para alimentos que razonablemente se consumen/registran por unidad o porción. */
+/* V7.8.8 — Unidades prácticas auditadas: sólo para alimentos que razonablemente se consumen/registran por unidad o porción. */
 Object.entries({
  'Huevo hervido':{unitOptions:[{value:'unit',label:'huevo sin cáscara',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}]},
  'Huevo revuelto':{unitOptions:[{value:'unit',label:'huevo',gramsPerUnit:50},{value:'g',label:'g',gramsPerUnit:1}]},
@@ -542,6 +542,14 @@ Object.entries({
  'Pan de almendras con jamón y huevo (1 porción)':{unitOptions:[{value:'portion',label:'porción',gramsPerUnit:180},{value:'g',label:'g',gramsPerUnit:1}]},
  'Ensalada completa de pollo y palta (1 porción)':{unitOptions:[{value:'portion',label:'porción',gramsPerUnit:300},{value:'g',label:'g',gramsPerUnit:1}]}
 }).forEach(([name,patch])=>{foods[name]={...(foods[name]||{}),...patch}});
+/* V7.8.8 — unidades humanas para infusiones: 1 taza estándar = 200 ml; ml permanece disponible para precisión. */
+const INFUSION_CUP_OPTIONS=[{value:'cup',label:'taza (200 ml)',gramsPerUnit:200},{value:'ml',label:'ml',gramsPerUnit:1}];
+['Café','Café con leche','Mate amargo','Mate dulce con azúcar','Mate con edulcorante','Mate cocido','Mate cocido con azúcar','Mate cocido con edulcorante','Té','Té con leche'].forEach(name=>{if(foods[name])foods[name].unitOptions=INFUSION_CUP_OPTIONS.map(o=>({...o}));});
+
+;['Café con leche'].forEach(name=>{if(foods[name]){foods[name].source='Derivación de componentes: USDA FoodData Central (café preparado + leche líquida)';foods[name].basis='por 100 ml; receta de referencia';}});
+['Mate dulce con azúcar','Mate con edulcorante','Mate cocido con azúcar','Mate cocido con edulcorante'].forEach(name=>{if(foods[name]){foods[name].source='Preparación de infusión de yerba mate; azúcar/edulcorante especificado en el alimento';foods[name].basis='por 100 ml; preparación de referencia';}});
+['Café','Té'].forEach(name=>{if(foods[name]){foods[name].basis='por 100 ml de bebida preparada';}});
+
 const EVIDENCE={version:VERSION,primary:[{name:'SARA 2',country:'Argentina',year:2022,url:'https://bancos.salud.gob.ar/sites/default/files/2022-09/tabla-composicion-quimica-alimentos-argentina_ennys2.pdf'},{name:'ArgenFoods',country:'Argentina',url:'https://www.argenfood.unlu.edu.ar/'}],guidelines:[{name:'GAPA',country:'Argentina',url:'https://www.argentina.gob.ar/salud/alimentacion-saludable/grafico'},{name:'OMS dieta saludable',url:'https://www.who.int/es/news-room/fact-sheets/detail/healthy-diet'}]};
 const NUTRIENT_RULES={fiber_g_day:{value:25,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},fruit_veg_g_day:{value:400,unit:'g',scope:'general benchmark >=10 años',source:'OMS 2026'},sodium_mg_day:{value:2000,unit:'mg',scope:'adult general limit',source:'OMS 2026'},free_sugars_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},sat_fat_pct_kcal:{value:10,unit:'%',scope:'general upper limit',source:'OMS 2026'},trans_fat_pct_kcal:{value:1,unit:'%',scope:'general upper limit',source:'OMS 2026'}};
 

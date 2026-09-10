@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.7 — ampliación del catálogo y trazabilidad nutricional. */
+/* NutriFamilia V7.8.8 — ampliación del catálogo y trazabilidad nutricional. */
 (function(){
   'use strict';
   const add=(name,meta)=>{if(typeof foods!=='undefined') foods[name]={...(foods[name]||{}),...meta}};
@@ -61,7 +61,7 @@
 
     'Manzana verde':g({kcal:52,p:.3,c:13.8,f:.2,fib:2.4,sugar:10.3,sat:.03,sodium:1,fruit:100,source:'Referencia de manzana verde fresca con piel; comparación USDA FoodData Central',sourceStatus:'provisional; variedad/cultivo puede variar',unitOptions:[unit(180,'unidad'),unit(90,'media unidad','half'),{value:'g',label:'g',gramsPerUnit:1}]}),
     'Vino blanco':g({kcal:82,p:.1,c:2.6,f:0,fib:0,sugar:.6,sat:0,sodium:5,source:'Referencia de vino blanco seco; valores dependen del vino y grado alcohólico',sourceStatus:'provisional; consultar etiqueta del vino específico',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1},{value:'glass',label:'copa (150 ml)',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}]}),
-    'Vino blanco dulce':g({kcal:120,p:.1,c:8,f:0,fib:0,sugar:7,sat:0,sodium:5,source:'Referencia de vino blanco dulce; azúcar residual y alcohol dependen del producto',sourceStatus:'provisional; consultar etiqueta del vino específico',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1},{value:'glass',label:'copa (150 ml)',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}]}),
+    'Vino blanco dulce':g({kcal:120,p:.1,c:8,f:0,fib:0,sugar:7,sat:0,sodium:5,alcoholG:10,source:'Referencias de vino blanco dulce/USDA; azúcar residual y graduación alcohólica dependen del producto',sourceStatus:'provisional; consultar etiqueta del vino específico',unitLabel:'ml',unitOptions:[{value:'ml',label:'ml',gramsPerUnit:1},{value:'glass',label:'copa (150 ml)',gramsPerUnit:150},{value:'g',label:'g',gramsPerUnit:1}]}),
   };
   Object.entries(items).forEach(([name,v])=>add(name,v));
   const practical={
@@ -98,5 +98,5 @@
     'Flan':'postres','Flan con dulce de leche':'postres','Arroz con leche':'postres','Budín de pan':'postres','Gelatina':'postres','Helado':'postres','Ensalada de frutas':'postres','Mousse':'postres','Chocotorta':'postres','Torta':'postres','Cheesecake':'postres','Yogur con fruta':'postres',
   };
   Object.entries(cat).forEach(([name,id])=>{if(foods[name])foods[name].categoryId=id});
-  if(typeof window!=='undefined')window.NF_V787_FOOD_UPDATE_VERSION='7.8.7';
+  if(typeof window!=='undefined')window.NF_V787_FOOD_UPDATE_VERSION='7.8.8';
 })();
