@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.9 — catálogo argentino reducido y orientado al registro cotidiano. */
+/* NutriFamilia V7.8.10 — catálogo argentino reducido y orientado al registro cotidiano. */
 (function(){
   'use strict';
   const CATEGORY_DEFS = [

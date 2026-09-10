@@ -170,6 +170,9 @@ const COMMON_UNIT_OVERRIDES={
 };
 Object.assign(UNIT_OVERRIDES,COMMON_UNIT_OVERRIDES);
 
+// Unidad cotidiana documentada para cebolla: USDA FDC 170000 registra 1 cebolla mediana (2,5" de diámetro) = 110 g.
+UNIT_OVERRIDES['Cebolla']={unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1},{value:'unit',label:'cebolla mediana (110 g)',gramsPerUnit:110}]};
+
 function foodUnitMeta(name,v){const n=String(name||'');if(v&&Array.isArray(v.unitOptions)&&v.unitOptions.length){return {unitMode:v.unitMode==='portion'?'portion':'per100g',unitLabel:v.unitLabel||'g',unitOptions:v.unitOptions}}if(typeof foods!=='undefined'&&foods[n]&&Array.isArray(foods[n].unitOptions)&&foods[n].unitOptions.length)return {unitMode:foods[n].unitMode==='portion'?'portion':'per100g',unitLabel:foods[n].unitLabel||'g',unitOptions:foods[n].unitOptions};if(UNIT_OVERRIDES[n])return UNIT_OVERRIDES[n];if(v&&v.unitMode)return v.unitMode==='portion'?{unitMode:'portion',unitLabel:v.unitLabel||'porción'}:{unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1}]};if(/\(1 porción\)/i.test(n)||/^2 empanadas /i.test(n)||/^Omelette de 2 huevos$/i.test(n)||/^Aceite \(1 cucharadita\)$/i.test(n))return {unitMode:'portion',unitLabel:/Aceite/i.test(n)?'cucharadita':/^2 empanadas/i.test(n)?'2 empanadas':'porción'};return {unitMode:'per100g',unitLabel:'g',unitOptions:[{value:'g',label:'g',gramsPerUnit:1}]}}
 let db=loadDB();
 
