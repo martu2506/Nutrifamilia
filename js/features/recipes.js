@@ -1,5 +1,5 @@
 function newRecipe(){openModal({title:'🥘 Nueva receta',body:`<p class="muted small">Empezá con 0 ingredientes. Agregá cada alimento, cantidad y unidad. Podés usar “unidad” cuando la equivalencia esté documentada.</p><label>Nombre</label><input id="rname" placeholder="Ej. Tortilla de huevo y verduras"><label>Porciones que rinde</label><input id="rport" type="number" value="2" min="0.25" step="0.25"><div id="rrows"></div><button class="secondary" onclick="addRecipeRow()">＋ Agregar ingrediente</button><button onclick="saveRecipe()">Guardar receta</button>`})}
-function recipeUnitOptions(f){if(!f)return[{value:'g',label:'g'}];if(f.unitMode==='portion')return[{value:'portion',label:f.unitLabel||'porción'}];return (Array.isArray(f.unitOptions)?f.unitOptions:[{value:'g',label:'g'}]).map(o=>({value:o.value,label:o.label}))}
+function recipeUnitOptions(f){return typeof foodUnitOptions==='function'?foodUnitOptions(f):[{value:'g',label:'g',gramsPerUnit:1}]}
 function updateRecipeRowUnit(row){const s=row.querySelector('.ri'),u=row.querySelector('.ru'),q=row.querySelector('.rq'),h=row.querySelector('.rhelp');if(!s||!u||!q)return;const f=allFoods()[s.value],opts=recipeUnitOptions(f),old=u.value;u.innerHTML=opts.map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join('');u.value=opts.some(o=>o.value===old)?old:opts[0].value;q.step=u.value==='g'?'1':'0.5';q.min=u.value==='g'?'0.5':'0.25';if(h)h.textContent=f?'Unidad disponible: '+opts.map(o=>o.label).join(' · '):'Escribí un alimento válido.'}
 function openRecipeFoodPicker(button){
   const row=button.closest('.recipe-row');
@@ -7,7 +7,7 @@ function openRecipeFoodPicker(button){
   window._nfRecipeTarget=row;
   window._nfRecipeCategory='';
   const cats=typeof foodCategories==='function'?foodCategories():[];
-  const catHtml=cats.slice(0,12).map(c=>`<button class="chip nf-food-category" type="button" data-category="${esc(c.id)}" onclick="setRecipeFoodCategory('${esc(c.id)}')">${esc(c.label)}</button>`).join('');
+  const catHtml=cats.map(c=>`<button class="chip nf-food-category" type="button" data-category="${esc(c.id)}" onclick="setRecipeFoodCategory('${esc(c.id)}')">${esc(c.label)}</button>`).join('');
   openModal({title:'🥘 Elegir ingrediente',body:`<p class="muted small">Buscá o elegí una categoría.</p><label for="recipeFoodSearch">Ingrediente</label><input id="recipeFoodSearch" type="search" placeholder="Ej. huevo, cebolla, pollo…" autocomplete="off" oninput="renderRecipeFoodPicker()"><div class="quickchips nf-food-categories">${catHtml}</div><select id="recipeFoodList" size="8" onchange="chooseRecipeFood()"></select><button class="secondary" type="button" onclick="chooseRecipeFood()">Usar alimento seleccionado</button>`});
   renderRecipeFoodPicker();
 }
@@ -17,7 +17,23 @@ function renderRecipeFoodPicker(){
   const q=document.getElementById('recipeFoodSearch')?.value||'',cat=window._nfRecipeCategory||'';
   const list=typeof searchFoods==='function'?searchFoods(q,cat):Object.keys(allFoods()).filter(n=>!q||n.toLowerCase().includes(q.toLowerCase())).slice(0,80);
   sel.innerHTML='<option value="">Seleccioná un alimento…</option>'+list.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
-  if(list.length)sel.value=list[0];
+  sel.value='';
+}
+
+function recipeInlineFoodInput(input){
+  if(!input)return;
+  const row=input.closest('.recipe-row');
+  const listId=input.getAttribute('list');
+  const dl=listId?document.getElementById(listId):null;
+  const q=input.value||'';
+  const all=allFoods();
+  const norm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  let names=typeof searchFoods==='function'?searchFoods(q,''):[];
+  const custom=Object.keys(all).filter(n=>!names.includes(n)&&(!q||norm(n).includes(norm(q))));
+  names=[...names,...custom].slice(0,30);
+  if(dl)dl.innerHTML=names.map(n=>`<option value=\"${esc(n)}\"></option>`).join('');
+  const exact=names.find(n=>norm(n)===norm(q));
+  if(exact){const canonical=(typeof resolveFoodSearch==='function'&&resolveFoodSearch(exact))||exact;input.value=canonical;updateRecipeRowUnit(row);}
 }
 function setRecipeFoodCategory(category){
   window._nfRecipeCategory=String(category||'');
@@ -37,19 +53,22 @@ function addRecipeRow(item=null){
   if(!box)return;
   const row=document.createElement('div');
   row.className='card recipe-row';
-  row.innerHTML='<label>Ingrediente</label><div class="unitrow"><input class="ri" placeholder="Elegí un alimento" readonly><button class="secondary small" type="button" onclick="openRecipeFoodPicker(this)">Elegir</button></div><div class="unitrow"><input class="rq" type="number" min="0.5" step="1" placeholder="Cantidad"><select class="ru"></select><button class="danger small" type="button" onclick="this.closest(\'.recipe-row\').remove()">Eliminar</button></div><small class="muted rhelp"></small>';
+  const rid='recipe_food_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+  row.innerHTML='<label>Ingrediente</label><div class="unitrow"><input class="ri" type="search" list="'+rid+'" placeholder="Escribí o elegí un alimento" autocomplete="off"><datalist id="'+rid+'"></datalist><button class="secondary small" type="button" onclick="openRecipeFoodPicker(this)">Elegir</button></div><div class="unitrow"><input class="rq" type="number" min="0.5" step="1" placeholder="Cantidad"><select class="ru"></select><button class="danger small" type="button" onclick="this.closest(\'.recipe-row\').remove()">Eliminar</button></div><small class="muted rhelp"></small>';
   box.appendChild(row);
   const sel=row.querySelector('.ri');
   if(item?.food&&allFoods()[item.food])sel.value=item.food;
+  sel.oninput=()=>recipeInlineFoodInput(sel);
   sel.onchange=()=>updateRecipeRowUnit(row);
   updateRecipeRowUnit(row);
+  recipeInlineFoodInput(sel);
   if(!item){const q=row.querySelector('.rq'),u=row.querySelector('.ru');if(q&&u&&u.value!=='g')q.value='1';}
   if(item){row.querySelector('.rq').value=item.q;updateRecipeRowUnit(row);row.querySelector('.ru').value=item.unitInput||item.unitMode||'g';}
 }
 function calcRecipeIngredients(ings){const sum={kcal:0,p:0,c:0,f:0,fib:0,sugar:0,sat:0,sodium:0,veg:0,fruit:0,plantCount:0,wholeFoodCount:0,ultraCount:0};const MICRO=NUTRIENT_FIELDS.slice(8);for(const k of MICRO)sum[k]=0;const complete=Object.fromEntries(MICRO.map(k=>[k,true]));const plants=new Set();for(const i of ings){const e=calcEntryFromFood(i.food,i.q,{inputUnit:i.unitInput});if(!e)return null;Object.keys(sum).forEach(k=>{if(MICRO.includes(k)&&e[k]===undefined)complete[k]=false;else if(Number.isFinite(Number(e[k])))sum[k]+=Number(e[k])});const ff=allFoods()[i.food];if(Array.isArray(ff.plantKeys))ff.plantKeys.forEach(k=>plants.add(k));if(ff.plantKey)plants.add(ff.plantKey);if(ff.processing==='ultra')sum.ultraCount+=1;if(ff.processing==='whole')sum.wholeFoodCount+=1}sum.plantCount=plants.size;MICRO.forEach(k=>{if(!complete[k])sum[k]=undefined});return {...sum,plantKeys:[...plants],unknownNutrients:MICRO.filter(k=>!complete[k])}}
-function saveRecipe(){const name=document.getElementById('rname').value.trim(),port=Number(String(document.getElementById('rport').value||'').replace(',','.'));if(!name||!Number.isFinite(port)||port<=0||port>100)return alert('Nombre y número de porciones válidos.');const rows=[...document.querySelectorAll('#rrows .recipe-row')],ing=rows.map(r=>({food:r.querySelector('.ri').value,q:Number(String(r.querySelector('.rq').value||'').replace(',','.')),unitInput:r.querySelector('.ru').value}));if(!ing.length||ing.some(i=>!i.food))return alert('Agregá al menos un ingrediente válido.');if(ing.some(i=>!Number.isFinite(i.q)||i.q<=0||i.q>10000))return alert('Revisá las cantidades.');const sum=calcRecipeIngredients(ing);if(!sum)return alert('Hay un ingrediente con unidad o cantidad no utilizable.');const rec={id:Date.now().toString(),name,portions:port,ingredients:ing,...sum};db.recipes.push(rec);if(!save()){db.recipes.pop();return}closeModal();render()}
+function saveRecipe(){const name=document.getElementById('rname').value.trim(),port=Number(String(document.getElementById('rport').value||'').replace(',','.'));if(!name||!Number.isFinite(port)||port<=0||port>100)return alert('Nombre y número de porciones válidos.');const rows=[...document.querySelectorAll('#rrows .recipe-row')],ing=rows.map(r=>({food:(typeof resolveFoodSearch==='function'&&resolveFoodSearch(r.querySelector('.ri').value))||r.querySelector('.ri').value,q:Number(String(r.querySelector('.rq').value||'').replace(',','.')),unitInput:r.querySelector('.ru').value}));if(!ing.length||ing.some(i=>!i.food))return alert('Agregá al menos un ingrediente válido.');if(ing.some(i=>!Number.isFinite(i.q)||i.q<=0||i.q>10000))return alert('Revisá las cantidades.');const sum=calcRecipeIngredients(ing);if(!sum)return alert('Hay un ingrediente con unidad o cantidad no utilizable.');const rec={id:Date.now().toString(),name,portions:port,ingredients:ing,...sum};db.recipes.push(rec);if(!save()){db.recipes.pop();return}closeModal();render()}
 function editRecipe(id){const r=db.recipes.find(x=>x.id===id);if(!r)return;openModal({title:`✏️ Editar receta: ${esc(r.name)}`,body:`<label>Nombre</label><input id="rename" value="${esc(r.name)}"><label>Porciones que rinde</label><input id="report" type="number" min="0.25" max="100" step="0.25" value="${r.portions}"><div id="rrows"></div><div class="actions"><button class="secondary" onclick="addRecipeRow()">＋ Ingrediente</button><button onclick="saveEditRecipeFull('${esc(r.id)}')">Guardar cambios</button></div>`});(r.ingredients||[]).forEach(it=>addRecipeRow(it))}
-function saveEditRecipeFull(id){const r=db.recipes.find(x=>x.id===id);if(!r)return;const n=document.getElementById('rename').value.trim(),p=Number(String(document.getElementById('report').value||'').replace(',','.'));const rows=[...document.querySelectorAll('#rrows .recipe-row')],ing=rows.map(r=>({food:r.querySelector('.ri').value,q:Number(String(r.querySelector('.rq').value||'').replace(',','.')),unitInput:r.querySelector('.ru').value}));if(!n||!Number.isFinite(p)||p<=0||p>100||!ing.length||ing.some(i=>!i.food||!Number.isFinite(i.q)||i.q<=0))return alert('Revisá nombre, porciones e ingredientes.');const sum=calcRecipeIngredients(ing);if(!sum)return alert('Hay un ingrediente con unidad o cantidad no utilizable.');const old=JSON.parse(JSON.stringify(r));Object.assign(r,{name:n,portions:p,ingredients:ing,...sum});if(!save()){Object.assign(r,old);return}closeModal();render()}
+function saveEditRecipeFull(id){const r=db.recipes.find(x=>x.id===id);if(!r)return;const n=document.getElementById('rename').value.trim(),p=Number(String(document.getElementById('report').value||'').replace(',','.'));const rows=[...document.querySelectorAll('#rrows .recipe-row')],ing=rows.map(r=>({food:(typeof resolveFoodSearch==='function'&&resolveFoodSearch(r.querySelector('.ri').value))||r.querySelector('.ri').value,q:Number(String(r.querySelector('.rq').value||'').replace(',','.')),unitInput:r.querySelector('.ru').value}));if(!n||!Number.isFinite(p)||p<=0||p>100||!ing.length||ing.some(i=>!i.food||!Number.isFinite(i.q)||i.q<=0))return alert('Revisá nombre, porciones e ingredientes.');const sum=calcRecipeIngredients(ing);if(!sum)return alert('Hay un ingrediente con unidad o cantidad no utilizable.');const old=JSON.parse(JSON.stringify(r));Object.assign(r,{name:n,portions:p,ingredients:ing,...sum});if(!save()){Object.assign(r,old);return}closeModal();render()}
 
 
 

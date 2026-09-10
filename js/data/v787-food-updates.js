@@ -1,4 +1,4 @@
-/* NutriFamilia V7.8.8 — ampliación del catálogo y trazabilidad nutricional. */
+/* NutriFamilia V7.8.9 — ampliación del catálogo y trazabilidad nutricional. */
 (function(){
   'use strict';
   const add=(name,meta)=>{if(typeof foods!=='undefined') foods[name]={...(foods[name]||{}),...meta}};
@@ -98,5 +98,5 @@
     'Flan':'postres','Flan con dulce de leche':'postres','Arroz con leche':'postres','Budín de pan':'postres','Gelatina':'postres','Helado':'postres','Ensalada de frutas':'postres','Mousse':'postres','Chocotorta':'postres','Torta':'postres','Cheesecake':'postres','Yogur con fruta':'postres',
   };
   Object.entries(cat).forEach(([name,id])=>{if(foods[name])foods[name].categoryId=id});
-  if(typeof window!=='undefined')window.NF_V787_FOOD_UPDATE_VERSION='7.8.8';
+  if(typeof window!=='undefined')window.NF_V787_FOOD_UPDATE_VERSION='7.8.9';
 })();

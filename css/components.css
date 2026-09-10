@@ -40,7 +40,7 @@
 .nf-food-subcategory{margin-top:10px}
 
 /* ══════════════════════════════════════════════════════
-   V7.8.8 — componentes consolidados del release
+   V7.8.9 — componentes consolidados del release
    ══════════════════════════════════════════════════════ */
 
 /* Botones de categoría en modal de alimentos */
@@ -129,7 +129,7 @@
 .nf-category-explorer{margin:4px 0 2px}.nf-category-explorer summary{cursor:pointer;font-weight:900;font-size:12px;padding:7px 2px}.nf-category-explorer[open] summary{margin-bottom:3px}.nf-meal-draft{display:flex;flex-direction:column;gap:7px}.nf-draft-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.nf-draft-heading span{font-size:10px;opacity:.65}.nf-meal-draft .nf-save-meal{margin-top:2px}
 .nf-edit-food-field{position:relative}.nf-edit-food-field>label{display:block;margin-bottom:5px}.nf-edit-food-row{display:flex;align-items:center;gap:7px}.nf-edit-food-field input[type=search]{flex:1;min-width:0;padding:11px 13px;border-radius:11px;border:2px solid rgba(17,17,17,.25);font:inherit;background:#fff}.nf-edit-food-field input[type=search][readonly]{background:rgba(255,255,255,.72);cursor:default}.nf-edit-food-btn{flex:0 0 auto;min-width:58px}.nf-edit-food-result{cursor:pointer}.nf-journal-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.nf-journal-actions{display:flex;gap:5px}.nf-journal-actions button{min-width:64px}
 
-/* V7.8.8 — selector semanal del diario */
+/* V7.8.9 — selector semanal del diario */
 .nf-journal-card{padding:0;overflow:hidden}
 .nf-journal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px 0}
 .nf-journal-heading h2{margin:0 0 1px;font-size:18px}
