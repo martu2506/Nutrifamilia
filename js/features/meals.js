@@ -11,6 +11,7 @@ function _nfFoodCategories(){return typeof foodCategories==='function'?foodCateg
 function _nfFoodList(query='',category=''){return typeof searchFoods==='function'?searchFoods(query,category):Object.keys(allFoods()).filter(n=>!query||n.toLowerCase().includes(String(query).toLowerCase())).slice(0,80)}
 function _nfFoodLabel(name){return `${foodIcon(name,allFoods()[name])} ${name}`}
 function createMealDraft(type){return {type:_nfMealTypes().includes(type)?type:'Snack',items:[]}}
+function setMealDraftType(type){const d=window._nfMealDraft,t=String(type||'');if(!d||!_nfMealTypes().includes(t))return;d.type=t;(d.items||[]).forEach(x=>{x.type=t});renderMealComposer()}
 function addMealDraftItem(draft,item){if(!draft||!item)return draft;draft.items.push({...item});return draft}
 function removeMealDraftItem(draft,index){if(!draft||!Number.isInteger(index)||index<0||index>=draft.items.length)return draft;draft.items.splice(index,1);return draft}
 function updateMealDraftItem(draft,index,patch){if(!draft||!Number.isInteger(index)||index<0||index>=draft.items.length)return draft;draft.items[index]={...draft.items[index],...(patch||{})};return draft}
@@ -27,13 +28,14 @@ function renderMealComposer(){
  const list=draft.items.map(_nfDraftItemHtml).join('');
  const t=mealDraftTotals(draft);
  const composer=`<div class="meal-modal">
-   <div class="nf-meal-composer-title"><b>🍽️ ${esc(draft.type)}</b><span>${draft.items.length?`${draft.items.length} alimento${draft.items.length===1?'':'s'}`:'Todavía no agregaste alimentos'}</span></div>
+   <div class="nf-meal-composer-title"><b>🍽️ Registrar comida</b><span>${draft.items.length?`${draft.items.length} alimento${draft.items.length===1?'':'s'}`:'Todavía no agregaste alimentos'}</span></div>
+   <label class="modal-label" for="nfMealType">Momento</label><select id="nfMealType" class="nf-meal-type-select" onchange="setMealDraftType(this.value)">${_nfMealTypes().map(t=>`<option value="${esc(t)}" ${t===draft.type?'selected':''}>${esc(t)}</option>`).join('')}</select>
    <label class="modal-label">¿Qué comiste?</label>
    <div class="search-wrap"><input id="foodSearch" type="search" placeholder="🔍 Buscar alimento..." autocomplete="off" oninput="filterFoodPicker()" ${selected?'readonly':''} value="${esc(selected)}"></div>
    <div id="searchResults" class="search-results"></div>
    <div id="selectedFood" class="selected-food ${selected?'':'hidden'}"><div id="selectedFoodName" class="selected-name">${esc(selected)}</div>
      <div class="food-form"><div class="unitrow"><div><label>Cantidad</label><input id="qty" type="number" min="0.25" step="1" placeholder="Ingresá la cantidad"></div><div><label>Unidad</label><select id="qtyUnit" onchange="updateMealUnitUI()"></select></div></div>
-       <div class="modal-actions"><button class="secondary small" type="button" onclick="toggleFavoriteSelected()">⭐ Favorito</button><button class="btn-primary" type="button" onclick="addMealDraftItemUI()">＋ Agregar al ${esc(draft.type.toLowerCase())}</button></div>
+       <div class="modal-actions"><button class="secondary small" type="button" onclick="toggleFavoriteSelected()">⭐ Favorito</button><button class="btn-primary" type="button" onclick="addMealDraftItemUI()">＋ Agregar alimento</button></div>
      </div>
    </div>
    <div id="foodQuickSection">${quickHtml}</div>

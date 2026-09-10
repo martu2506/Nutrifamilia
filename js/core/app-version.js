@@ -1,7 +1,7 @@
-/* NutriFamilia V7.8.6 — identidad única de release. */
-const VERSION='7.8.6';
-const KEY='nutrifamilia_v7_8_6';
-const CACHE_NAME='nutrifamilia-v7.8.6';
+/* NutriFamilia V7.8.7 — identidad única de release. */
+const VERSION='7.8.7';
+const KEY='nutrifamilia_v7_8_7';
+const CACHE_NAME='nutrifamilia-v7.8.7';
 const RELEASE_ID='NutriFamilia-'+VERSION;
 window.VERSION=VERSION;
 window.NF_APP_VERSION=VERSION;

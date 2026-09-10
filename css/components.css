@@ -40,7 +40,7 @@
 .nf-food-subcategory{margin-top:10px}
 
 /* ══════════════════════════════════════════════════════
-   V7.8.6 — componentes consolidados del release
+   V7.8.7 — componentes consolidados del release
    ══════════════════════════════════════════════════════ */
 
 /* Botones de categoría en modal de alimentos */
@@ -128,3 +128,25 @@
 
 .nf-category-explorer{margin:4px 0 2px}.nf-category-explorer summary{cursor:pointer;font-weight:900;font-size:12px;padding:7px 2px}.nf-category-explorer[open] summary{margin-bottom:3px}.nf-meal-draft{display:flex;flex-direction:column;gap:7px}.nf-draft-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}.nf-draft-heading span{font-size:10px;opacity:.65}.nf-meal-draft .nf-save-meal{margin-top:2px}
 .nf-edit-food-field{position:relative}.nf-edit-food-field>label{display:block;margin-bottom:5px}.nf-edit-food-row{display:flex;align-items:center;gap:7px}.nf-edit-food-field input[type=search]{flex:1;min-width:0;padding:11px 13px;border-radius:11px;border:2px solid rgba(17,17,17,.25);font:inherit;background:#fff}.nf-edit-food-field input[type=search][readonly]{background:rgba(255,255,255,.72);cursor:default}.nf-edit-food-btn{flex:0 0 auto;min-width:58px}.nf-edit-food-result{cursor:pointer}.nf-journal-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.nf-journal-actions{display:flex;gap:5px}.nf-journal-actions button{min-width:64px}
+
+/* V7.8.7 — selector semanal del diario */
+.nf-journal-card{padding:0;overflow:hidden}
+.nf-journal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px 0}
+.nf-journal-heading h2{margin:0 0 1px;font-size:18px}
+.nf-journal-top{padding:12px 8px 10px;overflow:hidden}
+.nf-week-picker-wrap{display:grid;grid-template-columns:22px 1fr 22px;align-items:end;gap:2px}
+.nf-week-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;align-items:end}
+.nf-week-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;min-width:0;padding:0 0 2px;border:0;background:transparent;color:#111;font:inherit;cursor:pointer}
+.nf-week-letter{font-size:9px;line-height:1;font-weight:900;opacity:.62;min-height:10px}
+.nf-week-circle{width:35px;height:35px;border:1.5px solid rgba(17,17,17,.24);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:#fff;box-sizing:border-box}
+.nf-week-day.selected .nf-week-circle{border:3px solid #27AE60}
+.nf-week-day.has-data:not(.selected) .nf-week-circle{border-color:rgba(39,174,96,.58)}
+.nf-week-day.has-data i{width:4px;height:4px;border-radius:50%;background:#27AE60;position:absolute;bottom:-1px;display:block}
+.nf-week-nav{width:22px;height:38px;border:0;background:transparent;color:#111;padding:0;font-size:23px;font-weight:800;line-height:1}
+.nf-week-metrics{display:grid;grid-template-columns:1.25fr 1fr 1.25fr .9fr .9fr;gap:3px;margin:2px 10px 12px;padding:10px 4px 0;border-top:1px solid rgba(17,17,17,.1)}
+.nf-week-metric{text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+.nf-week-metric span{font-size:8.5px;line-height:1.1;font-weight:850;opacity:.62;white-space:nowrap}
+.nf-week-metric b{font-size:12px;line-height:1.1;white-space:nowrap}
+.nf-week-metric.kcal b{font-size:14px}
+.nf-meal-type-select{width:100%;padding:10px 12px;border:1.5px solid rgba(17,17,17,.2);border-radius:10px;background:#fff;color:#111;font:inherit;font-weight:800}
+@media(max-width:430px){.nf-week-circle{width:33px;height:33px;font-size:12px}.nf-week-metric span{font-size:7.8px}.nf-week-metric b{font-size:11px}.nf-week-metric.kcal b{font-size:13px}.nf-journal-heading h2{font-size:17px}}
