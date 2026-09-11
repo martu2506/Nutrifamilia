@@ -24,75 +24,132 @@ function purgeProfileData(pid){if(!pid)return;db.entries=db.entries.filter(x=>x.
 function deleteProfile(){const p=getActiveProfile();if(!p)return;if(db.profiles.length<=1)return alert('Debe existir al menos un perfil.');if(!confirm(`¿Eliminar definitivamente el perfil de ${p.name}?`))return;const snapshot=JSON.parse(JSON.stringify(db)),pid=p.id;purgeProfileData(pid);db.profiles=db.profiles.filter(x=>x.id!==pid);db.active=db.profiles[0]?.id||null;if(!save()){db=snapshot;return}render()}
 function newCustomFood(){openModal({title:'🥕 Crear alimento personalizado',body:`<p class="muted small">Usá datos de una etiqueta o fuente que puedas identificar. Guardamos la fuente para que quede claro que no es una composición científica automática.</p><label>Nombre</label><input id="cfname" placeholder="Ej. Mi yogur"><label>Base</label><select id="cfmode"><option value="per100g">Por 100 g</option><option value="portion">Por porción/unidad</option></select><label>kcal</label><input id="cfk" type="number" min="0" step="0.1"><label>Proteína (g)</label><input id="cfp" type="number" min="0" step="0.1"><label>Hidratos (g)</label><input id="cfc" type="number" min="0" step="0.1"><label>Grasas (g)</label><input id="cff" type="number" min="0" step="0.1"><label>Fibra (g, opcional)</label><input id="cffib" type="number" min="0" step="0.1"><label>Tipo / categoría</label><select id="cfcat">${(typeof foodCategories==='function'?foodCategories():[]).map(c=>`<option value="${c.id}">${c.label}</option>`).join('')}<option value="otros">🍽️ Otros</option></select><label>Unidad/porción (solo si corresponde)</label><input id="cflabel" placeholder="Ej. 1 yogur"><label>Fuente</label><input id="cfsource" placeholder="Ej. etiqueta del envase / FDC / SARA 2"><button onclick="saveCustomFoodManual()">Guardar alimento</button>`})}
 function saveCustomFoodManual(){const oldName=document.getElementById('cfEditName')?.value.trim()||'';const name=document.getElementById('cfname').value.trim();const mode=document.getElementById('cfmode').value,k=Number(document.getElementById('cfk').value),p=Number(document.getElementById('cfp').value),c=Number(document.getElementById('cfc').value),f=Number(document.getElementById('cff').value),fib=Number(document.getElementById('cffib').value||0);if(!name||![k,p,c,f].every(v=>Number.isFinite(v)&&v>=0)||!Number.isFinite(fib)||fib<0)return alert('Completá nombre y valores nutricionales válidos.');const label=document.getElementById('cflabel').value.trim()||'porción',source=document.getElementById('cfsource').value.trim()||'Dato aportado por el usuario',categoryId=document.getElementById('cfcat')?.value||'otros';const food={name,kcal:k,p,c,f,fib,unitMode:mode,unitLabel:mode==='portion'?label:'g',unitOptions:mode==='portion'?[{value:'portion',label:label}]:[{value:'g',label:'g',gramsPerUnit:1}],basis:mode==='portion'?`por ${label}`:'por 100 g',source,sourceStatus:'dato personalizado: verificar contra la fuente original',categoryId,foodKind:(categoryId==='bebidas'||categoryId==='infusiones'?'beverage':(categoryId==='panificados'||categoryId==='comidas-preparadas'?'prepared':'food'))};db.customFoods=db.customFoods||[];const old=db.customFoods.slice();const replacing=db.customFoods.some(x=>x.name===name)||!!oldName;if(!db.customFoods.some(x=>x.name===name)&&db.customFoods.length>=500&&!oldName)return alert('Llegaste al límite de 500 alimentos personalizados. Eliminá alguno antes de crear otro.');db.customFoods=db.customFoods.filter(x=>x.name!==name&&x.name!==oldName);db.customFoods.push(food);if(!save()){db.customFoods=old;return}closeModal();render()}
+function profilePlanChoices(){
+  return [
+    ['balanced','⚖️','Equilibrada','Base flexible y convencional de macronutrientes.'],
+    ['mediterranean','🫒','Mediterránea','Prioriza vegetales, legumbres, pescado, aceite de oliva y frutos secos.'],
+    ['dash','🫐','DASH','Enfoque centrado en alimentos poco procesados y control de sodio.'],
+    ['vegetarian','🌱','Vegetariana','Sin carne ni pescado; requiere buenas fuentes de proteína y micronutrientes.'],
+    ['vegan','🌱','Vegana','Basada exclusivamente en alimentos vegetales; atención especial a B12.'],
+    ['longevity','🧬','Salud a largo plazo','Patrón flexible centrado en calidad y variedad alimentaria.'],
+    ['lowcarb','🥩','Low Carb','Reduce hidratos respecto de una alimentación convencional.'],
+    ['verylowcarb','🥑','Keto','Muy bajo en hidratos; no garantiza cetosis y requiere más precaución.'],
+    ['ketohighprotein','🥑💪','Keto + proteína','Muy bajo en hidratos con prioridad proteica.'],
+    ['highprotein','💪','Alta en proteína','Prioriza proteína dentro del objetivo energético.'],
+    ['medlowcarb','🫒🥩','Mediterránea Low Carb','Combina enfoque mediterráneo con menor cantidad de hidratos.'],
+    ['calorie','🔥','Control calórico','Prioriza el objetivo energético y ajusta los macronutrientes alrededor de él.']
+  ];
+}
+function setProfileSex(value){
+  const el=document.getElementById('ps');if(!el)return;el.value=value;
+  document.querySelectorAll('[data-sex-choice]').forEach(b=>b.classList.toggle('is-selected',b.dataset.sexChoice===value));
+}
+function setProfilePlan(value){
+  const el=document.getElementById('ppattern');if(!el)return;el.value=value;
+  document.querySelectorAll('[data-plan-choice]').forEach(b=>b.classList.toggle('is-selected',b.dataset.planChoice===value));
+  const selected=planDef(value);
+  const box=document.getElementById('profile-plan-summary');
+  if(box)box.innerHTML=`<strong>${esc(selected.label)}</strong><p>${esc(selected.note)}</p>`;
+}
+function setProfileObjective(value){
+  const cb=document.querySelector(`.objedit[value="${CSS.escape(value)}"]`);if(!cb)return;
+  cb.checked=!cb.checked;
+  if(!document.querySelector('.objedit:checked'))cb.checked=true;
+  document.querySelectorAll('[data-objective-choice]').forEach(b=>b.classList.toggle('is-selected',!!document.querySelector(`.objedit[value="${CSS.escape(b.dataset.objectiveChoice)}"]`)?.checked));
+}
 function profilePage(){
   const p=getActiveProfile(),op=objectiveProfile(p),conf=op.conflicts.length
     ?`<div class="notice">⚠️ Hay objetivos que compiten: ${op.conflicts.map(x=>objectiveLabel(x[0])+' + '+objectiveLabel(x[1])).join(' · ')}</div>`
-    :'<div class="notice good">🟢 Objetivos compatibles.</div>';
+    :'';
   const tg=targets(p),pd=planDef(p.pattern),initial=firstWeight(p.id),current=lastWeight(p.id),goal=Number(p.goal)||null;
+  const sexCards=[['M','👨','Masculino'],['F','👩','Femenino']];
+  const planCards=profilePlanChoices();
+  const objectiveCards=[
+    ['lose_fat','🎯','Perder peso','Bajar grasa/peso gradualmente.'],
+    ['maintain','⚖️','Mantener','Conservar el peso actual.'],
+    ['gain_muscle','💪','Ganar músculo','Priorizar masa muscular y proteína.'],
+    ['recomp','🔄','Recomposición','Buscar cambio de composición corporal.'],
+    ['food_quality','🥗','Calidad alimentaria','Mejorar variedad y calidad de la alimentación.'],
+    ['glycemic','📉','Control glucémico','Priorizar calidad y distribución de hidratos.'],
+    ['cardiovascular','❤️','Salud cardiovascular','Poner foco en sodio y calidad de grasas.'],
+    ['longevity','🧬','Longevidad','Priorizar hábitos y calidad a largo plazo.']
+  ];
   document.getElementById('profile').innerHTML=`
-    <div class="card">
-      <h2>👤 Perfil</h2>
-      <div class="nf-profile-section">
-        <h3>Datos personales</h3>
-        <label>Nombre</label><input id="pn" value="${esc(p.name)}">
-        <label>Edad</label><input id="pa" type="number" min="18" max="100" value="${p.age||''}">
-        <label>Sexo</label><select id="ps"><option value="">Seleccioná</option><option value="M" ${p.sex==='M'?'selected':''}>Masculino</option><option value="F" ${p.sex==='F'?'selected':''}>Femenino</option></select>
-        <label>Altura (cm)</label><input id="ph" type="number" min="120" max="230" value="${p.height||''}">
+    <section class="nf-profile-hero">
+      <div class="nf-kicker">PERSONALIZÁ TU NUTRIFAMILIA</div>
+      <div class="nf-profile-hero-main">
+        <div class="nf-profile-avatar">${esc((p.name||'U').trim().charAt(0).toUpperCase())}</div>
+        <div><h2>👤 ${esc(p.name||'Perfil')}</h2><p>Configurá tus datos, objetivos y estilo de alimentación desde un solo lugar.</p></div>
       </div>
-      <div class="nf-profile-section">
-        <h3>⚖️ Peso y objetivos</h3>
-        <div class="nf-weight-summary">
-          <div><span>Peso inicial</span><strong>${initial!=null?Number(initial).toFixed(1)+' kg':'—'}</strong><small>se conserva como referencia</small></div>
-          <div><span>Peso actual</span><strong>${current!=null?Number(current).toFixed(1)+' kg':'—'}</strong><small>último registro</small></div>
-          <button class="secondary" type="button" onclick="showTab('weight')">Ver historial</button>
+    </section>
+
+    <div class="nf-profile-grid">
+      <section class="nf-profile-card nf-profile-card-wide">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">IDENTIDAD</span><h3>👤 Datos personales</h3></div></div>
+        <div class="nf-profile-field-grid">
+          <div class="nf-profile-field"><label for="pn">Nombre</label><input id="pn" value="${esc(p.name)}"></div>
+          <div class="nf-profile-field"><label for="pa">Edad</label><input id="pa" type="number" min="18" max="100" value="${p.age||''}"></div>
+          <div class="nf-profile-field nf-profile-field-full"><label>Sexo</label><div class="nf-profile-choice-grid nf-profile-choice-grid-2">${sexCards.map(([id,icon,label])=>`<button type="button" class="nf-profile-choice ${p.sex===id?'is-selected':''}" data-sex-choice="${id}" onclick="setProfileSex('${id}')"><span>${icon}</span><strong>${label}</strong></button>`).join('')}</div><select id="ps" class="nf-visually-hidden"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
+          <div class="nf-profile-field"><label for="ph">Altura</label><div class="nf-profile-input-suffix"><input id="ph" type="number" min="120" max="230" value="${p.height||''}"><span>cm</span></div></div>
         </div>
-        <label>Peso objetivo (kg)</label><input id="pg" type="number" min="30" max="300" step=".1" value="${goal||''}">
+      </section>
+
+      <section class="nf-profile-card nf-profile-card-wide">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">CUERPO</span><h3>⚖️ Peso y metas</h3></div><button class="secondary small" type="button" onclick="showTab('weight')">Ver historial</button></div>
+        <div class="nf-profile-stat-grid">
+          <div class="nf-profile-stat"><span>Peso inicial</span><strong>${initial!=null?Number(initial).toFixed(1):'—'}</strong><small>kg · referencia</small></div>
+          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pcurrentweight">Peso actual</label><div class="nf-profile-input-suffix"><input id="pcurrentweight" type="number" min="30" max="300" step=".1" value="${current!=null?Number(current).toFixed(1):''}"><span>kg</span></div><small>se guarda como registro de hoy</small></div>
+          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pg">Peso objetivo</label><div class="nf-profile-input-suffix"><input id="pg" type="number" min="30" max="300" step=".1" value="${goal||''}"><span>kg</span></div><small>meta que usa Progreso</small></div>
+        </div>
+      </section>
+
+      <section class="nf-profile-card nf-profile-card-wide">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">OBJETIVO</span><h3>🎯 ¿Qué querés conseguir?</h3></div></div>
+        <p class="muted small">Podés combinar objetivos; tocá una tarjeta para activar o desactivar.</p>
+        <div class="nf-profile-objective-grid">${objectiveCards.map(([id,icon,title,note])=>`<button type="button" class="nf-profile-objective ${op.ids.includes(id)?'is-selected':''}" data-objective-choice="${id}" onclick="setProfileObjective('${id}')"><span>${icon}</span><div><strong>${title}</strong><small>${note}</small></div></button>`).join('')}</div>
+        <div class="nf-visually-hidden">${Object.entries(OBJECTIVES).map(([id])=>`<input type="checkbox" class="objedit" value="${id}" ${op.ids.includes(id)?'checked':''}>`).join('')}</div>
         ${conf}
-      </div>
-      <div class="nf-profile-section">
-        <h3>🥗 Alimentación y actividad</h3>
-        <label>Nivel de actividad</label><select id="pactivity">${['sedentario','liviana','moderada','activa','muyactiva'].map(a=>`<option value="${a}" ${p.activity===a?'selected':''}>${activityLabel(a)}</option>`).join('')}</select>
-        <label>Plan nutricional</label><select id="ppattern">
-          <option value="lowcarb">🥩 Low Carb 50–70 g</option><option value="verylowcarb">🥑 Keto 20–50 g</option><option value="ketohighprotein">🥑💪 Keto alta en proteína 20–40 g</option><option value="highprotein">💪 Alta en proteína 50–100 g</option><option value="balanced">⚖️ Equilibrada</option><option value="medlowcarb">🫒🥩 Mediterránea Low Carb 70–130 g</option><option value="mediterranean">🫒 Mediterránea</option><option value="dash">🫐 DASH</option><option value="vegetarian">🌱 Vegetariana</option><option value="vegan">🌱 Vegana</option><option value="longevity">🧬 Salud a largo plazo</option>
-        </select>
-        <div class="nf-profile-targets">
-          <b>${planLabel(p.pattern)}</b><p class="muted small">${esc(pd.note)}</p>
-          <div class="grid3"><div class="stat"><b>${Math.round(tg.cal)}</b><span>kcal/día</span></div><div class="stat"><b>${Math.round(tg.protein)} g</b><span>proteína</span></div><div class="stat"><b>${Math.round(tg.carbs)} g</b><span>hidratos</span></div></div>
-          <div class="grid3"><div class="stat"><b>${Math.round(tg.fat)} g</b><span>grasas</span></div><div class="stat"><b>${Math.round(tg.fiber)} g</b><span>fibra</span></div><div class="stat"><b>${Math.round(tg.water)} ml</b><span>agua total (ref.)</span></div></div>
-          <p class="small muted">Rangos: proteína ${tg.proteinMin}–${tg.proteinMax} g · hidratos ${tg.carbMin}–${tg.carbMax} g · grasas ≈ ${tg.fatMin}–${tg.fatMax} g.</p>
-        </div>
-        <label>Modo de objetivos</label><select id="ptargetmode"><option value="auto">⚡ Automático adaptativo</option><option value="manual">✏️ Manual avanzado</option></select>
-        <div class="notice">En automático la app calcula y, con suficientes datos, ajusta el plan de forma conservadora según ingesta real y tendencia de peso.</div>
+      </section>
+
+      <section class="nf-profile-card nf-profile-card-wide">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">ALIMENTACIÓN</span><h3>🥗 Elegí tu plan</h3></div><span class="nf-profile-badge">${esc(pd.label)}</span></div>
+        <div class="nf-profile-plan-grid">${planCards.map(([id,icon,title,note])=>`<button type="button" class="nf-profile-plan ${p.pattern===id?'is-selected':''}" data-plan-choice="${id}" onclick="setProfilePlan('${id}')"><span class="nf-profile-plan-icon">${icon}</span><div><strong>${title}</strong><small>${note}</small></div><span class="nf-profile-check">✓</span></button>`).join('')}</div>
+        <select id="ppattern" class="nf-visually-hidden">${planCards.map(([id,,title])=>`<option value="${id}">${esc(title)}</option>`).join('')}</select>
+        <div id="profile-plan-summary" class="nf-profile-plan-summary"><strong>${esc(pd.label)}</strong><p>${esc(pd.note)}</p></div>
+        <div class="nf-profile-plan-targets"><div><b>${Math.round(tg.cal)}</b><span>kcal/día</span></div><div><b>${Math.round(tg.protein)} g</b><span>proteína</span></div><div><b>${Math.round(tg.carbs)} g</b><span>hidratos</span></div><div><b>${Math.round(tg.fat)} g</b><span>grasas</span></div></div>
+        <div class="nf-profile-inline-row"><label for="pactivity">🏃 Actividad</label><select id="pactivity">${['sedentario','liviana','moderada','activa','muyactiva'].map(a=>`<option value="${a}" ${p.activity===a?'selected':''}>${activityLabel(a)}</option>`).join('')}</select></div>
+        <div class="nf-profile-inline-row"><label for="ptargetmode">⚙️ Cálculo de objetivos</label><select id="ptargetmode"><option value="auto">⚡ Automático adaptativo</option><option value="manual">✏️ Manual avanzado</option></select></div>
         <div id="advancedTargets" class="hidden">
-          <label>Calorías objetivo</label><input id="pc" type="number" value="${tg.cal}">
-          <label>Proteína objetivo (g)</label><input id="pp" type="number" value="${tg.protein}">
-          <label>Hidratos objetivo (g)</label><input id="pcc" type="number" value="${tg.carbs}">
-          <label>Grasas objetivo (g)</label><input id="pfat" type="number" value="${tg.fat}">
-          <label>Fibra objetivo (g)</label><input id="pfib" type="number" value="${tg.fiber}">
+          <div class="grid3"><div><label>Calorías</label><input id="pc" type="number" value="${tg.cal}"></div><div><label>Proteína</label><input id="pp" type="number" value="${tg.protein}"></div><div><label>Hidratos</label><input id="pcc" type="number" value="${tg.carbs}"></div></div>
+          <div class="grid3"><div><label>Grasas</label><input id="pfat" type="number" value="${tg.fat}"></div><div><label>Fibra</label><input id="pfib" type="number" value="${tg.fiber}"></div></div>
         </div>
-        <label>Objetivos combinables</label>
-        <div id="editObjectives">${Object.entries(OBJECTIVES).map(([id,o])=>`<label style="display:block;margin:7px 0"><input type="checkbox" class="objedit" value="${id}" ${op.ids.includes(id)?'checked':''}> ${o.label}</label>`).join('')}</div>
-      </div>
-      <div class="nf-profile-section">
-        <h3>❤️ Preferencias</h3>
-        <label>Alergias/alimentos a evitar</label><input id="pallergies" value="${esc((p.allergies||[]).join(', '))}" placeholder="Ej. maní, leche">
-        <label>Alimentos que no te gustan</label><input id="pdislikes" value="${esc((p.dislikes||[]).join(', '))}" placeholder="Ej. brócoli, hígado">
-      </div>
-      <div class="actions"><button onclick="saveProfile()">Guardar cambios</button><button class="danger" onclick="deleteProfile()">Eliminar perfil</button></div>
+      </section>
+
+      <section class="nf-profile-card">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">PREFERENCIAS</span><h3>❤️ Lo que preferís</h3></div></div>
+        <div class="nf-profile-field"><label for="pallergies">Alergias / alimentos a evitar</label><input id="pallergies" value="${esc((p.allergies||[]).join(', '))}" placeholder="Ej. maní, leche"></div>
+        <div class="nf-profile-field"><label for="pdislikes">Alimentos que no te gustan</label><input id="pdislikes" value="${esc((p.dislikes||[]).join(', '))}" placeholder="Ej. brócoli, hígado"></div>
+      </section>
+
+      <section class="nf-profile-card">
+        <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">RESUMEN</span><h3>📊 Objetivos actuales</h3></div></div>
+        <div class="nf-profile-mini-summary"><span>${esc(objectiveSummary(p))}</span><b>${Math.round(tg.cal)} kcal</b><small>${p.targetMode==='auto'?'Cálculo automático':'Objetivos manuales'}</small></div>
+      </section>
     </div>
-    <div class="card"><h2>🎯 Modo activo</h2><p><b>${esc(objectiveSummary(p))}</b></p><p class="muted small">${planLabel(p.pattern)} · ${p.targetMode==='auto'?'objetivos automáticos':'objetivos manuales'}</p></div>
+    <div class="nf-profile-actions"><button onclick="saveProfile()">Guardar cambios</button><button class="danger" onclick="deleteProfile()">Eliminar perfil</button></div>
     <div class="card"><h2>👨‍👩‍👧‍👦 Familia</h2>${db.profiles.map(x=>`<div class="meal"><span>${esc(x.name)}<br><small>${patternLabel(x)} · ${getObjectives(x).map(objectiveLabel).join(' + ')}</small></span><button class="secondary" onclick="switchPerson('${esc(x.id)}')">Usar</button></div>`).join('')}<button class="secondary" onclick="newProfile()">+ Agregar familiar</button></div>
     <div class="card"><h2>🥕 Mis alimentos</h2><p class="muted small">Creá alimentos personalizados usando una etiqueta o fuente identificable. La app no inventa micronutrientes faltantes.</p><button onclick="newCustomFood()">＋ Crear alimento personalizado</button>${(db.customFoods||[]).length?`<div class="quickchips">${(db.customFoods||[]).slice().sort((a,b)=>a.name.localeCompare(b.name,'es')).map(f=>`<span class="chip">${esc(f.name)} <button class="secondary small" onclick="editCustomFood('${encodeURIComponent(f.name)}')">✏️</button><button class="secondary small" onclick="deleteCustomFood('${encodeURIComponent(f.name)}')">×</button></span>`).join('')}</div>`:'<p class="muted small">Todavía no tenés alimentos personalizados.</p>'}</div>
     <div class="card"><h2>🤖 NutriIA</h2><button class="secondary" onclick="openAISettings()">Configurar IA</button></div>
     <div class="card"><h2>💾 Copia y restauración</h2><div class="actions"><button class="secondary" onclick="exportData()">Exportar</button><label class="secondary" style="display:inline-block;padding:12px 14px;border-radius:14px;font-weight:700;cursor:pointer">Importar<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div>
     ${evidencePanel()}
     <div class="card"><h2>🧪 Diagnóstico</h2><button class="secondary" onclick="runSelfTest()">Ejecutar autoprueba</button><div id="selftest-output" style="margin-top:10px"></div></div>`;
-  document.getElementById('ppattern').value=p.pattern||'lowcarb';
+  document.getElementById('ps').value=p.sex||'';
+  document.getElementById('ppattern').value=p.pattern||'balanced';
   document.getElementById('ptargetmode').value=p.targetMode||'auto';
   document.getElementById('ptargetmode').onchange=()=>document.getElementById('advancedTargets').classList.toggle('hidden',document.getElementById('ptargetmode').value!=='manual');
 }
 
-function saveProfile(){const p=getActiveProfile(),snapshot=JSON.parse(JSON.stringify(p));const name=document.getElementById('pn').value.trim();const age=Number(document.getElementById('pa').value),height=Number(document.getElementById('ph').value),goal=Number(String(document.getElementById('pg').value||'').replace(',','.')),sex=document.getElementById('ps').value;p.name=name||p.name;p.age=age;p.sex=sex;p.height=height;p.activity=document.getElementById('pactivity').value;p.goal=goal;p.objectives=[...document.querySelectorAll('.objedit:checked')].map(x=>x.value);if(!p.objectives.length)p.objectives=['food_quality'];p.goalType=objectivesToGoalCode(p.objectives);p.pattern=document.getElementById('ppattern').value;p.targetProteinMode=['highprotein','ketohighprotein'].includes(p.pattern)?'high':'normal';p.targetMode=document.getElementById('ptargetmode').value;const errs=validateProfileInputs({age:p.age,sex:p.sex,height:p.height,weight:lastWeight(p.id)});if(!Number.isFinite(p.goal)||p.goal<30||p.goal>300||errs.length){Object.assign(p,snapshot);return alert((errs.length?errs.join(' '):'Peso objetivo fuera de rango (30–300 kg).'))}const w=lastWeight(p.id);if(p.targetMode==='auto'){const auto=calcAutoTargets({age:p.age,sex:p.sex,height:p.height,weight:w,goal:p.goal,activity:p.activity,goalType:objectivesToGoalCode(p.objectives),pattern:p.pattern});if(!auto){Object.assign(p,snapshot);return alert('No se pudieron calcular los objetivos automáticamente.')}p.cal=auto.cal;p.pr=auto.pr;p.carbs=null;p.fat=null;p.fiber=autoFiberTarget(auto.cal,p.pattern);p.water=autoWaterTarget(w,p.sex);p.calSource=auto.method;p.prSource=`automático: ${auto.proteinFactor} g/kg sobre ${auto.proteinReferenceWeight} kg`;}else{const pc=Number(document.getElementById('pc').value),pp=Number(document.getElementById('pp').value),pcc=Number(document.getElementById('pcc').value),pf=Number(document.getElementById('pfat').value),fib=Number(document.getElementById('pfib').value);if(!(pc>=1300&&pc<=5000&&pp>0&&pp<=400&&pcc>=0&&pcc<=600&&pf>0&&pf<=250&&fib>=0&&fib<=100)){Object.assign(p,snapshot);return alert('Revisá los objetivos avanzados. Los valores deben estar dentro de rangos válidos; la fibra no puede ser negativa. 25 g/día es una referencia general para mayores de 10 años, no una prescripción universal.')}const kcalFromMacros=pp*4+pcc*4+pf*9;if(Math.abs(kcalFromMacros-pc)>25){Object.assign(p,snapshot);return alert(`Los macros no cierran con las calorías. Diferencia: ${Math.round(kcalFromMacros-pc)} kcal.`)}p.cal=pc;p.pr=pp;p.carbs=pcc;p.fat=pf;p.fiber=fib;p.calSource='manual';p.prSource='manual';}p.targetUpdatedAt=new Date().toISOString();p.allergies=document.getElementById('pallergies').value.split(',').map(x=>x.trim()).filter(Boolean);p.dislikes=document.getElementById('pdislikes').value.split(',').map(x=>x.trim()).filter(Boolean);if(!save()){Object.assign(p,snapshot);return}render();alert('Guardado')}
+function saveProfile(){const p=getActiveProfile(),snapshot=JSON.parse(JSON.stringify(p));const name=document.getElementById('pn').value.trim();const age=Number(document.getElementById('pa').value),height=Number(document.getElementById('ph').value),goal=Number(String(document.getElementById('pg').value||'').replace(',','.')),currentWeight=Number(String(document.getElementById('pcurrentweight').value||'').replace(',','.')),sex=document.getElementById('ps').value;p.name=name||p.name;p.age=age;p.sex=sex;p.height=height;p.weight=currentWeight;p.activity=document.getElementById('pactivity').value;p.goal=goal;p.objectives=[...document.querySelectorAll('.objedit:checked')].map(x=>x.value);if(!p.objectives.length)p.objectives=['food_quality'];p.goalType=objectivesToGoalCode(p.objectives);p.pattern=document.getElementById('ppattern').value;p.targetProteinMode=['highprotein','ketohighprotein'].includes(p.pattern)?'high':'normal';p.targetMode=document.getElementById('ptargetmode').value;const errs=validateProfileInputs({age:p.age,sex:p.sex,height:p.height,weight:currentWeight});if(!Number.isFinite(currentWeight)||currentWeight<30||currentWeight>300||!Number.isFinite(p.goal)||p.goal<30||p.goal>300||errs.length){Object.assign(p,snapshot);return alert((!Number.isFinite(currentWeight)||currentWeight<30||currentWeight>300?'Peso actual fuera de rango (30–300 kg).':(errs.length?errs.join(' '):'Peso objetivo fuera de rango (30–300 kg).')))}const w=currentWeight;if(p.targetMode==='auto'){const auto=calcAutoTargets({age:p.age,sex:p.sex,height:p.height,weight:w,goal:p.goal,activity:p.activity,goalType:objectivesToGoalCode(p.objectives),pattern:p.pattern});if(!auto){Object.assign(p,snapshot);return alert('No se pudieron calcular los objetivos automáticamente.')}p.cal=auto.cal;p.pr=auto.pr;p.carbs=null;p.fat=null;p.fiber=autoFiberTarget(auto.cal,p.pattern);p.water=autoWaterTarget(w,p.sex);p.calSource=auto.method;p.prSource=`automático: ${auto.proteinFactor} g/kg sobre ${auto.proteinReferenceWeight} kg`;}else{const pc=Number(document.getElementById('pc').value),pp=Number(document.getElementById('pp').value),pcc=Number(document.getElementById('pcc').value),pf=Number(document.getElementById('pfat').value),fib=Number(document.getElementById('pfib').value);if(!(pc>=1300&&pc<=5000&&pp>0&&pp<=400&&pcc>=0&&pcc<=600&&pf>0&&pf<=250&&fib>=0&&fib<=100)){Object.assign(p,snapshot);return alert('Revisá los objetivos avanzados. Los valores deben estar dentro de rangos válidos; la fibra no puede ser negativa. 25 g/día es una referencia general para mayores de 10 años, no una prescripción universal.')}const kcalFromMacros=pp*4+pcc*4+pf*9;if(Math.abs(kcalFromMacros-pc)>25){Object.assign(p,snapshot);return alert(`Los macros no cierran con las calorías. Diferencia: ${Math.round(kcalFromMacros-pc)} kcal.`)}p.cal=pc;p.pr=pp;p.carbs=pcc;p.fat=pf;p.fiber=fib;p.calSource='manual';p.prSource='manual';}p.targetUpdatedAt=new Date().toISOString();p.allergies=document.getElementById('pallergies').value.split(',').map(x=>x.trim()).filter(Boolean);p.dislikes=document.getElementById('pdislikes').value.split(',').map(x=>x.trim()).filter(Boolean);const today=localDate(),idx=(db.weights||[]).findIndex(x=>x.pid===p.id&&x.date===today);const oldWeights=JSON.parse(JSON.stringify(db.weights||[]));if(idx>=0)db.weights[idx]={...db.weights[idx],kg:currentWeight,source:'perfil',recordedAt:new Date().toISOString()};else db.weights.push({pid:p.id,date:today,kg:currentWeight,source:'perfil',recordedAt:new Date().toISOString()});if(!save()){db.weights=oldWeights;Object.assign(p,snapshot);return}render();alert('Guardado')}
 function saveStepsToday(value){const p=getActiveProfile();if(!p)return;const n=Number(String(value??'').replace(',','.'));if(!Number.isFinite(n)||n<0||n>50000)return alert('Los pasos deben estar entre 0 y 50.000.');const key=`${p.id}|${localDate()}`,old=db.stepsByDate[key]||0;db.stepsByDate[key]=Math.round(n);if(!save()){db.stepsByDate[key]=old;return}render()}
 function addStepsToday(delta=1000){const p=getActiveProfile();if(!p)return;const key=`${p.id}|${localDate()}`,old=db.stepsByDate[key]||0;db.stepsByDate[key]=Math.min(50000,Math.max(0,Math.round(old+delta)));if(!save()){db.stepsByDate[key]=old;return}render()}
 function renderWeight(){
