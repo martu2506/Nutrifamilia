@@ -51,11 +51,54 @@ function setProfilePlan(value){
   const box=document.getElementById('profile-plan-summary');
   if(box)box.innerHTML=`<strong>${esc(selected.label)}</strong><p>${esc(selected.note)}</p>`;
 }
-function setProfileObjective(value){
+const PROFILE_PRIMARY_OBJECTIVES=['lose_fat','maintain','gain_muscle','recomp'];
+const PROFILE_PREFERENCE_OBJECTIVES=['glycemic','cardiovascular','food_quality','longevity'];
+function setProfilePrimaryObjective(value){
+  if(!PROFILE_PRIMARY_OBJECTIVES.includes(value))return;
+  document.querySelectorAll('.objedit').forEach(cb=>{if(PROFILE_PRIMARY_OBJECTIVES.includes(cb.value))cb.checked=false;});
+  const cb=document.querySelector(`.objedit[value="${CSS.escape(value)}"]`);if(cb)cb.checked=true;
+  refreshProfileObjectiveUI();
+}
+function setProfilePreference(value){
+  if(!PROFILE_PREFERENCE_OBJECTIVES.includes(value))return;
   const cb=document.querySelector(`.objedit[value="${CSS.escape(value)}"]`);if(!cb)return;
   cb.checked=!cb.checked;
-  if(!document.querySelector('.objedit:checked'))cb.checked=true;
-  document.querySelectorAll('[data-objective-choice]').forEach(b=>b.classList.toggle('is-selected',!!document.querySelector(`.objedit[value="${CSS.escape(b.dataset.objectiveChoice)}"]`)?.checked));
+  refreshProfileObjectiveUI();
+}
+function refreshProfileObjectiveUI(){
+  const selected=id=>!!document.querySelector(`.objedit[value="${CSS.escape(id)}"]`)?.checked;
+  document.querySelectorAll('[data-primary-objective]').forEach(b=>b.classList.toggle('is-selected',selected(b.dataset.primaryObjective)));
+  document.querySelectorAll('[data-preference-objective]').forEach(b=>b.classList.toggle('is-selected',selected(b.dataset.preferenceObjective)));
+}
+function confirmProfileField(field){
+  const p=getActiveProfile(); if(!p)return;
+  const input=document.querySelector(`[data-profile-input="${field}"]`); if(!input)return;
+  const value=Number(String(input.value||'').replace(',','.'));
+  if(!Number.isFinite(value))return alert('Ingresá un valor válido.');
+  if(field==='height' && (value<120||value>230))return alert('La altura debe estar entre 120 y 230 cm.');
+  if((field==='current-weight'||field==='goal-weight') && (value<30||value>300))return alert('El peso debe estar entre 30 y 300 kg.');
+  const snapshot=JSON.parse(JSON.stringify(p)), oldWeights=JSON.parse(JSON.stringify(db.weights||[]));
+  if(field==='height')p.height=value;
+  if(field==='goal-weight')p.goal=value;
+  if(field==='current-weight'){
+    p.weight=value;
+    const today=localDate(),idx=(db.weights||[]).findIndex(x=>x.pid===p.id&&x.date===today);
+    if(idx>=0)db.weights[idx]={...db.weights[idx],kg:value,source:'perfil',recordedAt:new Date().toISOString()};
+    else db.weights.push({pid:p.id,date:today,kg:value,source:'perfil',recordedAt:new Date().toISOString()});
+  }
+  if(p.targetMode==='auto' && p.age && p.sex && p.height && p.weight && p.goal){
+    const auto=calcAutoTargets({age:p.age,sex:p.sex,height:p.height,weight:p.weight,goal:p.goal,activity:p.activity,goalType:objectivesToGoalCode(getObjectives(p)),pattern:p.pattern});
+    if(auto){p.cal=auto.cal;p.pr=auto.pr;p.carbs=null;p.fat=null;p.fiber=autoFiberTarget(auto.cal,p.pattern);p.water=autoWaterTarget(p.weight,p.sex);p.calSource=auto.method;p.prSource=`automático: ${auto.proteinFactor} g/kg sobre ${auto.proteinReferenceWeight} kg`;}
+  }
+  p.targetUpdatedAt=new Date().toISOString();
+  if(!save()){Object.assign(p,snapshot);db.weights=oldWeights;return;}
+  render();
+}
+function editProfileField(field){
+  const input=document.querySelector(`[data-profile-input="${field}"]`);if(!input)return;
+  input.readOnly=false; input.focus(); input.select();
+  document.querySelector(`[data-profile-edit="${field}"]`)?.classList.add('hidden');
+  document.querySelector(`[data-profile-confirm="${field}"]`)?.classList.remove('hidden');
 }
 function profilePage(){
   const p=getActiveProfile(),op=objectiveProfile(p),conf=op.conflicts.length
@@ -86,27 +129,30 @@ function profilePage(){
     <div class="nf-profile-grid">
       <section class="nf-profile-card nf-profile-card-wide">
         <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">IDENTIDAD</span><h3>👤 Datos personales</h3></div></div>
-        <div class="nf-profile-field-grid">
+        <div class="nf-profile-field-grid nf-profile-compact-fields">
           <div class="nf-profile-field"><label for="pn">Nombre</label><input id="pn" value="${esc(p.name)}"></div>
           <div class="nf-profile-field"><label for="pa">Edad</label><input id="pa" type="number" min="18" max="100" value="${p.age||''}"></div>
-          <div class="nf-profile-field nf-profile-field-full"><label>Sexo</label><div class="nf-profile-choice-grid nf-profile-choice-grid-2">${sexCards.map(([id,icon,label])=>`<button type="button" class="nf-profile-choice ${p.sex===id?'is-selected':''}" data-sex-choice="${id}" onclick="setProfileSex('${id}')"><span>${icon}</span><strong>${label}</strong></button>`).join('')}</div><select id="ps" class="nf-visually-hidden"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
-          <div class="nf-profile-field"><label for="ph">Altura</label><div class="nf-profile-input-suffix"><input id="ph" type="number" min="120" max="230" value="${p.height||''}"><span>cm</span></div></div>
+          <div class="nf-profile-field"><label>Sexo</label><div class="nf-profile-choice-grid nf-profile-choice-grid-2">${sexCards.map(([id,icon,label])=>`<button type="button" class="nf-profile-choice compact" data-sex-choice="${id}" onclick="setProfileSex('${id}')"><span>${icon}</span><strong>${label}</strong></button>`).join('')}</div><select id="ps" class="nf-visually-hidden"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
+          <div class="nf-profile-field nf-profile-inline-edit-field"><label for="ph">Altura</label><div class="nf-profile-edit-row"><div class="nf-profile-input-suffix"><input id="ph" data-profile-input="height" type="number" min="120" max="230" value="${p.height||''}" readonly><span>cm</span></div><button type="button" class="nf-profile-icon-action" data-profile-edit="height" onclick="editProfileField('height')" aria-label="Editar altura">✎</button><button type="button" class="nf-profile-icon-action is-confirm hidden" data-profile-confirm="height" onclick="confirmProfileField('height')" aria-label="Confirmar altura">✓</button></div></div>
         </div>
       </section>
 
       <section class="nf-profile-card nf-profile-card-wide">
         <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">CUERPO</span><h3>⚖️ Peso y metas</h3></div><button class="secondary small" type="button" onclick="showTab('weight')">Ver historial</button></div>
-        <div class="nf-profile-stat-grid">
+        <div class="nf-profile-stat-grid nf-profile-weight-compact">
           <div class="nf-profile-stat"><span>Peso inicial</span><strong>${initial!=null?Number(initial).toFixed(1):'—'}</strong><small>kg · referencia</small></div>
-          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pcurrentweight">Peso actual</label><div class="nf-profile-input-suffix"><input id="pcurrentweight" type="number" min="30" max="300" step=".1" value="${current!=null?Number(current).toFixed(1):''}"><span>kg</span></div><small>se guarda como registro de hoy</small></div>
-          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pg">Peso objetivo</label><div class="nf-profile-input-suffix"><input id="pg" type="number" min="30" max="300" step=".1" value="${goal||''}"><span>kg</span></div><small>meta que usa Progreso</small></div>
+          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pcurrentweight">Peso actual</label><div class="nf-profile-edit-row"><div class="nf-profile-input-suffix"><input id="pcurrentweight" data-profile-input="current-weight" type="number" min="30" max="300" step=".1" value="${current!=null?Number(current).toFixed(1):''}" readonly><span>kg</span></div><button type="button" class="nf-profile-icon-action" data-profile-edit="current-weight" onclick="editProfileField('current-weight')" aria-label="Editar peso actual">✎</button><button type="button" class="nf-profile-icon-action is-confirm hidden" data-profile-confirm="current-weight" onclick="confirmProfileField('current-weight')" aria-label="Confirmar peso actual">✓</button></div><small>registro de hoy</small></div>
+          <div class="nf-profile-stat nf-profile-stat-edit"><label for="pg">Peso objetivo</label><div class="nf-profile-edit-row"><div class="nf-profile-input-suffix"><input id="pg" data-profile-input="goal-weight" type="number" min="30" max="300" step=".1" value="${goal||''}" readonly><span>kg</span></div><button type="button" class="nf-profile-icon-action" data-profile-edit="goal-weight" onclick="editProfileField('goal-weight')" aria-label="Editar peso objetivo">✎</button><button type="button" class="nf-profile-icon-action is-confirm hidden" data-profile-confirm="goal-weight" onclick="confirmProfileField('goal-weight')" aria-label="Confirmar peso objetivo">✓</button></div><small>meta que usa Progreso</small></div>
         </div>
       </section>
 
       <section class="nf-profile-card nf-profile-card-wide">
         <div class="nf-profile-card-head"><div><span class="nf-profile-card-kicker">OBJETIVO</span><h3>🎯 ¿Qué querés conseguir?</h3></div></div>
-        <p class="muted small">Podés combinar objetivos; tocá una tarjeta para activar o desactivar.</p>
-        <div class="nf-profile-objective-grid">${objectiveCards.map(([id,icon,title,note])=>`<button type="button" class="nf-profile-objective ${op.ids.includes(id)?'is-selected':''}" data-objective-choice="${id}" onclick="setProfileObjective('${id}')"><span>${icon}</span><div><strong>${title}</strong><small>${note}</small></div></button>`).join('')}</div>
+        <p class="muted small">Elegí <b>un objetivo principal</b> y después agregá preferencias compatibles. Así evitamos combinaciones confusas.</p>
+        <h4 class="nf-profile-subtitle">🎯 Objetivo principal</h4>
+        <div class="nf-profile-objective-grid nf-profile-primary-grid">${objectiveCards.filter(([id])=>PROFILE_PRIMARY_OBJECTIVES.includes(id)).map(([id,icon,title,note])=>`<button type="button" class="nf-profile-objective ${op.ids.includes(id)?'is-selected':''}" data-primary-objective="${id}" onclick="setProfilePrimaryObjective('${id}')"><span>${icon}</span><div><strong>${title}</strong><small>${note}</small></div></button>`).join('')}</div>
+        <h4 class="nf-profile-subtitle">➕ Preferencias que pueden acompañarlo</h4>
+        <div class="nf-profile-objective-grid nf-profile-preference-grid">${objectiveCards.filter(([id])=>PROFILE_PREFERENCE_OBJECTIVES.includes(id)).map(([id,icon,title,note])=>`<button type="button" class="nf-profile-objective ${op.ids.includes(id)?'is-selected':''}" data-preference-objective="${id}" onclick="setProfilePreference('${id}')"><span>${icon}</span><div><strong>${title}</strong><small>${note}</small></div></button>`).join('')}</div>
         <div class="nf-visually-hidden">${Object.entries(OBJECTIVES).map(([id])=>`<input type="checkbox" class="objedit" value="${id}" ${op.ids.includes(id)?'checked':''}>`).join('')}</div>
         ${conf}
       </section>
